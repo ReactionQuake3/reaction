@@ -452,984 +452,536 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\code\renderergl2\glsl\bokeh_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\bokeh_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\calclevels4x_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\calclevels4x_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\depthblur_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\depthblur_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\dlight_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\dlight_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\down4x_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\down4x_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\fogpass_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\fogpass_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\generic_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\generic_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\lightall_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\lightall_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\pshadow_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\pshadow_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\shadowfill_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\shadowfill_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\shadowmask_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\shadowmask_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\ssao_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\ssao_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\texturecolor_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\texturecolor_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\tonemap_fp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
     <CustomBuild Include="..\..\code\renderergl2\glsl\tonemap_vp.glsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Embedding %(Filename)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">@set OutFile=%(Identity).c
-@echo // Generated automatically from %(Filename)%(Extension), do not modify... &gt;%25OutFile%25
-@echo const char *fallbackShader_%(Filename) = &gt;&gt;%25OutFile%25
-@for /f "tokens=*" %25%25l in (%(Identity)) do @echo "%25%25l\n" &gt;&gt;%25OutFile%25
-@echo ; &gt;&gt;%25OutFile%25
-@echo. &gt;&gt;%25OutFile%25</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">call embed_glsl.bat %(Identity) %(Identity).c</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Embedding %(Filename)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">Embedding %(Filename)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).c;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">%(Identity).c;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">embed_glsl.bat</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">embed_glsl.bat</AdditionalInputs>
+      <FileType>Document</FileType>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
