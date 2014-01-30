@@ -41,6 +41,8 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\build\reaction_debug\</IntDir>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\code\libs\win32;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\code\libs\win32;$(LibraryPath)</LibraryPath>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Reaction.x86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Reaction.x86</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -76,7 +78,6 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>psapi.lib;user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Reaction.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(IntDir)quake3.pdb</ProgramDatabaseFile>
@@ -129,7 +130,6 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>psapi.lib;user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Reaction.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(IntDir)quake3.pdb</ProgramDatabaseFile>
