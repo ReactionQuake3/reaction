@@ -707,8 +707,14 @@
     <ResourceCompile Include="..\..\code\sys\win_resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="..\..\code\asm\ftola.asm" />
-    <MASM Include="..\..\code\asm\snapvector.asm" />
+    <MASM Include="..\..\code\asm\ftola.asm">
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</UseSafeExceptionHandlers>
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</UseSafeExceptionHandlers>
+    </MASM>
+    <MASM Include="..\..\code\asm\snapvector.asm">
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</UseSafeExceptionHandlers>
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</UseSafeExceptionHandlers>
+    </MASM>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
