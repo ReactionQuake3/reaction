@@ -18,7 +18,6 @@ compatibility with existing Quake 3 mods.
   - Texture upsampling.
   - Advanced materials support.
   - Advanced shading and specular methods.
-  - sRGB support.
   - LATC and BPTC texture compression support.
   - Screen-space ambient occlusion.
 
@@ -163,13 +162,6 @@ Cvars for HDR and tonemapping:
                                      2.0 - Normal. (default)
                                      3.0 - Brighter.
 
-  r_srgb                         - Treat all input textures as sRGB, and do
-                                   final rendering in a sRGB framebuffer.  Only
-                                   required if assets were created with it in
-                                   mind.
-                                     0 - No. (default)
-                                     1 - Yes.
-
 Cvars for advanced material usage:
   r_normalMapping                - Enable normal mapping for materials that
                                    support it, and also specify advanced 
@@ -202,6 +194,44 @@ Cvars for advanced material usage:
                                    support it.
                                      0 - No. (default)
                                      1 - Yes.
+
+  r_baseSpecular                 - Set the specular reflectance of materials
+                                   which don't include a specular map or
+                                   use the specularReflectance keyword.
+                                     0    - No.
+                                     0.04 - Realistic. (default)
+                                     1.0  - Ack.
+
+  r_baseGloss                    - Set the glossiness of materials which don't
+                                   include a specular map or use the
+                                   specularExponent keyword.
+                                     0   - Rough.
+                                     0.3 - Default.
+                                     1.0 - Shiny.
+
+  r_baseNormalX                  - Set the scale of the X values from normal
+                                   maps when the normalScale keyword is not
+                                   used.
+                                     -1  - Flip X.
+                                     0   - Ignore X.
+                                     1   - Normal X. (default)
+                                     2   - Double X.
+
+  r_baseNormalY                  - Set the scale of the Y values from normal
+                                   maps when the normalScale keyword is not
+                                   used.
+                                     -1  - Flip Y.
+                                     0   - Ignore Y.
+                                     1   - Normal Y. (default)
+                                     2   - Double Y.
+
+  r_baseParallax                 - Sets the scale of the parallax effect for
+                                   materials when the parallaxDepth keyword
+                                   is not used.
+                                     0    - No depth.
+                                     0.01 - Pretty smooth.
+                                     0.05 - Standard depth. (default)
+                                     0.1  - Looks broken.
 
 Cvars for image interpolation and generation:
   r_imageUpsample                - Use interpolation to artifically increase
@@ -279,7 +309,7 @@ Cvars for the sunlight and cascaded shadow maps:
                                      2048 - 2048x2048, extreme.
                                      4096 - 4096x4096, indistinguishable from
                                             2048.
-  
+
 Cvars that you probably don't care about or shouldn't mess with:
   r_mergeMultidraws              - Optimize number of calls to 
                                    glMultiDrawElements().
@@ -327,7 +357,20 @@ Cvars that you probably don't care about or shouldn't mess with:
   r_shadowCascadeZBias           - Z-bias for shadow cascade frustums.
                                      -256 - Default.
 
-  
+  r_materialGamma                - Gamma level for material textures.
+                                   (diffuse, specular)
+                                     1.0 - Quake 3, fastest. (default)
+
+  r_lightGamma                   - Gamma level for light.
+                                   (lightmap, lightgrid, vertex lights)
+                                     1.0 - Quake 3, fastest. (default)
+
+  r_framebufferGamma             - Gamma level for framebuffers.
+                                     1.0 - Quake 3, fastest. (default)
+
+  r_tonemapGamma                 - Gamma applied after tonemapping.
+                                     1.0 - Quake 3, fastest. (default)
+
 Cvars that have broken bits:
   r_dlightMode                   - Change how dynamic lights look.
                                      0 - Quake 3 style dlights, fake
@@ -362,6 +405,8 @@ Here's an example of a material stored in one, showing off some new features:
         {
             stage normalparallaxmap
             map textures/abandon/grass3_1024_n.png
+            normalScale 1 1
+            parallaxDepth 0.05
         }
         {
             stage specularmap
@@ -401,7 +446,16 @@ they mean:
       alpha channel of the specular map, so if it were set to 16, and the alpha
       channel of the specular map was set to 0.5, then the shininess would be
       set to 8.  Default 256.
-      
+
+  normalScale <x> <y>
+    - State the X and Y scales of the normal map.  This is useful for increasing
+      or decreasing the "strength" of the normal map, or entering negative values
+      to flip the X and/or Y values.  Default 1 1.
+
+  parallaxDepth <value>
+    - State the maximum depth of the parallax map.  This is a fairly sensitive
+      value, and I recommend the default or lower.  Default 0.05.
+
 An important note is that normal and specular maps influence the diffuse map
 declared before them, so materials like this are possible:
 

@@ -400,7 +400,10 @@ typedef struct {
 	stageType_t     type;
 	struct shaderProgram_s *glslShaderGroup;
 	int glslShaderIndex;
-	vec2_t materialInfo;
+
+	vec4_t normalScale;
+	vec4_t specularScale;
+
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -676,7 +679,8 @@ typedef enum
 
 	UNIFORM_TIME,
 	UNIFORM_VERTEXLERP,
-	UNIFORM_MATERIALINFO,
+	UNIFORM_NORMALSCALE,
+	UNIFORM_SPECULARSCALE,
 
 	UNIFORM_VIEWINFO, // znear, zfar, width/2, height/2
 	UNIFORM_VIEWORIGIN,
@@ -693,6 +697,8 @@ typedef enum
 	UNIFORM_PRIMARYLIGHTCOLOR,
 	UNIFORM_PRIMARYLIGHTAMBIENT,
 	UNIFORM_PRIMARYLIGHTRADIUS,
+
+	UNIFORM_CUBEMAPINFO,
 
 	UNIFORM_COUNT
 } uniform_t;
@@ -1175,8 +1181,6 @@ typedef struct {
 	int			clusterBytes;
 	const byte	*vis;			// may be passed in by CM_LoadMap to save space
 
-	byte		*novis;			// clusterBytes of 0xff
-
 	char		*entityString;
 	char		*entityParsePoint;
 } world_t;
@@ -1417,14 +1421,12 @@ typedef struct {
 	qboolean framebufferMultisample;
 	qboolean framebufferBlit;
 
-	qboolean textureSrgb;
-	qboolean framebufferSrgb;
-	qboolean textureSrgbDecode;
-
 	qboolean depthClamp;
 	qboolean seamlessCubeMap;
 
 	GLenum packedNormalDataType;
+
+	qboolean floatLightmap;
 } glRefConfig_t;
 
 
@@ -1763,8 +1765,6 @@ extern	cvar_t	*r_anaglyphMode;
 extern  cvar_t  *r_mergeMultidraws;
 extern  cvar_t  *r_mergeLeafSurfaces;
 
-extern  cvar_t  *r_softOverbright;
-
 extern  cvar_t  *r_hdr;
 extern  cvar_t  *r_floatLightmap;
 extern  cvar_t  *r_postProcess;
@@ -1782,7 +1782,10 @@ extern  cvar_t  *r_forceAutoExposureMax;
 
 extern  cvar_t  *r_cameraExposure;
 
-extern  cvar_t  *r_srgb;
+extern  cvar_t  *r_materialGamma;
+extern  cvar_t  *r_lightGamma;
+extern  cvar_t  *r_framebufferGamma;
+extern  cvar_t  *r_tonemapGamma;
 
 extern  cvar_t  *r_depthPrepass;
 extern  cvar_t  *r_ssao;
@@ -1794,6 +1797,9 @@ extern  cvar_t  *r_parallaxMapping;
 extern  cvar_t  *r_cubeMapping;
 extern  cvar_t  *r_deluxeSpecular;
 extern  cvar_t  *r_specularIsMetallic;
+extern  cvar_t  *r_baseNormalX;
+extern  cvar_t  *r_baseNormalY;
+extern  cvar_t  *r_baseParallax;
 extern  cvar_t  *r_baseSpecular;
 extern  cvar_t  *r_baseGloss;
 extern  cvar_t  *r_dlightMode;

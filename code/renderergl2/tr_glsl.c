@@ -123,9 +123,10 @@ static uniformInfo_t uniformsInfo[] =
 	{ "u_ModelMatrix",               GLSL_MAT16 },
 	{ "u_ModelViewProjectionMatrix", GLSL_MAT16 },
 
-	{ "u_Time",         GLSL_FLOAT },
-	{ "u_VertexLerp"  , GLSL_FLOAT },
-	{ "u_MaterialInfo", GLSL_VEC2 },
+	{ "u_Time",          GLSL_FLOAT },
+	{ "u_VertexLerp" ,   GLSL_FLOAT },
+	{ "u_NormalScale",   GLSL_VEC4 },
+	{ "u_SpecularScale", GLSL_VEC4 },
 
 	{ "u_ViewInfo",        GLSL_VEC4 },
 	{ "u_ViewOrigin",      GLSL_VEC3 },
@@ -141,7 +142,9 @@ static uniformInfo_t uniformsInfo[] =
 	{ "u_PrimaryLightOrigin",  GLSL_VEC4  },
 	{ "u_PrimaryLightColor",   GLSL_VEC3  },
 	{ "u_PrimaryLightAmbient", GLSL_VEC3  },
-	{ "u_PrimaryLightRadius",  GLSL_FLOAT }
+	{ "u_PrimaryLightRadius",  GLSL_FLOAT },
+
+	{ "u_CubeMapInfo", GLSL_VEC4 },
 };
 
 
@@ -317,6 +320,18 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLcharARB *extra, cha
 	fbufHeightScale = 1.0f / ((float)glConfig.vidHeight);
 	Q_strcat(dest, size,
 			 va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale));
+
+	if (r_materialGamma->value != 1.0f)
+		Q_strcat(dest, size, va("#ifndef r_materialGamma\n#define r_materialGamma %f\n#endif\n", r_materialGamma->value));
+
+	if (r_lightGamma->value != 1.0f)
+		Q_strcat(dest, size, va("#ifndef r_lightGamma\n#define r_lightGamma %f\n#endif\n", r_lightGamma->value));
+
+	if (r_framebufferGamma->value != 1.0f)
+		Q_strcat(dest, size, va("#ifndef r_framebufferGamma\n#define r_framebufferGamma %f\n#endif\n", r_framebufferGamma->value));
+
+	if (r_tonemapGamma->value != 1.0f)
+		Q_strcat(dest, size, va("#ifndef r_tonemapGamma\n#define r_tonemapGamma %f\n#endif\n", r_tonemapGamma->value));
 
 	if (extra)
 	{
@@ -903,7 +918,7 @@ void GLSL_InitGPUShaders(void)
 		if (i & GENERICDEF_USE_LIGHTMAP)
 			Q_strcat(extradefines, 1024, "#define USE_LIGHTMAP\n");
 
-		if (r_hdr->integer && !(glRefConfig.textureFloat && glRefConfig.halfFloatPixel && r_floatLightmap->integer))
+		if (r_hdr->integer && !glRefConfig.floatLightmap)
 			Q_strcat(extradefines, 1024, "#define RGBM_LIGHTMAP\n");
 
 		if (!GLSL_InitGPUShader(&tr.genericShader[i], "generic", attribs, qtrue, extradefines, qtrue, fallbackShader_generic_vp, fallbackShader_generic_fp))
@@ -1022,7 +1037,7 @@ void GLSL_InitGPUShaders(void)
 		if (1)
 			Q_strcat(extradefines, 1024, "#define SWIZZLE_NORMALMAP\n");
 
-		if (r_hdr->integer && !(glRefConfig.textureFloat && glRefConfig.halfFloatPixel && r_floatLightmap->integer))
+		if (r_hdr->integer && !glRefConfig.floatLightmap)
 			Q_strcat(extradefines, 1024, "#define RGBM_LIGHTMAP\n");
 
 		if (lightType)

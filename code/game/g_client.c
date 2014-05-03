@@ -935,7 +935,7 @@ team_t PickTeam(int ignoreClientNum)
 
 /*
 ===========
-ClientCheckName
+ClientCleanName
 ============
 */
 static void ClientCleanName(const char *in, char *out, int outSize)
