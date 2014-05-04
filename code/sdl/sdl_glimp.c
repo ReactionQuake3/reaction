@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdlib.h>
 #include <math.h>
 
-//FIXME: factor out the bits that are actually needed here into a renderercommon header 
 #include "../renderercommon/tr_common.h"
 #include "../sys/sys_local.h"
 #include "sdl_icon.h"
@@ -239,7 +238,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 
 	ri.Printf (PRINT_ALL, "...setting mode %d:", mode );
 
-        if (mode == -2)
+	if (mode == -2)
 	{
 		// use desktop video resolution
 		if( videoInfo->current_h > 0 )

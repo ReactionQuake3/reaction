@@ -25,7 +25,7 @@ Quick start for servers:
 Quick start for clients:
     - run a recent build of ioquake3.
     - Make sure your network settings are set to broadband.
-    - +set snd_useOpenAL 1
+    - +set s_useOpenAL 1
     - \bind q "+voiprecord"
     - Hook up a microphone, connect to a VoIP-supporting server.
     - hold down 'q' key and talk.
@@ -113,19 +113,19 @@ voip ignore <clientnum>
      sending it, to save bandwidth. Use unignore to reenable. This is reset to
      unignored when (re)connecting to a server.
 
-voip gain unignore <clientnum>
+voip unignore <clientnum>
     Turn on incoming voice from player number <clientnum>. This will start
      playing audio from this player again if you've previously done a "voip
      ignore", and instruct the server to start sending her voice packets to
      you again.
 
-voip gain muteall
+voip muteall
     Turn off all incoming voice. This will refuse to play any incoming audio,
      and instruct the server to stop sending it, to save bandwidth. Use
      unmuteall to reenable. This is reset to unmuted when (re)connecting to
      a server.
 
-voip gain unmuteall
+voip unmuteall
     Turn on incoming voice. This will start playing audio again if you've
      previously done a "voip muteall", and instruct the server to start
      sending voice packets to you again.
