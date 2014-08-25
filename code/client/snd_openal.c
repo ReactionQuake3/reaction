@@ -858,8 +858,9 @@ qboolean S_AL_SrcInit( void )
 	}
 
 	// All done. Print this for informational purposes
-	Com_Printf( "Allocated %d sources.\n", srcCount);
+	//Com_Printf( "Allocated %d sources.\n", srcCount);
 	alSourcesInitialised = qtrue;
+
 	return qtrue;
 }
 
@@ -881,6 +882,8 @@ void S_AL_SrcShutdown( void )
 	for(i = 0; i < srcCount; i++)
 	{
 		curSource = &srcList[i];
+
+		srcList[i].isLocked = qfalse;
 		
 		if(curSource->isLocked)
 			Com_DPrintf( S_COLOR_YELLOW "WARNING: Source %d is locked\n", i);
@@ -2357,6 +2360,18 @@ static cvar_t *s_alCapture;
 #define ALDRIVER_DEFAULT "libopenal.so.1"
 #endif
 
+ /*
+ *  =================
+ *  S_AL_ClearSoundBuffer
+ *  =================
+ *  */
+static
+void S_AL_ClearSoundBuffer( void )
+{
+       S_AL_SrcShutdown( );
+       S_AL_SrcInit( );
+}
+
 /*
 =================
 S_AL_StopAllSounds
@@ -2370,6 +2385,7 @@ void S_AL_StopAllSounds( void )
 	S_AL_StopBackgroundTrack();
 	for (i = 0; i < MAX_RAW_STREAMS; i++)
 		S_AL_StreamDie(i);
+	S_AL_ClearSoundBuffer();
 }
 
 static void S_AL_ChangeUnderWater(void)
@@ -2712,11 +2728,12 @@ void S_AL_BeginRegistration( void )
 =================
 S_AL_ClearSoundBuffer
 =================
-*/
+
 static
 void S_AL_ClearSoundBuffer( void )
 {
 }
+*/
 
 static void S_AL_ShutDownEffects(void)
 {
@@ -3360,6 +3377,9 @@ qboolean S_AL_Init( soundInterface_t *si )
 	// Initialize sources, buffers, music
 	S_AL_BufferInit( );
 	S_AL_SrcInit( );
+
+	// Print this for informational purposes
+	Com_Printf( "Allocated %d sources.\n", srcCount);
 
 	// Set up OpenAL parameters (doppler, etc)
 	qalDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
