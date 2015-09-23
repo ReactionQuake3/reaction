@@ -2444,7 +2444,10 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 	qboolean alphaFade, isSprite;
 
 	mod = 0;
+	mark = 0;
 	shader = 0;
+	sfx = 0;
+	radius = 0;
 	light = 0;
 	lightColor[0] = 1;
 	lightColor[1] = 1;
