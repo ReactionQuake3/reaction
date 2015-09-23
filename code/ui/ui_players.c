@@ -109,15 +109,13 @@ static void UI_PlayerInfo_SetWeapon(playerInfo_t * pi, weapon_t weaponNum)
 	}
 	//Blaze: none of our weapons have barrel models
 	/*if ( weaponNum == WP_PISTOL || weaponNum == WP_GAUNTLET || weaponNum == WP_BFG ) {
-	   strcpy( path, item->world_model[0] );
-	   COM_StripExtension( path, path );
-	   strcat( path, "_barrel.md3" );
+	   COM_StripExtension( item->world_model[0], path, sizeof(path) );
+	   Q_strcat( path, sizeof(path), "_barrel.md3" );
 	   pi->barrelModel = trap_R_RegisterModel( path );
 	   } */
 
-	strcpy(path, item->world_model[0]);
-	COM_StripExtensionInPlace(path);
-	strcat(path, "_flash.md3");
+	COM_StripExtension( item->world_model[0], path, sizeof(path) );
+	Q_strcat( path, sizeof(path), "_flash.md3" );
 	pi->flashModel = trap_R_RegisterModel(path);
 
 //Blaze: I think this makes some funky colors or something, I dont really know ;)
@@ -349,8 +347,8 @@ static void UI_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_
 	}
 
 	// cast away const because of compiler problems
-	MatrixMultiply(entity->axis, ((refEntity_t *) parent)->axis, tempAxis);
-	MatrixMultiply(lerped.axis, tempAxis, entity->axis);
+	MatrixMultiply( entity->axis, lerped.axis, tempAxis );
+	MatrixMultiply( tempAxis, ((refEntity_t *)parent)->axis, entity->axis );
 }
 
 /*
@@ -700,14 +698,14 @@ UI_DrawPlayer
 void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int time)
 {
 	refdef_t refdef;
-	refEntity_t legs;
-	refEntity_t torso;
-	refEntity_t head;
-	refEntity_t gun;
+	refEntity_t legs = {0};
+	refEntity_t torso = {0};
+	refEntity_t head = {0};
+	refEntity_t gun = {0};
 
 	//Makro - barrel is no longer used
-	//refEntity_t           barrel;
-	refEntity_t flash;
+	//refEntity_t barrel = {0};
+	refEntity_t flash = {0};
 	vec3_t origin;
 	int renderfx;
 	vec3_t mins = { -16, -16, -24 };
@@ -858,10 +856,6 @@ void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int ti
 	   angles[YAW] = 0;
 	   angles[PITCH] = 0;
 	   angles[ROLL] = UI_MachinegunSpinAngle( pi );
-	   if( pi->realWeapon == WP_GAUNTLET || pi->realWeapon == WP_BFG ) {
-	   angles[PITCH] = angles[ROLL];
-	   angles[ROLL] = 0;
-	   }
 	   AnglesToAxis( angles, barrel.axis );
 
 	   UI_PositionRotatedEntityOnTag( &barrel, &gun, pi->weaponModel, "tag_barrel");

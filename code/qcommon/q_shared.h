@@ -27,23 +27,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // A user mod should never modify this file
 
 #ifdef STANDALONE
-  #define PRODUCT_NAME			"Reaction"
-  #define BASEGAME			"Boomstick"
-  #define CLIENT_WINDOW_TITLE     	"Reaction"
-  #define CLIENT_WINDOW_MIN_TITLE 	"Reaction"
+  #define PRODUCT_NAME				"Reaction"
+  #define BASEGAME					"Boomstick"
+  #define CLIENT_WINDOW_TITLE		"Reaction"
+  #define CLIENT_WINDOW_MIN_TITLE	"Reaction"
   #define HOMEPATH_NAME_UNIX		".Reaction"
-  #define HOMEPATH_NAME_WIN		"Reaction"
+  #define HOMEPATH_NAME_WIN 		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
+//  #define STEAMPATH_NAME			"Foo Bar"
   #define GAMENAME_FOR_MASTER		"Reaction"
 //  #define LEGACY_PROTOCOL	// You probably don't need this for your standalone game
 #else
-  #define PRODUCT_NAME			"Reaction"
-  #define BASEGAME			"Boomstick"
-  #define CLIENT_WINDOW_TITLE     	"Reaction"
-  #define CLIENT_WINDOW_MIN_TITLE 	"Reaction"
+  #define PRODUCT_NAME				"Reaction"
+  #define BASEGAME					"Boomstick"
+  #define CLIENT_WINDOW_TITLE		"Reaction"
+  #define CLIENT_WINDOW_MIN_TITLE	"Reaction"
   #define HOMEPATH_NAME_UNIX		".Reaction"
-  #define HOMEPATH_NAME_WIN		"Reaction"
+  #define HOMEPATH_NAME_WIN 		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
+//  #define STEAMPATH_NAME			"Foo Bar"
   #define GAMENAME_FOR_MASTER		"Reaction"
 //  #define LEGACY_PROTOCOL
 #endif
@@ -410,8 +412,8 @@ extern	vec4_t		colorDkGrey;
 #define COLOR_CYAN	'5'
 #define COLOR_MAGENTA	'6'
 #define COLOR_WHITE	'7'
-//#define ColorIndex(c)	(((c) - '0') & 0x07)
-#define ColorIndex(c)   ( ( (c) - '0' ) & 7 )
+#define ColorIndexForNumber(c) ((c) & 0x07)
+#define ColorIndex(c) (ColorIndexForNumber((c) - '0'))
 
 //Makro - reset color
 #define S_COLOR_RESET  "^*"
@@ -952,6 +954,7 @@ struct cvar_s {
 	qboolean	integral;
 	float			min;
 	float			max;
+	char			*description;
 
 	cvar_t *next;
 	cvar_t *prev;

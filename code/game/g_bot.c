@@ -869,7 +869,7 @@ static void G_SpawnBots(char *botList, int baseDelay)
 		while (*p && *p == ' ') {
 			p++;
 		}
-		if (!p) {
+		if (!*p) {
 			break;
 		}
 		// mark start of bot name

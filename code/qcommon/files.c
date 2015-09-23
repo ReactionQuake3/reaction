@@ -250,6 +250,7 @@ static	cvar_t		*fs_homepath;
 // Also search the .app bundle for .pk3 files
 static  cvar_t          *fs_apppath;
 #endif
+static	cvar_t		*fs_steampath;
 
 static	cvar_t		*fs_basepath;
 static	cvar_t		*fs_basegame;
@@ -533,7 +534,9 @@ qboolean FS_CreatePath (char *OSPath) {
 
 	// Skip creation of the root directory as it will always be there
 	ofs = strchr( path, PATH_SEP );
-	ofs++;
+	if ( ofs != NULL ) {
+		ofs++;
+	}
 
 	for (; ofs != NULL && *ofs ; ofs++) {
 		if (*ofs == PATH_SEP) {
@@ -740,6 +743,21 @@ long FS_SV_FOpenFileRead(const char *filename, fileHandle_t *fp)
 			if ( fs_debug->integer )
 			{
 				Com_Printf( "FS_SV_FOpenFileRead (fs_basepath): %s\n", ospath );
+			}
+
+			fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "rb" );
+			fsh[f].handleSync = qfalse;
+		}
+
+		// Check fs_steampath too
+		if (!fsh[f].handleFiles.file.o && fs_steampath->string[0])
+		{
+			ospath = FS_BuildOSPath( fs_steampath->string, filename, "" );
+			ospath[strlen(ospath)-1] = '\0';
+
+			if ( fs_debug->integer )
+			{
+				Com_Printf( "FS_SV_FOpenFileRead (fs_steampath): %s\n", ospath );
 			}
 
 			fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "rb" );
@@ -2741,7 +2759,7 @@ void FS_Path_f( void ) {
 	searchpath_t	*s;
 	int				i;
 
-	Com_Printf ("Current search path:\n");
+	Com_Printf ("We are looking in the current search path:\n");
 	for (s = fs_searchpaths; s; s = s->next) {
 		if (s->pack) {
 			Com_Printf ("%s (%i files)\n", s->pack->pakFilename, s->pack->numfiles);
@@ -3278,6 +3296,10 @@ static void FS_Startup( const char *gameName )
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
 
 	// add search path elements in reverse priority order
+	fs_steampath = Cvar_Get ("fs_steampath", Sys_SteamPath(), CVAR_INIT|CVAR_PROTECTED );
+	if (fs_steampath->string[0]) {
+		FS_AddGameDirectory( fs_steampath->string, gameName );
+	}
 	if (fs_basepath->string[0]) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
 	}

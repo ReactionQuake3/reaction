@@ -100,6 +100,12 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds, sampler2D normalMap)
 	// best match found (starts with last position 1.0)
 	float bestDepth = 1.0;
 
+	// texture depth at best depth
+	float texDepth = 0.0;
+
+	float prevT = SampleDepth(normalMap, dp);
+	float prevTexDepth = prevT;
+
 	// search front to back for first point inside object
 	for(int i = 0; i < linearSearchSteps - 1; ++i)
 	{
@@ -109,11 +115,20 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds, sampler2D normalMap)
 		
 		if(bestDepth > 0.996)		// if no depth found yet
 			if(depth >= t)
+			{
 				bestDepth = depth;	// store best depth
+				texDepth = t;
+				prevTexDepth = prevT;
+			}
+		prevT = t;
 	}
 
 	depth = bestDepth;
-	
+
+#if !defined (USE_RELIEFMAP)
+	float div = 1.0 / (1.0 + (prevTexDepth - texDepth) * float(linearSearchSteps));
+	bestDepth -= (depth - size - prevTexDepth) * div;
+#else
 	// recurse around first point (depth) for closest match
 	for(int i = 0; i < binarySearchSteps; ++i)
 	{
@@ -129,6 +144,7 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds, sampler2D normalMap)
 
 		depth += size;
 	}
+#endif
 
 	return bestDepth;
 }
@@ -164,7 +180,7 @@ vec3 EnvironmentBRDF(float gloss, float NE, vec3 specular)
 {
   #if 1
 	// from http://blog.selfshadow.com/publications/s2013-shading-course/lazarov/s2013_pbs_black_ops_2_notes.pdf
-	vec4 t = vec4( 1/0.96, 0.475, (0.0275 - 0.25 * 0.04)/0.96,0.25 ) * gloss;
+	vec4 t = vec4( 1.0/0.96, 0.475, (0.0275 - 0.25 * 0.04)/0.96,0.25 ) * gloss;
 	t += vec4( 0.0, 0.0, (0.015 - 0.75 * 0.04)/0.96,0.75 );
 	float a0 = t.x * min( t.y, exp2( -9.28 * NE ) ) + t.z;
 	float a1 = t.w;
@@ -357,7 +373,7 @@ void main()
 	vec2 texCoords = var_TexCoords.xy;
 
 #if defined(USE_PARALLAXMAP)
-	vec3 offsetDir = normalize(E * tangentToWorld);
+	vec3 offsetDir = viewDir * tangentToWorld;
 
 	offsetDir.xy *= -u_NormalScale.a / offsetDir.z;
 

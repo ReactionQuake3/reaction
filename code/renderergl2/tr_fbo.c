@@ -47,9 +47,6 @@ qboolean R_CheckFBO(const FBO_t * fbo)
 	// an error occured
 	switch (code)
 	{
-		case GL_FRAMEBUFFER_COMPLETE_EXT:
-			break;
-
 		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Unsupported framebuffer format\n", fbo->name);
 			break;
@@ -447,7 +444,6 @@ void FBO_Init(void)
 	if (tr.renderFbo)
 	{
 		FBO_Bind(tr.renderFbo);
-		qglClearColor( 1, 0, 0.5, 1 );
 		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 		FBO_Bind(NULL);
 	}
@@ -484,7 +480,7 @@ void FBO_Init(void)
 
 	if (tr.sunShadowDepthImage[0])
 	{
-		for ( i = 0; i < 3; i++)
+		for ( i = 0; i < 4; i++)
 		{
 			tr.sunShadowFbo[i] = FBO_Create("_sunshadowmap", tr.sunShadowDepthImage[i]->width, tr.sunShadowDepthImage[i]->height);
 			FBO_Bind(tr.sunShadowFbo[i]);
@@ -654,9 +650,6 @@ void R_FBOList_f(void)
 	ri.Printf(PRINT_ALL, " %i FBOs\n", tr.numFBOs);
 }
 
-// FIXME
-extern void RB_SetGL2D (void);
-
 void FBO_BlitFromTexture(struct image_s *src, ivec4_t inSrcBox, vec2_t inSrcTexScale, FBO_t *dst, ivec4_t inDstBox, struct shaderProgram_s *shaderProgram, vec4_t inColor, int blend)
 {
 	ivec4_t dstBox, srcBox;
@@ -749,7 +742,7 @@ void FBO_BlitFromTexture(struct image_s *src, ivec4_t inSrcBox, vec2_t inSrcTexS
 
 	Mat4Ortho(0, width, height, 0, 0, 1, projection);
 
-	qglDisable( GL_CULL_FACE );
+	GL_Cull( CT_TWO_SIDED );
 
 	GL_BindToTMU(src, TB_COLORMAP);
 

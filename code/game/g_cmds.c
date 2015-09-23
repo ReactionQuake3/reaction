@@ -1293,8 +1293,6 @@ to free floating spectator mode
 */
 void StopFollowing(gentity_t * ent)
 {
-	vec3_t angle;
-
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
@@ -1306,8 +1304,13 @@ void StopFollowing(gentity_t * ent)
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 	ent->r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
-	angle[0] = angle[1] = angle[2] = 0.0;
-	SetClientViewAngle(ent, angle);
+
+	SetClientViewAngle( ent, ent->client->ps.viewangles );
+
+	// don't use dead view angles
+	if ( ent->client->ps.stats[STAT_HEALTH] <= 0 ) {
+		ent->client->ps.stats[STAT_HEALTH] = 1;
+	}
 }
 
 /*

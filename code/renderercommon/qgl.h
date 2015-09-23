@@ -381,8 +381,8 @@ extern void (APIENTRYP qglUnlockArraysEXT) (void);
 extern void     (APIENTRY * qglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 
 // GL_EXT_multi_draw_arrays
-extern void     (APIENTRY * qglMultiDrawArraysEXT) (GLenum, GLint *, GLsizei *, GLsizei);
-extern void     (APIENTRY * qglMultiDrawElementsEXT) (GLenum, const GLsizei *, GLenum, const GLvoid **, GLsizei);
+extern void     (APIENTRY * qglMultiDrawArraysEXT) (GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount);
+extern void     (APIENTRY * qglMultiDrawElementsEXT) (GLenum mode, const GLsizei *count, GLenum type, const GLvoid* *indices, GLsizei primcount);
 
 // GL_ARB_shading_language_100
 #ifndef GL_ARB_shading_language_100
@@ -725,6 +725,17 @@ extern void (APIENTRY * qglDrawBuffersARB)(GLsizei n, const GLenum *bufs);
 #define GL_ARB_seamless_cube_map
 #define GL_TEXTURE_CUBE_MAP_SEAMLESS               0x884F
 #endif
+
+// GL_ARB_vertex_array_object
+extern void (APIENTRY * qglBindVertexArrayARB)(GLuint array);
+extern void (APIENTRY * qglDeleteVertexArraysARB)(GLsizei n, const GLuint *arrays);
+extern void (APIENTRY * qglGenVertexArraysARB)(GLsizei n, GLuint *arrays);
+extern GLboolean (APIENTRY * qglIsVertexArrayARB)(GLuint array);
+#ifndef GL_ARB_vertex_array_object
+#define GL_ARB_vertex_array_object
+#define GL_VERTEX_ARRAY_BINDING_ARB                0x85B5
+#endif
+
 
 #if defined(WIN32)
 // WGL_ARB_create_context

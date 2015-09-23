@@ -626,6 +626,8 @@ qboolean PC_Int_Parse(int handle, int *i)
 	pc_token_t token;
 	int negative = qfalse;
 
+	if (!i)
+		return qfalse;
 	if (!trap_PC_ReadToken(handle, &token))
 		return qfalse;
 
@@ -876,16 +878,16 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 {
 	//float bordersize = 0;
 	vec4_t color = {1, 1, 1, 1};
-	rectDef_t fillRect = w->rect;
+	rectDef_t fillRect;
+
+	if (w == NULL) {
+		return;
+	}
 
 	if (debugMode) {
 		//color[0] = color[1] = color[2] = color[3] = 1;
 		//Makro - added shader parm
 		DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color, DC->whiteShader);
-	}
-
-	if (w == NULL) {
-		return;
 	}
 
 	//Makro - fade forecolor/backcolor if needed
@@ -917,6 +919,8 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 	if (w->style == 0 && w->border == 0) {
 		return;
 	}
+
+	fillRect = w->rect;
 
 	if (w->border != 0) {
 		fillRect.x += w->borderSize;
@@ -2457,7 +2461,7 @@ Point Item_Slider_ThumbPosition(itemDef_t * item)
 		p.y = item->window.rect.y - 2;
 	}
 
-	if (editDef == NULL && item->cvar) {
+	if (!editDef || !item->cvar) {
 		return p;
 	}
 
@@ -6513,6 +6517,10 @@ menuDef_t *Menus_ActivateByName(const char *p, qboolean special)
 
 void Item_Init(itemDef_t * item)
 {
+	if (item == NULL) {
+		return;
+	}
+
 	memset(item, 0, sizeof(itemDef_t));
 	item->textscale = 0.55f;
 	Window_Init(&item->window);
@@ -6590,7 +6598,7 @@ void Menu_HandleMouseMove(menuDef_t * menu, float x, float y)
 						//Com_Printf("Listbox: %.1f %.1f %.1f %.1f / %.1f %.1f %.1f %.1f / %d %d %d IN\n", PRINT_RECT(menu->items[i]->window.rect), menu->items[i]->window.rectClient.u[0], menu->items[i]->window.rectClient.u[1], menu->items[i]->window.rectClient.v[0], menu->items[i]->window.rectClient.v[1], menu->items[i]->window.rectClient.hasVectors, DC->cursorx, DC->cursory);
 					}
 				}
-			} else if (menu->items[i]->window.flags & WINDOW_MOUSEOVER) {
+			} else if (menu->items[i] && menu->items[i]->window.flags & WINDOW_MOUSEOVER) {
 				Item_MouseLeave(menu->items[i]);
 				Item_SetMouseOver(menu->items[i], qfalse);
 				if (menu->items[i]->type == ITEM_TYPE_LISTBOX) {
@@ -8750,6 +8758,9 @@ qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (menu->itemCount < MAX_MENUITEMS) {
 		menu->items[menu->itemCount] = UI_Alloc(sizeof(itemDef_t));
+		if (!menu->items[menu->itemCount]) {
+			return qfalse;
+		}
 		Item_Init(menu->items[menu->itemCount]);
 		//was below
 		menu->items[menu->itemCount]->parent = menu;

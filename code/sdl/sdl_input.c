@@ -44,7 +44,6 @@ static cvar_t *in_mouse             = NULL;
 static cvar_t *in_nograb;
 
 static cvar_t *in_joystick          = NULL;
-static cvar_t *in_joystickDebug     = NULL;
 static cvar_t *in_joystickThreshold = NULL;
 static cvar_t *in_joystickNo        = NULL;
 static cvar_t *in_joystickUseAnalog = NULL;
@@ -248,8 +247,13 @@ static keyNum_t IN_TranslateSDLToQ3Key( SDL_Keysym *keysym, qboolean down )
 			case SDLK_LCTRL:
 			case SDLK_RCTRL:        key = K_CTRL;          break;
 
+#ifdef MACOS_X
 			case SDLK_RGUI:
 			case SDLK_LGUI:         key = K_COMMAND;       break;
+#else
+			case SDLK_RGUI:
+			case SDLK_LGUI:         key = K_SUPER;         break;
+#endif
 
 			case SDLK_RALT:
 			case SDLK_LALT:         key = K_ALT;           break;
@@ -267,9 +271,11 @@ static keyNum_t IN_TranslateSDLToQ3Key( SDL_Keysym *keysym, qboolean down )
 			case SDLK_PRINTSCREEN:  key = K_PRINT;         break;
 			case SDLK_SYSREQ:       key = K_SYSREQ;        break;
 			case SDLK_MENU:         key = K_MENU;          break;
+			case SDLK_APPLICATION:	key = K_MENU;          break;
 			case SDLK_POWER:        key = K_POWER;         break;
 			case SDLK_UNDO:         key = K_UNDO;          break;
 			case SDLK_SCROLLLOCK:   key = K_SCROLLOCK;     break;
+			case SDLK_NUMLOCKCLEAR: key = K_KP_NUMLOCK;    break;
 			case SDLK_CAPSLOCK:     key = K_CAPSLOCK;      break;
 
 			default:
@@ -321,7 +327,7 @@ static void IN_ActivateMouse( void )
 	if( !mouseActive )
 	{
 		SDL_SetRelativeMouseMode( SDL_TRUE );
-		SDL_SetWindowGrab( SDL_window, 1 );
+		SDL_SetWindowGrab( SDL_window, SDL_TRUE );
 
 		IN_GobbleMotionEvents( );
 	}
@@ -332,9 +338,9 @@ static void IN_ActivateMouse( void )
 		if( in_nograb->modified || !mouseActive )
 		{
 			if( in_nograb->integer )
-				SDL_SetWindowGrab( SDL_window, 0 );
+				SDL_SetWindowGrab( SDL_window, SDL_FALSE );
 			else
-				SDL_SetWindowGrab( SDL_window, 1 );
+				SDL_SetWindowGrab( SDL_window, SDL_TRUE );
 
 			in_nograb->modified = qfalse;
 		}
@@ -365,7 +371,7 @@ static void IN_DeactivateMouse( void )
 	{
 		IN_GobbleMotionEvents( );
 
-		SDL_SetWindowGrab( SDL_window, 0 );
+		SDL_SetWindowGrab( SDL_window, SDL_FALSE );
 		SDL_SetRelativeMouseMode( SDL_FALSE );
 
 		// Don't warp the mouse unless the cursor is within the window
@@ -431,7 +437,7 @@ static void IN_InitJoystick( void )
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK))
 	{
 		Com_DPrintf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
-		if (SDL_Init(SDL_INIT_JOYSTICK) == -1)
+		if (SDL_Init(SDL_INIT_JOYSTICK) != 0)
 		{
 			Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError());
 			return;
@@ -507,7 +513,6 @@ IN_JoyMove
 */
 static void IN_JoyMove( void )
 {
-	qboolean joy_pressed[ARRAY_LEN(joy_keys)];
 	unsigned int axes = 0;
 	unsigned int hats = 0;
 	int total = 0;
@@ -517,8 +522,6 @@ static void IN_JoyMove( void )
 		return;
 
 	SDL_JoystickUpdate();
-
-	memset(joy_pressed, '\0', sizeof (joy_pressed));
 
 	// update the ball state.
 	total = SDL_JoystickNumBalls(stick);
@@ -726,6 +729,9 @@ static void IN_ProcessEvents( void )
 		switch( e.type )
 		{
 			case SDL_KEYDOWN:
+				if ( e.key.repeat && Key_GetCatcher( ) == 0 )
+					break;
+
 				if( ( key = IN_TranslateSDLToQ3Key( &e.key.keysym, qtrue ) ) )
 					Com_QueueEvent( 0, SE_KEY, key, qtrue, 0, NULL );
 
@@ -770,7 +776,7 @@ static void IN_ProcessEvents( void )
 						else if( ( *c & 0xF8 ) == 0xF0 ) // 1111 0xxx
 						{
 							utf32 |= ( *c++ & 0x07 ) << 18;
-							utf32 |= ( *c++ & 0x3F ) << 6;
+							utf32 |= ( *c++ & 0x3F ) << 12;
 							utf32 |= ( *c++ & 0x3F ) << 6;
 							utf32 |= ( *c++ & 0x3F );
 						}
@@ -796,7 +802,11 @@ static void IN_ProcessEvents( void )
 
 			case SDL_MOUSEMOTION:
 				if( mouseActive )
+				{
+					if( !e.motion.xrel && !e.motion.yrel )
+						break;
 					Com_QueueEvent( 0, SE_MOUSE, e.motion.xrel, e.motion.yrel, 0, NULL );
+				}
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
@@ -823,7 +833,7 @@ static void IN_ProcessEvents( void )
 					Com_QueueEvent( 0, SE_KEY, K_MWHEELUP, qtrue, 0, NULL );
 					Com_QueueEvent( 0, SE_KEY, K_MWHEELUP, qfalse, 0, NULL );
 				}
-				else
+				else if( e.wheel.y < 0 )
 				{
 					Com_QueueEvent( 0, SE_KEY, K_MWHEELDOWN, qtrue, 0, NULL );
 					Com_QueueEvent( 0, SE_KEY, K_MWHEELDOWN, qfalse, 0, NULL );
@@ -839,11 +849,19 @@ static void IN_ProcessEvents( void )
 				{
 					case SDL_WINDOWEVENT_RESIZED:
 						{
-							char width[32], height[32];
-							Com_sprintf( width, sizeof( width ), "%d", e.window.data1 );
-							Com_sprintf( height, sizeof( height ), "%d", e.window.data2 );
-							Cvar_Set( "r_customwidth", width );
-							Cvar_Set( "r_customheight", height );
+							int width, height;
+
+							width = e.window.data1;
+							height = e.window.data2;
+
+							// check if size actually changed
+							if( cls.glconfig.vidWidth == width && cls.glconfig.vidHeight == height )
+							{
+								break;
+							}
+
+							Cvar_SetValue( "r_customwidth", width );
+							Cvar_SetValue( "r_customheight", height );
 							Cvar_Set( "r_mode", "-1" );
 
 							// Wait until user stops dragging for 1 second, so
@@ -877,7 +895,6 @@ void IN_Frame( void )
 	qboolean loading;
 
 	IN_JoyMove( );
-	IN_ProcessEvents( );
 
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
 	loading = ( clc.state != CA_DISCONNECTED && clc.state != CA_ACTIVE );
@@ -900,26 +917,14 @@ void IN_Frame( void )
 	else
 		IN_ActivateMouse( );
 
+	IN_ProcessEvents( );
+
 	// In case we had to delay actual restart of video system
 	if( ( vidRestartTime != 0 ) && ( vidRestartTime < Sys_Milliseconds( ) ) )
 	{
 		vidRestartTime = 0;
 		Cbuf_AddText( "vid_restart\n" );
 	}
-}
-
-/*
-===============
-IN_InitKeyLockStates
-===============
-*/
-void IN_InitKeyLockStates( void )
-{
-	const unsigned char *keystate = SDL_GetKeyboardState(NULL);
-
-	keys[K_SCROLLOCK].down = keystate[SDL_SCANCODE_SCROLLLOCK];
-	keys[K_KP_NUMLOCK].down = keystate[SDL_SCANCODE_NUMLOCKCLEAR];
-	keys[K_CAPSLOCK].down = keystate[SDL_SCANCODE_CAPSLOCK];
 }
 
 /*
@@ -948,7 +953,6 @@ void IN_Init( void *windowData )
 	in_nograb = Cvar_Get( "in_nograb", "0", CVAR_ARCHIVE );
 
 	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE|CVAR_LATCH );
-	in_joystickDebug = Cvar_Get( "in_joystickDebug", "0", CVAR_TEMP );
 	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE );
 
 	SDL_StartTextInput( );
@@ -959,8 +963,6 @@ void IN_Init( void *windowData )
 	appState = SDL_GetWindowFlags( SDL_window );
 	Cvar_SetValue( "com_unfocused",	!( appState & SDL_WINDOW_INPUT_FOCUS ) );
 	Cvar_SetValue( "com_minimized", appState & SDL_WINDOW_MINIMIZED );
-
-	IN_InitKeyLockStates( );
 
 	IN_InitJoystick( );
 	Com_DPrintf( "------------------------------------\n" );

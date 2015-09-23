@@ -191,7 +191,9 @@ static void CG_TransitionSnapshot(void)
 
 	// if we had a map_restart, set everthing with initial
 	if (!cg.snap) {
+		return;
 	}
+
 	// clear the currentValid flag for all entities in the existing snapshot
 	for (i = 0; i < cg.snap->numEntities; i++) {
 		cent = &cg_entities[cg.snap->entities[i].number];
