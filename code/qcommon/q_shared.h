@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define HOMEPATH_NAME_WIN 		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
 //  #define STEAMPATH_NAME			"Foo Bar"
+//  #define STEAMPATH_APPID         ""
   #define GAMENAME_FOR_MASTER		"Reaction"
 //  #define LEGACY_PROTOCOL	// You probably don't need this for your standalone game
 #else
@@ -46,6 +47,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define HOMEPATH_NAME_WIN 		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
 //  #define STEAMPATH_NAME			"Foo Bar"
+//  #define STEAMPATH_APPID         ""
   #define GAMENAME_FOR_MASTER		"Reaction"
 //  #define LEGACY_PROTOCOL
 #endif
