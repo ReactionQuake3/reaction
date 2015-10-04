@@ -840,6 +840,10 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			}
 		}
 		break;
+	case EV_USE_ITEM15:
+		DEBUGNAME("EV_USE_ITEM15");
+		CG_UseItem( cent );
+		break;
 
 		//
 		// weapon events

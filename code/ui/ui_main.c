@@ -783,7 +783,7 @@ int Text_Width(const char *text, float scale, int limit)
 				s += 2;
 				continue;
 			} else {
-				glyph = &font->glyphs[(int) *s];
+				glyph = &font->glyphs[*s & 255];
 				out += glyph->xSkip;
 				//Makro - added
 				if (maxPixels)
@@ -824,7 +824,7 @@ int Text_Height(const char *text, float scale, int limit)
 				s += 2;
 				continue;
 			} else {
-				glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+				glyph = &font->glyphs[*s & 255];
 				if (max < glyph->height) {
 					max = glyph->height;
 				}
@@ -902,7 +902,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 		count = 0;
 		width = 0;
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+			glyph = &font->glyphs[*s & 255];
 			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
 			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if (Q_IsColorString(s)) {
@@ -1110,7 +1110,7 @@ void Text_PaintAngled(float x, float y, const float *u, const float *v, float sc
 		width = 0;
 		count = 0;
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+			glyph = &font->glyphs[*s & 255];
 			if (Q_IsColorString(s)) {
 				//Makro - new tricks
 				if (*(s+1) == '*')
@@ -1201,9 +1201,9 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
 			len = limit;
 		}
 		count = 0;
-		glyph2 = &font->glyphs[(int) cursor];	// bk001206 - possible signed char
+		glyph2 = &font->glyphs[cursor & 255];	// bk001206 - possible signed char
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+			glyph = &font->glyphs[*s & 255];
 			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
 			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if (Q_IsColorString(s)) {
@@ -1296,10 +1296,10 @@ void Text_PaintWithCursorAngled(float x, float y, const float *u, const float *v
 		}
 		width = 0;
 		count = 0;
-		glyph2 = &font->glyphs[(int) cursor];	// bk001206 - possible signed char
+		glyph2 = &font->glyphs[cursor & 255];	// bk001206 - possible signed char
 		while (s && *s && count < len)
 		{
-			glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+			glyph = &font->glyphs[*s & 255];
 			if (Q_IsColorString(s)) {
 				//Makro - new tricks
 				if (*(s+1) == '*')
@@ -1413,7 +1413,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 		}
 		count = 0;
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+			glyph = &font->glyphs[*s & 255];
 			if (Q_IsColorString(s)) {
 				memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
 				newColor[3] = color[3];
@@ -1423,7 +1423,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 			} else {
 				float yadj = useScale * glyph->top;
 
-				if (Text_Width(s, useScale, 1) + x > max) {
+				if (Text_Width(s, scale, 1) + x > max) {
 					*maxX = 0;
 					break;
 				}
@@ -2045,7 +2045,7 @@ void UI_Load( void )
 	char *menuSet = UI_Cvar_VariableString("ui_menuFiles");
 
 	if (menu && menu->window.name) {
-		strcpy(lastName, menu->window.name);
+		Q_strncpyz(lastName, menu->window.name, sizeof(lastName));
 	}
 	if (menuSet == NULL || menuSet[0] == '\0') {
 		menuSet = "ui/menus.txt";
@@ -2516,8 +2516,8 @@ static void UI_DrawPlayerModel(rectDef_t * rect)
 	vec3_t moveangles;
 
 	if (trap_Cvar_VariableValue("ui_Q3Model")) {
-		strcpy(model, UI_Cvar_VariableString("model"));
-		strcpy(head, UI_Cvar_VariableString("headmodel"));
+		Q_strncpyz(model, UI_Cvar_VariableString("model"), sizeof(model));
+		Q_strncpyz(head, UI_Cvar_VariableString("headmodel"), sizeof(head));
 		if (!q3Model) {
 			q3Model = qtrue;
 			updateModel = qtrue;
@@ -2525,9 +2525,9 @@ static void UI_DrawPlayerModel(rectDef_t * rect)
 		team[0] = '\0';
 	} else {
 
-		strcpy(team, UI_Cvar_VariableString("ui_teamName"));
-		strcpy(model, UI_Cvar_VariableString("model"));
-		strcpy(head, UI_Cvar_VariableString("headmodel"));
+		Q_strncpyz(team, UI_Cvar_VariableString("ui_teamName"), sizeof(team));
+		Q_strncpyz(model, UI_Cvar_VariableString("model"), sizeof(model));
+		Q_strncpyz(head, UI_Cvar_VariableString("headmodel"), sizeof(head));
 		if (q3Model) {
 			q3Model = qfalse;
 			updateModel = qtrue;
@@ -2565,7 +2565,7 @@ static void UI_DrawPlayerModel(rectDef_t * rect)
 static void UI_DrawNetSource(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 	const char* msg = netSources[ui_netSource.integer];
-	if (ui_netSource.integer < 0 || ui_netSource.integer > numNetSources) {
+	if (ui_netSource.integer < 0 || ui_netSource.integer >= numNetSources) {
 		ui_netSource.integer = 0;
 	}
 	if (rect->hasVectors)
@@ -2604,7 +2604,7 @@ static void UI_DrawNetMapCinematic(rectDef_t * rect, float scale, vec4_t color)
 
 static void UI_DrawNetFilter(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
-	if (ui_serverFilterType.integer < 0 || ui_serverFilterType.integer > numServerFilters) {
+	if (ui_serverFilterType.integer < 0 || ui_serverFilterType.integer >= numServerFilters) {
 		ui_serverFilterType.integer = 0;
 	}
 	Text_Paint(rect->x, rect->y, scale, color,
@@ -2662,7 +2662,7 @@ static void UI_DrawTierMapName(rectDef_t * rect, float scale, vec4_t color, int 
 		i = 0;
 	}
 	j = trap_Cvar_VariableValue("ui_currentMap");
-	if (j < 0 || j > MAPS_PER_TIER) {
+	if (j < 0 || j >= MAPS_PER_TIER) {
 		j = 0;
 	}
 
@@ -2679,7 +2679,7 @@ static void UI_DrawTierGameType(rectDef_t * rect, float scale, vec4_t color, int
 		i = 0;
 	}
 	j = trap_Cvar_VariableValue("ui_currentMap");
-	if (j < 0 || j > MAPS_PER_TIER) {
+	if (j < 0 || j >= MAPS_PER_TIER) {
 		j = 0;
 	}
 
@@ -2769,8 +2769,8 @@ static void UI_DrawOpponent(rectDef_t * rect)
 	updateOpponentModel = updateOpponentModel || trap_Cvar_VariableValue("ui_RQ3_modelCommand") != 0;
 	if (updateOpponentModel) {
 
-		strcpy(model, UI_Cvar_VariableString("ui_opponentModel"));
-		strcpy(headmodel, UI_Cvar_VariableString("ui_opponentModel"));
+		Q_strncpyz(model, UI_Cvar_VariableString("ui_opponentModel"), sizeof(model));
+		Q_strncpyz(headmodel, UI_Cvar_VariableString("ui_opponentModel"), sizeof(headmodel));
 		team[0] = '\0';
 
 		memset(&info2, 0, sizeof(playerInfo_t));
@@ -3055,14 +3055,14 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale)
 		s = va("%i. %s", ownerDraw - UI_REDTEAM1 + 1, text);
 		break;
 	case UI_NETSOURCE:
-		if (ui_netSource.integer < 0 || ui_netSource.integer > uiInfo.numJoinGameTypes) {
+		if (ui_netSource.integer < 0 || ui_netSource.integer >= numNetSources) {
 			ui_netSource.integer = 0;
 		}
 
 		s = va("Source: %s", netSources[ui_netSource.integer]);
 		break;
 	case UI_NETFILTER:
-		if (ui_serverFilterType.integer < 0 || ui_serverFilterType.integer > numServerFilters) {
+		if (ui_serverFilterType.integer < 0 || ui_serverFilterType.integer >= numServerFilters) {
 			ui_serverFilterType.integer = 0;
 		}
 		s = va("Filter: %s", serverFilters[ui_serverFilterType.integer].description);
@@ -5268,7 +5268,7 @@ static void UI_StartSinglePlayer() {
     i = 0;
   }
 	j = trap_Cvar_VariableValue("ui_currentMap");
-	if (j < 0 || j > MAPS_PER_TIER) {
+	if (j < 0 || j >= MAPS_PER_TIER) {
 		j = 0;
 	}
 
@@ -6644,19 +6644,18 @@ static void UI_RunMenuScript(char **args)
 				int selectedPlayer = trap_Cvar_VariableValue("cg_selectedPlayer");
 
 				if (selectedPlayer < uiInfo.myTeamCount) {
-					strcpy(buff, orders);
-					trap_Cmd_ExecuteText(EXEC_APPEND,
-							     va(buff, uiInfo.teamClientNums[selectedPlayer]));
+					Com_sprintf( buff, sizeof( buff ), orders, uiInfo.teamClientNums[selectedPlayer] );
+					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 					trap_Cmd_ExecuteText(EXEC_APPEND, "\n");
 				} else {
 					int i;
 
 					for (i = 0; i < uiInfo.myTeamCount; i++) {
-						if (Q_stricmp(UI_Cvar_VariableString("name"), uiInfo.teamNames[i]) == 0) {
+						if (uiInfo.playerNumber == uiInfo.teamClientNums[i]) {
 							continue;
 						}
-						strcpy(buff, orders);
-						trap_Cmd_ExecuteText(EXEC_APPEND, va(buff, uiInfo.teamNames[i]));
+						Com_sprintf( buff, sizeof( buff ), orders, uiInfo.teamClientNums[i] );
+						trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 						trap_Cmd_ExecuteText(EXEC_APPEND, "\n");
 					}
 				}
@@ -6687,9 +6686,8 @@ static void UI_RunMenuScript(char **args)
 				int selectedPlayer = trap_Cvar_VariableValue("cg_selectedPlayer");
 
 				if (selectedPlayer < uiInfo.myTeamCount) {
-					strcpy(buff, orders);
-					trap_Cmd_ExecuteText(EXEC_APPEND,
-							     va(buff, uiInfo.teamClientNums[selectedPlayer]));
+					Com_sprintf( buff, sizeof( buff ), orders, uiInfo.teamClientNums[selectedPlayer] );
+					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 					trap_Cmd_ExecuteText(EXEC_APPEND, "\n");
 				}
 				trap_Key_SetCatcher(trap_Key_GetCatcher() & ~KEYCATCH_UI);
@@ -7239,8 +7237,6 @@ static int UI_GetServerStatusInfo(const char *serverAddress, serverStatusInfo_t 
 			while (p && *p) {
 				if (*p == '\\')
 					*p++ = '\0';
-				if (!p)
-					break;
 				score = p;
 				p = strchr(p, ' ');
 				if (!p)
@@ -7932,6 +7928,11 @@ static qboolean Team_Parse(char **p)
 		}
 
 		if (token[0] == '{') {
+			if (uiInfo.teamCount == MAX_TEAMS) {
+				uiInfo.teamCount--;
+				Com_Printf("Too many teams, last team replaced!\n");
+			}
+
 			// seven tokens per line, team name and icon, and 5 team member names
 			if (!String_Parse(p, &uiInfo.teamList[uiInfo.teamCount].teamName) || !String_Parse(p, &tempStr)) {
 				return qfalse;
@@ -7956,11 +7957,8 @@ static qboolean Team_Parse(char **p)
 
 			Com_Printf("Loaded team %s with team icon %s.\n", uiInfo.teamList[uiInfo.teamCount].teamName,
 				   tempStr);
-			if (uiInfo.teamCount < MAX_TEAMS) {
-				uiInfo.teamCount++;
-			} else {
-				Com_Printf("Too many teams, last team replaced!\n");
-			}
+			uiInfo.teamCount++;
+
 			token = COM_ParseExt(p, qtrue);
 			if (token[0] != '}') {
 				return qfalse;
@@ -7995,6 +7993,11 @@ static qboolean Character_Parse(char **p)
 		}
 
 		if (token[0] == '{') {
+			if (uiInfo.characterCount == MAX_HEADS) {
+				uiInfo.characterCount--;
+				Com_Printf("Too many characters, last character replaced!\n");
+			}
+
 			// two tokens per line, character name and sex
 			if (!String_Parse(p, &uiInfo.characterList[uiInfo.characterCount].name)
 			    || !String_Parse(p, &tempStr)) {
@@ -8017,11 +8020,7 @@ static qboolean Character_Parse(char **p)
 
 			Com_Printf("Loaded %s character %s.\n", uiInfo.characterList[uiInfo.characterCount].base,
 				   uiInfo.characterList[uiInfo.characterCount].name);
-			if (uiInfo.characterCount < MAX_HEADS) {
-				uiInfo.characterCount++;
-			} else {
-				Com_Printf("Too many characters, last character replaced!\n");
-			}
+			uiInfo.characterCount++;
 
 			token = COM_ParseExt(p, qtrue);
 			if (token[0] != '}') {
@@ -8056,6 +8055,11 @@ static qboolean Alias_Parse(char **p)
 		}
 
 		if (token[0] == '{') {
+			if (uiInfo.aliasCount == MAX_ALIASES) {
+				uiInfo.aliasCount--;
+				Com_Printf("Too many aliases, last alias replaced!\n");
+			}
+
 			// three tokens per line, character name, bot alias, and preferred action a - all purpose, d - defense, o - offense
 			if (!String_Parse(p, &uiInfo.aliasList[uiInfo.aliasCount].name)
 			    || !String_Parse(p, &uiInfo.aliasList[uiInfo.aliasCount].ai)
@@ -8065,11 +8069,7 @@ static qboolean Alias_Parse(char **p)
 
 			Com_Printf("Loaded character alias %s using character ai %s.\n",
 				   uiInfo.aliasList[uiInfo.aliasCount].name, uiInfo.aliasList[uiInfo.aliasCount].ai);
-			if (uiInfo.aliasCount < MAX_ALIASES) {
-				uiInfo.aliasCount++;
-			} else {
-				Com_Printf("Too many aliases, last alias replaced!\n");
-			}
+			uiInfo.aliasCount++;
 
 			token = COM_ParseExt(p, qtrue);
 			if (token[0] != '}') {
@@ -9261,7 +9261,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 				 ITEM_TEXTSTYLE_SHADOWEDMORE);
 		//Q_strncpyz(uiInfo.startupText, "Starting up...", sizeof(uiInfo.startupText));
 	} else {
-		strcpy(text, va("Connecting to %s", cstate.servername));
+		Com_sprintf(text, sizeof(text), "Connecting to %s", cstate.servername);
 		Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite, text, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		//Q_strncpyz(uiInfo.startupText, va("Connecting to %s", cstate.servername), sizeof(uiInfo.startupText));
 	}

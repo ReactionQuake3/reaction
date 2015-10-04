@@ -740,25 +740,21 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ammoIcon = trap_R_RegisterShader(ammo->icon);
 	}
 
-	strcpy(path, item->world_model[0]);
-	COM_StripExtensionInPlace(path);
-	strcat(path, "_flash.md3");
+	COM_StripExtension( item->world_model[0], path, sizeof(path) );
+	Q_strcat( path, sizeof(path), "_flash.md3" );
 	weaponInfo->flashModel = trap_R_RegisterModel(path);
 
-	strcpy(path, item->world_model[0]);
-	COM_StripExtensionInPlace(path);
-	strcat(path, "_barrel.md3");
+	COM_StripExtension( item->world_model[0], path, sizeof(path) );
+	Q_strcat( path, sizeof(path), "_barrel.md3" );
 	weaponInfo->barrelModel = trap_R_RegisterModel(path);
 
-	strcpy(path, item->world_model[0]);
-	COM_StripExtensionInPlace(path);
-	strcat(path, "_hand.md3");
+	COM_StripExtension( item->world_model[0], path, sizeof(path) );
+	Q_strcat( path, sizeof(path), "_hand.md3" );
 	weaponInfo->handsModel = trap_R_RegisterModel(path);
 
 	//Elder: added to cache 1st-person models
-	strcpy(path, item->world_model[0]);
-	COM_StripExtensionInPlace(path);
-	strcat(path, "_1st.md3");
+	COM_StripExtension( item->world_model[0], path, sizeof(path) );
+	Q_strcat( path, sizeof(path), "_1st.md3" );
 	weaponInfo->firstModel = trap_R_RegisterModel(path);
 
 	if (!weaponInfo->handsModel) {
@@ -2447,11 +2443,11 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 	int r, duration, angle, contentType, sparkCount, i;
 	qboolean alphaFade, isSprite;
 
-	mark = 0;
-	radius = 32;
-	sfx = 0;
 	mod = 0;
+	mark = 0;
 	shader = 0;
+	sfx = 0;
+	radius = 0;
 	light = 0;
 	lightColor[0] = 1;
 	lightColor[1] = 1;

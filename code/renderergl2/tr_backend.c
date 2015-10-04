@@ -77,6 +77,9 @@ void GL_SelectTexture( int unit )
 	if (!(unit >= 0 && unit <= 31))
 		ri.Error( ERR_DROP, "GL_SelectTexture: unit = %i", unit );
 
+	if (!qglActiveTextureARB)
+		ri.Error( ERR_DROP, "GL_SelectTexture: multitexture disabled" );
+
 	qglActiveTextureARB( GL_TEXTURE0_ARB + unit );
 
 	glState.currenttmu = unit;
@@ -118,30 +121,24 @@ void GL_Cull( int cullType ) {
 		return;
 	}
 
-	glState.faceCulling = cullType;
-
 	if ( cullType == CT_TWO_SIDED ) 
 	{
 		qglDisable( GL_CULL_FACE );
 	} 
 	else 
 	{
-		qboolean cullFront;
-		qglEnable( GL_CULL_FACE );
+		qboolean cullFront = (cullType == CT_FRONT_SIDED);
 
-		cullFront = (cullType == CT_FRONT_SIDED);
-		if ( backEnd.viewParms.isMirror )
-		{
-			cullFront = !cullFront;
-		}
+		if ( glState.faceCulling == CT_TWO_SIDED )
+			qglEnable( GL_CULL_FACE );
 
-		if ( backEnd.currentEntity && backEnd.currentEntity->mirrored )
-		{
-			cullFront = !cullFront;
-		}
+		if ( glState.faceCullFront != cullFront )
+			qglCullFace( cullFront ? GL_FRONT : GL_BACK );
 
-		qglCullFace( cullFront ? GL_FRONT : GL_BACK );
+		glState.faceCullFront = cullFront;
 	}
+
+	glState.faceCulling = cullType;
 }
 
 /*
@@ -216,10 +213,26 @@ void GL_State( unsigned long stateBits )
 	//
 	if ( diff & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
 	{
-		GLenum srcFactor = GL_ONE, dstFactor = GL_ONE;
+		uint32_t oldState = glState.glStateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
+		uint32_t newState = stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
+		uint32_t storedState = glState.storedGlState & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
 
-		if ( stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
+		if (oldState == 0)
 		{
+			qglEnable( GL_BLEND );
+		}
+		else if (newState == 0)
+		{
+			qglDisable( GL_BLEND );
+		}
+
+		if (newState != 0 && storedState != newState)
+		{
+			GLenum srcFactor = GL_ONE, dstFactor = GL_ONE;
+
+			glState.storedGlState &= ~( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS );
+			glState.storedGlState |= newState;
+
 			switch ( stateBits & GLS_SRCBLEND_BITS )
 			{
 			case GLS_SRCBLEND_ZERO:
@@ -285,12 +298,7 @@ void GL_State( unsigned long stateBits )
 				break;
 			}
 
-			qglEnable( GL_BLEND );
 			qglBlendFunc( srcFactor, dstFactor );
-		}
-		else
-		{
-			qglDisable( GL_BLEND );
 		}
 	}
 
@@ -344,26 +352,36 @@ void GL_State( unsigned long stateBits )
 	//
 	if ( diff & GLS_ATEST_BITS )
 	{
-		switch ( stateBits & GLS_ATEST_BITS )
+		uint32_t oldState = glState.glStateBits & GLS_ATEST_BITS;
+		uint32_t newState = stateBits & GLS_ATEST_BITS;
+		uint32_t storedState = glState.storedGlState & GLS_ATEST_BITS;
+
+		if (oldState == 0)
 		{
-		case 0:
-			qglDisable( GL_ALPHA_TEST );
-			break;
-		case GLS_ATEST_GT_0:
-			qglEnable( GL_ALPHA_TEST );
-			qglAlphaFunc( GL_GREATER, 0.0f );
-			break;
-		case GLS_ATEST_LT_80:
-			qglEnable( GL_ALPHA_TEST );
-			qglAlphaFunc( GL_LESS, 0.5f );
-			break;
-		case GLS_ATEST_GE_80:
-			qglEnable( GL_ALPHA_TEST );
-			qglAlphaFunc( GL_GEQUAL, 0.5f );
-			break;
-		default:
-			assert( 0 );
-			break;
+			qglEnable(GL_ALPHA_TEST);
+		}
+		else if (newState == 0)
+		{
+			qglDisable(GL_ALPHA_TEST);
+		}
+
+		if (newState != 0 && storedState != newState)
+		{
+			glState.storedGlState &= ~GLS_ATEST_BITS;
+			glState.storedGlState |= newState;
+
+			switch ( newState )
+			{
+			case GLS_ATEST_GT_0:
+				qglAlphaFunc( GL_GREATER, 0.0f );
+				break;
+			case GLS_ATEST_LT_80:
+				qglAlphaFunc( GL_LESS, 0.5f );
+				break;
+			case GLS_ATEST_GE_80:
+				qglAlphaFunc( GL_GEQUAL, 0.5f );
+				break;
+			}
 		}
 	}
 
@@ -402,6 +420,7 @@ static void RB_Hyperspace( void ) {
 	c = ( backEnd.refdef.time & 255 ) / 255.0f;
 	qglClearColor( c, c, c, 1 );
 	qglClear( GL_COLOR_BUFFER_BIT );
+	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	backEnd.isHyperspace = qtrue;
 }
@@ -486,25 +505,12 @@ void RB_BeginDrawingView (void) {
 	if ( r_fastsky->integer && !( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) )
 	{
 		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
-#ifdef _DEBUG
-		qglClearColor( 0.8f, 0.7f, 0.4f, 1.0f );	// FIXME: get color of sky
-#else
-		qglClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// FIXME: get color of sky
-#endif
-	}
-
-	// clear to white for shadow maps
-	if (backEnd.viewParms.flags & VPF_SHADOWMAP)
-	{
-		clearBits |= GL_COLOR_BUFFER_BIT;
-		qglClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 	}
 
 	// clear to black for cube maps
 	if (tr.renderCubeFbo && backEnd.viewParms.targetFbo == tr.renderCubeFbo)
 	{
 		clearBits |= GL_COLOR_BUFFER_BIT;
-		qglClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 	}
 
 	qglClear( clearBits );
@@ -519,8 +525,6 @@ void RB_BeginDrawingView (void) {
 		backEnd.isHyperspace = qfalse;
 	}
 
-	glState.faceCulling = -1;		// force face culling to set next time
-
 	// we will only draw a sun if there was sky rendered in this view
 	backEnd.skyRenderedThisView = qfalse;
 
@@ -528,7 +532,7 @@ void RB_BeginDrawingView (void) {
 	if ( backEnd.viewParms.isPortal ) {
 #if 0
 		float	plane[4];
-		double	plane2[4];
+		GLdouble	plane2[4];
 
 		plane[0] = backEnd.viewParms.portalPlane.normal[0];
 		plane[1] = backEnd.viewParms.portalPlane.normal[1];
@@ -798,7 +802,7 @@ void	RB_SetGL2D (void) {
 			  GLS_SRCBLEND_SRC_ALPHA |
 			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
-	qglDisable( GL_CULL_FACE );
+	GL_Cull( CT_TWO_SIDED );
 	qglDisable( GL_CLIP_PLANE0 );
 
 	// set time for 2D shaders
@@ -1122,13 +1126,24 @@ const void	*RB_DrawSurfs( const void *data ) {
 			GLSL_BindProgram(&tr.shadowmaskShader);
 
 			GL_BindToTMU(tr.renderDepthImage, TB_COLORMAP);
-			GL_BindToTMU(tr.sunShadowDepthImage[0], TB_SHADOWMAP);
-			GL_BindToTMU(tr.sunShadowDepthImage[1], TB_SHADOWMAP2);
-			GL_BindToTMU(tr.sunShadowDepthImage[2], TB_SHADOWMAP3);
+			
+			if (r_shadowCascadeZFar->integer != 0)
+			{
+				GL_BindToTMU(tr.sunShadowDepthImage[0], TB_SHADOWMAP);
+				GL_BindToTMU(tr.sunShadowDepthImage[1], TB_SHADOWMAP2);
+				GL_BindToTMU(tr.sunShadowDepthImage[2], TB_SHADOWMAP3);
+				GL_BindToTMU(tr.sunShadowDepthImage[3], TB_SHADOWMAP4);
 
-			GLSL_SetUniformMat4(&tr.shadowmaskShader, UNIFORM_SHADOWMVP,  backEnd.refdef.sunShadowMvp[0]);
-			GLSL_SetUniformMat4(&tr.shadowmaskShader, UNIFORM_SHADOWMVP2, backEnd.refdef.sunShadowMvp[1]);
-			GLSL_SetUniformMat4(&tr.shadowmaskShader, UNIFORM_SHADOWMVP3, backEnd.refdef.sunShadowMvp[2]);
+				GLSL_SetUniformMat4(&tr.shadowmaskShader, UNIFORM_SHADOWMVP,  backEnd.refdef.sunShadowMvp[0]);
+				GLSL_SetUniformMat4(&tr.shadowmaskShader, UNIFORM_SHADOWMVP2, backEnd.refdef.sunShadowMvp[1]);
+				GLSL_SetUniformMat4(&tr.shadowmaskShader, UNIFORM_SHADOWMVP3, backEnd.refdef.sunShadowMvp[2]);
+				GLSL_SetUniformMat4(&tr.shadowmaskShader, UNIFORM_SHADOWMVP4, backEnd.refdef.sunShadowMvp[3]);
+			}
+			else
+			{
+				GL_BindToTMU(tr.sunShadowDepthImage[3], TB_SHADOWMAP);
+				GLSL_SetUniformMat4(&tr.shadowmaskShader, UNIFORM_SHADOWMVP, backEnd.refdef.sunShadowMvp[3]);
+			}
 			
 			GLSL_SetUniformVec3(&tr.shadowmaskShader, UNIFORM_VIEWORIGIN,  backEnd.refdef.vieworg);
 			{
@@ -1642,7 +1657,7 @@ const void *RB_PostProcess(const void *data)
 
 	if (srcFbo)
 	{
-		if (r_hdr->integer && (r_toneMap->integer || r_forceToneMap->integer))
+		if (r_hdr->integer && (r_toneMap->integer || r_forceToneMap->integer) && qglActiveTextureARB)
 		{
 			autoExposure = r_autoExposure->integer || r_forceAutoExposure->integer;
 			RB_ToneMap(srcFbo, srcBox, NULL, dstBox, autoExposure);
@@ -1681,6 +1696,8 @@ const void *RB_PostProcess(const void *data)
 		FBO_BlitFromTexture(tr.sunShadowDepthImage[1], NULL, NULL, NULL, dstBox, NULL, NULL, 0);
 		VectorSet4(dstBox, 256, 0, 128, 128);
 		FBO_BlitFromTexture(tr.sunShadowDepthImage[2], NULL, NULL, NULL, dstBox, NULL, NULL, 0);
+		VectorSet4(dstBox, 384, 0, 128, 128);
+		FBO_BlitFromTexture(tr.sunShadowDepthImage[3], NULL, NULL, NULL, dstBox, NULL, NULL, 0);
 	}
 
 	if (0)
