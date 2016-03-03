@@ -6,9 +6,10 @@ failed=0;
 (make clean release) || failed=1;
 
 if [ $failed -eq 1 ]; then
-    echo "Build failure.";
+	echo "Build failure.";
 else
-    echo "Build successful.";
+	echo "Build successful.";
 fi
 
 exit $failed;
+

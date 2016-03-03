@@ -300,7 +300,8 @@ enum svc_ops_e {
 	svc_EOF,
 
 // new commands, supported only by ioquake3 protocol but not legacy
-	svc_voip,     // not wrapped in USE_VOIP, so this value is reserved.
+	svc_voipSpeex,     // not wrapped in USE_VOIP, so this value is reserved.
+	svc_voipOpus,      //
 };
 
 
@@ -316,7 +317,8 @@ enum clc_ops_e {
 	clc_EOF,
 
 // new commands, supported only by ioquake3 protocol but not legacy
-	clc_voip,   // not wrapped in USE_VOIP, so this value is reserved.
+	clc_voipSpeex,   // not wrapped in USE_VOIP, so this value is reserved.
+	clc_voipOpus,    //
 };
 
 /*
@@ -760,6 +762,7 @@ void Field_CompleteFilename( const char *dir,
 		const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
 void Field_CompleteCommand( char *cmd,
 		qboolean doCommands, qboolean doCvars );
+void Field_CompletePlayerName( char **names, int count );
 
 /*
 ==============================================================
@@ -838,6 +841,10 @@ void		Com_StartupVariable( const char *match );
 // checks for and removes command line "+set var arg" constructs
 // if match is NULL, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
+
+qboolean		Com_PlayerNameToFieldString( char *str, int length, const char *name );
+qboolean		Com_FieldStringToPlayerName( char *name, int length, const char *rawname );
+int QDECL	Com_strCompare( const void *a, const void *b );
 
 
 extern	cvar_t	*com_developer;

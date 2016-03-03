@@ -27,26 +27,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // A user mod should never modify this file
 
 #ifdef STANDALONE
-  #define PRODUCT_NAME				"Reaction"
-  #define BASEGAME					"Boomstick"
+  #define PRODUCT_NAME			"Reaction"
+  #define BASEGAME			"Boomstick"
   #define CLIENT_WINDOW_TITLE		"Reaction"
   #define CLIENT_WINDOW_MIN_TITLE	"Reaction"
   #define HOMEPATH_NAME_UNIX		".Reaction"
   #define HOMEPATH_NAME_WIN 		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
-//  #define STEAMPATH_NAME			"Foo Bar"
+//  #define STEAMPATH_NAME		"Foo Bar"
 //  #define STEAMPATH_APPID         ""
   #define GAMENAME_FOR_MASTER		"Reaction"
 //  #define LEGACY_PROTOCOL	// You probably don't need this for your standalone game
 #else
-  #define PRODUCT_NAME				"Reaction"
-  #define BASEGAME					"Boomstick"
+  #define PRODUCT_NAME			"Reaction"
+  #define BASEGAME			"Boomstick"
   #define CLIENT_WINDOW_TITLE		"Reaction"
   #define CLIENT_WINDOW_MIN_TITLE	"Reaction"
   #define HOMEPATH_NAME_UNIX		".Reaction"
   #define HOMEPATH_NAME_WIN 		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
-//  #define STEAMPATH_NAME			"Foo Bar"
+//  #define STEAMPATH_NAME		"Foo Bar"
 //  #define STEAMPATH_APPID         ""
   #define GAMENAME_FOR_MASTER		"Reaction"
 //  #define LEGACY_PROTOCOL

@@ -202,10 +202,6 @@ ifndef USE_INTERNAL_LIBS
 USE_INTERNAL_LIBS=1
 endif
 
-ifndef USE_INTERNAL_SPEEX
-USE_INTERNAL_SPEEX=$(USE_INTERNAL_LIBS)
-endif
-
 ifndef USE_INTERNAL_OGG
 USE_INTERNAL_OGG=$(USE_INTERNAL_LIBS)
 endif
@@ -258,7 +254,6 @@ NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
 Q3UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-8c
-SPEEXDIR=$(MOUNT_DIR)/libspeex
 OGGDIR=$(MOUNT_DIR)/libogg-1.3.1
 VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.4
 OPUSDIR=$(MOUNT_DIR)/opus-1.1
@@ -571,7 +566,7 @@ ifdef MINGW
 
   SHLIBEXT=dll
   SHLIBCFLAGS=
-  SHLIBLDFLAGS=-shared -static-libgcc $(LDFLAGS)
+  SHLIBLDFLAGS=-shared $(LDFLAGS)
 
   BINEXT=.exe
 
@@ -991,8 +986,18 @@ ifeq ($(USE_CURL),1)
   endif
 endif
 
+ifeq ($(USE_VOIP),1)
+  CLIENT_CFLAGS += -DUSE_VOIP
+  SERVER_CFLAGS += -DUSE_VOIP
+  NEED_OPUS=1
+endif
+
 ifeq ($(USE_CODEC_OPUS),1)
   CLIENT_CFLAGS += -DUSE_CODEC_OPUS
+  NEED_OPUS=1
+endif
+
+ifeq ($(NEED_OPUS),1)
   ifeq ($(USE_INTERNAL_OPUS),1)
     OPUS_CFLAGS = -DOPUS_BUILD -DHAVE_LRINTF -DFLOATING_POINT -DUSE_ALLOCA \
       -I$(OPUSDIR)/include -I$(OPUSDIR)/celt -I$(OPUSDIR)/silk \
@@ -1036,19 +1041,6 @@ endif
 
 ifeq ($(USE_MUMBLE),1)
   CLIENT_CFLAGS += -DUSE_MUMBLE
-endif
-
-ifeq ($(USE_VOIP),1)
-  CLIENT_CFLAGS += -DUSE_VOIP
-  SERVER_CFLAGS += -DUSE_VOIP
-  ifeq ($(USE_INTERNAL_SPEEX),1)
-    SPEEX_CFLAGS += -DFLOATING_POINT -DUSE_ALLOCA -I$(SPEEXDIR)/include
-  else
-    SPEEX_CFLAGS ?= $(shell pkg-config --silence-errors --cflags speex speexdsp || true)
-    SPEEX_LIBS ?= $(shell pkg-config --silence-errors --libs speex speexdsp || echo -lspeex -lspeexdsp)
-  endif
-  CLIENT_CFLAGS += $(SPEEX_CFLAGS)
-  CLIENT_LIBS += $(SPEEX_LIBS)
 endif
 
 ifeq ($(USE_INTERNAL_ZLIB),1)
@@ -1261,7 +1253,7 @@ endif
 
 NAKED_TARGETS=$(shell echo $(TARGETS) | sed -e "s!$(B)/!!g")
 
-print_list=@for i in $(1); \
+print_list=-@for i in $(1); \
      do \
              echo "    $$i"; \
      done
@@ -1652,6 +1644,7 @@ Q3R2OBJ = \
   $(B)/renderergl2/tr_bsp.o \
   $(B)/renderergl2/tr_cmds.o \
   $(B)/renderergl2/tr_curve.o \
+  $(B)/renderergl2/tr_dsa.o \
   $(B)/renderergl2/tr_extramath.o \
   $(B)/renderergl2/tr_extensions.o \
   $(B)/renderergl2/tr_fbo.o \
@@ -1664,6 +1657,7 @@ Q3R2OBJ = \
   $(B)/renderergl2/tr_image_pcx.o \
   $(B)/renderergl2/tr_image_png.o \
   $(B)/renderergl2/tr_image_tga.o \
+  $(B)/renderergl2/tr_image_dds.o \
   $(B)/renderergl2/tr_init.o \
   $(B)/renderergl2/tr_light.o \
   $(B)/renderergl2/tr_main.o \
@@ -1827,53 +1821,7 @@ ifeq ($(ARCH),x86_64)
     $(B)/client/ftola.o
 endif
 
-ifeq ($(USE_VOIP),1)
-ifeq ($(USE_INTERNAL_SPEEX),1)
-Q3OBJ += \
-  $(B)/client/bits.o \
-  $(B)/client/buffer.o \
-  $(B)/client/cb_search.o \
-  $(B)/client/exc_10_16_table.o \
-  $(B)/client/exc_10_32_table.o \
-  $(B)/client/exc_20_32_table.o \
-  $(B)/client/exc_5_256_table.o \
-  $(B)/client/exc_5_64_table.o \
-  $(B)/client/exc_8_128_table.o \
-  $(B)/client/fftwrap.o \
-  $(B)/client/filterbank.o \
-  $(B)/client/filters.o \
-  $(B)/client/gain_table.o \
-  $(B)/client/gain_table_lbr.o \
-  $(B)/client/hexc_10_32_table.o \
-  $(B)/client/hexc_table.o \
-  $(B)/client/high_lsp_tables.o \
-  $(B)/client/jitter.o \
-  $(B)/client/kiss_fft.o \
-  $(B)/client/kiss_fftr.o \
-  $(B)/client/lpc.o \
-  $(B)/client/lsp.o \
-  $(B)/client/lsp_tables_nb.o \
-  $(B)/client/ltp.o \
-  $(B)/client/mdf.o \
-  $(B)/client/modes.o \
-  $(B)/client/modes_wb.o \
-  $(B)/client/nb_celp.o \
-  $(B)/client/preprocess.o \
-  $(B)/client/quant_lsp.o \
-  $(B)/client/resample.o \
-  $(B)/client/sb_celp.o \
-  $(B)/client/smallft.o \
-  $(B)/client/speex.o \
-  $(B)/client/speex_callbacks.o \
-  $(B)/client/speex_header.o \
-  $(B)/client/stereo.o \
-  $(B)/client/vbr.o \
-  $(B)/client/vq.o \
-  $(B)/client/window.o
-endif
-endif
-
-ifeq ($(USE_CODEC_OPUS),1)
+ifeq ($(NEED_OPUS),1)
 ifeq ($(USE_INTERNAL_OPUS),1)
 Q3OBJ += \
   $(B)/client/opus/analysis.o \
@@ -2556,9 +2504,6 @@ $(B)/client/%.o: $(CMDIR)/%.c
 $(B)/client/%.o: $(BLIBDIR)/%.c
 	$(DO_BOT_CC)
 
-$(B)/client/%.o: $(SPEEXDIR)/%.c
-	$(DO_CC)
-
 $(B)/client/%.o: $(OGGDIR)/src/%.c
 	$(DO_CC)
 
@@ -2849,7 +2794,6 @@ ifdef MINGW
 		USE_OPENAL_DLOPEN=$(USE_OPENAL_DLOPEN) \
 		USE_CURL_DLOPEN=$(USE_CURL_DLOPEN) \
 		USE_INTERNAL_OPUS=$(USE_INTERNAL_OPUS) \
-		USE_INTERNAL_SPEEX=$(USE_INTERNAL_SPEEX) \
 		USE_INTERNAL_ZLIB=$(USE_INTERNAL_ZLIB) \
 		USE_INTERNAL_JPEG=$(USE_INTERNAL_JPEG)
 else

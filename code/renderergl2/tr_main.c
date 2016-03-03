@@ -1820,13 +1820,6 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		return;
 	}
 
-	// if we overflowed MAX_DRAWSURFS, the drawsurfs
-	// wrapped around in the buffer and we will be missing
-	// the first surfaces, not the last ones
-	if ( numDrawSurfs > MAX_DRAWSURFS ) {
-		numDrawSurfs = MAX_DRAWSURFS;
-	}
-
 	// sort the drawsurfs by sort type, then orientation, then shader
 	R_RadixSort( drawSurfs, numDrawSurfs );
 
@@ -2037,7 +2030,7 @@ void R_DebugGraphics( void ) {
 
 	R_IssuePendingRenderCommands();
 
-	GL_Bind( tr.whiteImage);
+	GL_BindToTMU(tr.whiteImage, TB_COLORMAP);
 	GL_Cull( CT_FRONT_SIDED );
 	ri.CM_DrawDebugSurface( R_DebugPolygon );
 }
@@ -2053,6 +2046,7 @@ or a mirror / remote location
 */
 void R_RenderView (viewParms_t *parms) {
 	int		firstDrawSurf;
+	int		numDrawSurfs;
 
 	if ( parms->viewportWidth <= 0 || parms->viewportHeight <= 0 ) {
 		return;
@@ -2075,7 +2069,15 @@ void R_RenderView (viewParms_t *parms) {
 
 	R_GenerateDrawSurfs();
 
-	R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
+	// if we overflowed MAX_DRAWSURFS, the drawsurfs
+	// wrapped around in the buffer and we will be missing
+	// the first surfaces, not the last ones
+	numDrawSurfs = tr.refdef.numDrawSurfs;
+	if ( numDrawSurfs > MAX_DRAWSURFS ) {
+		numDrawSurfs = MAX_DRAWSURFS;
+	}
+
+	R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, numDrawSurfs - firstDrawSurf );
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();
@@ -2860,7 +2862,7 @@ void R_RenderCubemapSide( int cubemapIndex, int cubemapSide, qboolean subscene )
 
 	memset( &refdef, 0, sizeof( refdef ) );
 	refdef.rdflags = 0;
-	VectorCopy(tr.cubemapOrigins[cubemapIndex], refdef.vieworg);
+	VectorCopy(tr.cubemaps[cubemapIndex].origin, refdef.vieworg);
 
 	switch(cubemapSide)
 	{
@@ -2934,7 +2936,7 @@ void R_RenderCubemapSide( int cubemapIndex, int cubemapSide, qboolean subscene )
 		// only print message for first side
 		if (directed[0] + directed[1] + directed[2] == 0 && cubemapSide == 0)
 		{
-			ri.Printf(PRINT_ALL, "cubemap %d (%f, %f, %f) is outside the lightgrid!\n", cubemapIndex, tr.refdef.vieworg[0], tr.refdef.vieworg[1], tr.refdef.vieworg[2]);
+			ri.Printf(PRINT_ALL, "cubemap %d %s (%f, %f, %f) is outside the lightgrid!\n", cubemapIndex, tr.cubemaps[cubemapIndex].name, tr.refdef.vieworg[0], tr.refdef.vieworg[1], tr.refdef.vieworg[2]);
 		}
 	}
 

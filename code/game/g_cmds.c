@@ -1752,7 +1752,7 @@ static void Cmd_Tell_f(gentity_t * ent)
 	}
 
 	//Slicer : no TELL FOR TP
-	if (!g_gametype.integer < GT_TEAM)
+	if (g_gametype.integer >= GT_TEAM)
 		return;
 
 	trap_Argv(1, arg, sizeof(arg));
