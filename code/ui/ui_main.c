@@ -5671,13 +5671,18 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_postProcess", 1);
+			trap_Cvar_SetValue("r_toneMap", 1);
+			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
-			trap_Cvar_SetValue("r_imageUpsample", 0);
+			trap_Cvar_SetValue("r_cubeMapping", 1);
 			
-			trap_Cvar_SetValue("r_lodBias", 1);
-			trap_Cvar_SetValue("r_subdivisions", 4);
-			trap_Cvar_SetValue("r_lodCurveError", 250);
+			trap_Cvar_SetValue("r_lodBias", 0);
+			trap_Cvar_SetValue("r_subdivisions", 1);
+			trap_Cvar_SetValue("r_lodCurveError", 10000);
 			
 			trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_compressed_textures", 0);
@@ -5695,9 +5700,14 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("r_picmip", 2);
 			trap_Cvar_SetValue("r_hdr", 0);
+			trap_Cvar_SetValue("r_postProcess", 0);
+			trap_Cvar_SetValue("r_toneMap", 0);
+			trap_Cvar_SetValue("r_autoExposure", 0);
+			trap_Cvar_SetValue("r_pbr", 0);
+			trap_Cvar_SetValue("r_deluxeMapping", 0);
 			trap_Cvar_SetValue("r_normalMapping", 0);
 			trap_Cvar_SetValue("r_specularMapping", 0);
-			trap_Cvar_SetValue("r_imageUpsample", 0);
+			trap_Cvar_SetValue("r_cubeMapping", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 2);
 			trap_Cvar_SetValue("r_subdivisions", 8);
@@ -5719,12 +5729,17 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("r_picmip", 1);
 			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_postProcess", 0);
+			trap_Cvar_SetValue("r_toneMap", 0);
+			trap_Cvar_SetValue("r_autoExposure", 0);
+			trap_Cvar_SetValue("r_pbr", 0);
+			trap_Cvar_SetValue("r_deluxeMapping", 0);
 			trap_Cvar_SetValue("r_normalMapping", 0);
 			trap_Cvar_SetValue("r_specularMapping", 0);
-			trap_Cvar_SetValue("r_imageUpsample", 0);
+			trap_Cvar_SetValue("r_cubeMapping", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 1);
-			trap_Cvar_SetValue("r_subdivisions", 8);
+			trap_Cvar_SetValue("r_subdivisions", 4);
 			trap_Cvar_SetValue("r_lodCurveError", 250);
 			
 			trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_LINEAR");
@@ -5743,9 +5758,14 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_postProcess", 1);
+			trap_Cvar_SetValue("r_toneMap", 1);
+			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
-			trap_Cvar_SetValue("r_imageUpsample", 1);
+			trap_Cvar_SetValue("r_cubeMapping", 1);
 			
 			trap_Cvar_SetValue("r_lodBias", 0);
 			trap_Cvar_SetValue("r_subdivisions", 1);
@@ -5767,9 +5787,14 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_postProcess", 1);
+			trap_Cvar_SetValue("r_toneMap", 1);
+			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
-			trap_Cvar_SetValue("r_imageUpsample", 1);
+			trap_Cvar_SetValue("r_cubeMapping", 1);
 			
 			trap_Cvar_SetValue("r_lodBias", 0);
 			trap_Cvar_SetValue("r_subdivisions", 1);
@@ -5824,12 +5849,18 @@ static void UI_Update(const char *name)
 		switch (val) {
 		// per-pixel lighting
 		case 0:	// flat (disabled)
+			trap_Cvar_SetValue("r_pbr", 0);
+			trap_Cvar_SetValue("r_deluxeMapping", 0);
 			trap_Cvar_SetValue("r_normalMapping", 0);
 			trap_Cvar_SetValue("r_specularMapping", 0);
+			trap_Cvar_SetValue("r_cubeMapping", 0);
 			break;
 		case 1: // bumpy (enabled)
+			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
+			trap_Cvar_SetValue("r_cubeMapping", 1);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_shadowMaps") == 0) {
@@ -5839,21 +5870,25 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_sunShadows", 0);
 			trap_Cvar_SetValue("r_shadowFilter", 0);
 			trap_Cvar_SetValue("r_shadowMapSize", 0);
+			trap_Cvar_SetValue("r_shadowBlur", 0);
 			break;
 		case 1: // low
 			trap_Cvar_SetValue("r_sunShadows", 1);
 			trap_Cvar_SetValue("r_shadowFilter", 1);
 			trap_Cvar_SetValue("r_shadowMapSize", 512);
+			trap_Cvar_SetValue("r_shadowBlur", 0);
 			break;
 		case 2: // medium
 			trap_Cvar_SetValue("r_sunShadows", 1);
-			trap_Cvar_SetValue("r_shadowFilter", 2);
+			trap_Cvar_SetValue("r_shadowFilter", 1);
 			trap_Cvar_SetValue("r_shadowMapSize", 1024);
+			trap_Cvar_SetValue("r_shadowBlur", 1);
 			break;
 		case 3: // high
 			trap_Cvar_SetValue("r_sunShadows", 1);
 			trap_Cvar_SetValue("r_shadowFilter", 2);
 			trap_Cvar_SetValue("r_shadowMapSize", 2048);
+			trap_Cvar_SetValue("r_shadowBlur", 1);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_mousePitch") == 0) {
