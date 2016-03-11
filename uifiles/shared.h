@@ -13,7 +13,7 @@
 	itemdef {	\
 	group main	\
 	subgroup "main_title"	\
-	text "REACTION v1.0"	\
+	text "REACTION v1.1"	\
 	forecolor 0 0 .05 1	\
 	style WINDOW_STYLE_EMPTY	\
 	textalign ITEM_ALIGN_CENTER	\
@@ -40,7 +40,7 @@
 	textalignx 120	\
 	textaligny 24	\
 	forecolor 0 0 0.05 1	\
-	text "(c) 2000-2012 Boomstick Studios\n\n\n\n\n"	\
+	text "(c) 2000-2016 Boomstick Studios\n\n\n\n\n"	\
 	     "http://www.rq3.com"	\
 	autowrapped	\
 	visible 1	\
@@ -50,8 +50,8 @@
     itemDef {
 	name "copyright,_common_"
 	autowrapped
-	text "Reaction v1.0\n"
-	     "Copyright (c) 2000 - 2012 Boomstick Studios\n"
+	text "Reaction v1.1\n"
+	     "Copyright (c) 2000 - 2016 Boomstick Studios\n"
 	     "Quake III Arena (c) 1999 - 2000 id Software Inc."
 	//style 0
 	textstyle 3

@@ -205,7 +205,7 @@ Group # 1 - Gameplay
 	END_OPTION
     ADD_HINT("hint_glasstime", "Change the amount of glass fragments", "group1")
 
-    
+
 	// Wall marks //
 
 	BEGIN_OPTION("Wall marks", "cg_marks", ITEM_TYPE_YESNO, 5, 1)

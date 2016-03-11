@@ -171,14 +171,20 @@ Group # 1 - Graphics
 	BEGIN_OPTION("Quality", "ui_glCustom", ITEM_TYPE_MULTI, 1, 1)
 		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
 		cvarFloatList {
-			"Crappiest"		2
-			"Crappy"		3
+			"Very Low"		2
+			"Low"			3
 			"Normal"		1
 			"High"			4
-			"Highest"		5
+			"Very High"		5
 			"Custom"		0
 		}
-		action { uiScript update "ui_glCustom" }
+		action {
+			uiScript update "ui_glCustom" ;
+			uiScript update "ui_filteringMode" ;
+			uiScript update "ui_shaderLevel" ;
+			uiScript update "ui_shadowMaps" ;
+			uiScript update "r_lodbias"
+		}
 		ASSIGN_HINT("hint_predef")
 	END_OPTION
 	ADD_HINT("hint_predef", "Choose pre-defined graphics settings", "group1")
@@ -205,6 +211,7 @@ Group # 1 - Graphics
 	ADD_HINT("hint_glext", "Enable OpenGL extensions", "group1")
 	*/
 
+
 	// Resolution //
 
 	BEGIN_SIMPLE_OPTION(2, 1)
@@ -227,6 +234,7 @@ Group # 1 - Graphics
 	ADD_HINT("hint_depth", "Choose rendering color depth", "group1")
 	*/
 
+
 	// Fullscreen //
 
 	BEGIN_OPTION("Fullscreen", "ui_RQ3_fullscreen", ITEM_TYPE_YESNO, 3, 1)
@@ -245,7 +253,7 @@ Group # 1 - Graphics
 			"4x MSAA"	4
 		}
 		OPTION_BELOW("gr1_ctrl3")
-		action { uiScript glCustom ; }
+		action { uiScript glCustom }
 		ASSIGN_HINT("hint_aa")
 	END_OPTION
     ADD_HINT("hint_aa", "Use anti-aliasing to reduce jaggedness", "group1")
@@ -269,34 +277,43 @@ Group # 1 - Graphics
     ADD_HINT("hint_texfilter", "Choose texture filtering mode", "group1")
 
 
-    // Per-pixel lighting //
+    // Screen-space ambient occlusion //
 
-	BEGIN_OPTION("Per-pixel Lighting", "ui_shaderLevel", ITEM_TYPE_YESNO, 6, 1)
+	BEGIN_OPTION("SSAO", "r_ssao", ITEM_TYPE_YESNO, 6, 1)
 		OPTION_BELOW("gr1_ctrl5")
-		action { uiScript glCustom ; uiScript update "ui_shaderLevel" }
-		ASSIGN_HINT("hint_shader")
+		action { uiScript glCustom }
+		ASSIGN_HINT("hint_ssao")
     END_OPTION
-    ADD_HINT("hint_shader", "Enable normal mapping and specular reflectivity", "group1")
+    ADD_HINT("hint_ssao", "Enable screen-space ambient occlusion", "group1")
+
+
+    // Physically-based rendering //
+
+	BEGIN_OPTION("PBR", "ui_shaderLevel", ITEM_TYPE_YESNO, 7, 1)
+		OPTION_BELOW("gr1_ctrl6")
+		action { uiScript glCustom ; uiScript update "ui_shaderLevel" }
+		ASSIGN_HINT("hint_pbr")
+    END_OPTION
+    ADD_HINT("hint_pbr", "Enable physically-based rendering", "group1")
 
 
     // Cascaded Shadow Maps //
 
-	BEGIN_OPTION("Cascaded Shadow Maps", "ui_shadowMaps", ITEM_TYPE_MULTI, 7, 1)
+	BEGIN_OPTION("CSM", "ui_shadowMaps", ITEM_TYPE_MULTI, 8, 1)
 		cvarFloatList {
 			"Off"					0
 			"Low"					1
 			"Medium"				2
 			"High"					3
 		}
-		OPTION_BELOW("gr1_ctrl6")
+		OPTION_BELOW("gr1_ctrl7")
 		action { uiScript glCustom ; uiScript update "ui_shadowMaps" }
 		ASSIGN_HINT("hint_csm")
     END_OPTION
-    ADD_HINT("hint_csm", "Enable sunlight and cascaded shadow maps", "group1")
+    ADD_HINT("hint_csm", "Enable cascaded shadow maps", "group1")
 
 
 	// Lightmap/vertex //
-
 	/*
 	BEGIN_OPTION("Lighting", "r_vertexlight", ITEM_TYPE_MULTI, 9, 1)
 		cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
@@ -310,13 +327,13 @@ Group # 1 - Graphics
 
 	// Geometric detail //
 
-	BEGIN_OPTION("Geometric Detail", "r_lodbias", ITEM_TYPE_MULTI, 8, 1)
+	BEGIN_OPTION("Geometric Detail", "r_lodbias", ITEM_TYPE_MULTI, 9, 1)
 		cvarFloatList {
 			"Low"		2
 			"Medium"	1
 			"High"		0
 		}
-		OPTION_BELOW("gr1_ctrl7")
+		OPTION_BELOW("gr1_ctrl8")
 		action { uiScript glCustom ; uiScript update "r_lodbias" }
 		ASSIGN_HINT("hint_geodetail")
 	END_OPTION
@@ -325,15 +342,15 @@ Group # 1 - Graphics
 
 	// Texture detail //
 
-	BEGIN_OPTION("Texture Detail", "r_picmip", ITEM_TYPE_MULTI, 9, 1)
+	BEGIN_OPTION("Texture Detail", "r_picmip", ITEM_TYPE_MULTI, 10, 1)
 		cvarFloatList {
 			"Very Low"	3
 			"Low"		2
 			"Medium"	1
 			"High"		0
 		}
-		OPTION_BELOW("gr1_ctrl8")
-		action { uiScript glCustom ; }
+		OPTION_BELOW("gr1_ctrl9")
+		action { uiScript glCustom }
 		ASSIGN_HINT("hint_texdetail")
 	END_OPTION
 	ADD_HINT("hint_texdetail", "Choose texture detail level", "group1")
@@ -348,20 +365,38 @@ Group # 1 - Graphics
 			"32 bit"	32
 		}
 		OPTION_BELOW("gr1_ctrl7")
-		action { uiScript glCustom ; }
+		action { uiScript glCustom }
 		ASSIGN_HINT("hint_texquality")
 	END_OPTION
 	ADD_HINT("hint_texquality", "Choose texture quality", "group1")
 	*/
 
-	// Compressed textures //
 
-	BEGIN_OPTION("Compress Textures", "r_ext_compressed_textures", ITEM_TYPE_YESNO, 10, 1)
-		OPTION_BELOW("gr1_ctrl9")
-		action { uiScript glCustom ; }
+	// Compressed textures //
+	/*
+	BEGIN_OPTION("Compress Textures", "r_ext_compressed_textures", ITEM_TYPE_YESNO, 11, 1)
+		OPTION_BELOW("gr1_ctrl10")
+		action { uiScript glCustom }
 		ASSIGN_HINT("hint_compress")
 	END_OPTION
 	ADD_HINT("hint_compress", "Enable texture compression", "group1")
+	*/
+
+
+	// Texture upsampling //
+
+	BEGIN_OPTION("Texture Upsampling", "r_imageUpsample", ITEM_TYPE_MULTI, 11, 1)
+		cvarFloatList {
+			"No (default)"	0
+			"2x Size"		1
+			"4x Size"		2
+			"8x Size"		3
+		}
+		OPTION_BELOW("gr1_ctrl10")
+		action { uiScript glCustom }
+		ASSIGN_HINT("hint_upsample")
+	END_OPTION
+	ADD_HINT("hint_upsample", "Use interpolation to artificially increase the resolution of all textures (experimental)", "group1")
 
 
 	// APPLY //
@@ -369,7 +404,7 @@ Group # 1 - Graphics
 	itemdef {
 	name "btn_apply,fade_alpha,allgroups,group1"
 	style WINDOW_STYLE_EMPTY
-	alignrect "gr1_ctrl10" ITEM_ALIGN_RIGHT 0 24 80 VSIZE
+	alignrect "gr1_ctrl11" ITEM_ALIGN_RIGHT 0 24 80 VSIZE
 	type ITEM_TYPE_BUTTON
 	text "^_A^_pply >"
 	shortcutKey "A"
@@ -528,6 +563,7 @@ Group # 3 - Misc
 		ASSIGN_HINT("hint_openal")
 	END_OPTION
 	ADD_HINT("hint_openal", "Enable OpenAL sound rendering", "group3")
+
 
 	// Sound volume //
 

@@ -5665,20 +5665,21 @@ static void UI_Update(const char *name)
 	} else if (Q_stricmp(name, "ui_glCustom") == 0) {
 		switch (val) {
 		//TTI: new presets
-		case 1:	// normal
+		case 1:	// normal quality
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
 			
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
-			trap_Cvar_SetValue("r_postProcess", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
 			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_ssao", 1);
 			trap_Cvar_SetValue("r_pbr", 1);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
 			trap_Cvar_SetValue("r_cubeMapping", 1);
+			trap_Cvar_SetValue("r_imageUpsample", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 0);
 			trap_Cvar_SetValue("r_subdivisions", 1);
@@ -5694,20 +5695,21 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("ui_shaderLevel", 1);
 			trap_Cvar_SetValue("ui_shadowMaps", 2);
 			break;
-		case 2:	// crappiest
+		case 2:	// very low quality
 			trap_Cvar_SetValue("cg_brassTime", 0);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 0);
 			
 			trap_Cvar_SetValue("r_picmip", 2);
 			trap_Cvar_SetValue("r_hdr", 0);
-			trap_Cvar_SetValue("r_postProcess", 0);
 			trap_Cvar_SetValue("r_toneMap", 0);
 			trap_Cvar_SetValue("r_autoExposure", 0);
+			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 0);
 			trap_Cvar_SetValue("r_normalMapping", 0);
 			trap_Cvar_SetValue("r_specularMapping", 0);
 			trap_Cvar_SetValue("r_cubeMapping", 0);
+			trap_Cvar_SetValue("r_imageUpsample", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 2);
 			trap_Cvar_SetValue("r_subdivisions", 8);
@@ -5723,20 +5725,21 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("ui_shaderLevel", 0);
 			trap_Cvar_SetValue("ui_shadowMaps", 0);
 			break;
-		case 3:	// crap
+		case 3:	// low quality
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
 			
 			trap_Cvar_SetValue("r_picmip", 1);
 			trap_Cvar_SetValue("r_hdr", 1);
-			trap_Cvar_SetValue("r_postProcess", 0);
 			trap_Cvar_SetValue("r_toneMap", 0);
 			trap_Cvar_SetValue("r_autoExposure", 0);
+			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 0);
 			trap_Cvar_SetValue("r_normalMapping", 0);
 			trap_Cvar_SetValue("r_specularMapping", 0);
 			trap_Cvar_SetValue("r_cubeMapping", 0);
+			trap_Cvar_SetValue("r_imageUpsample", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 1);
 			trap_Cvar_SetValue("r_subdivisions", 4);
@@ -5758,14 +5761,15 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
-			trap_Cvar_SetValue("r_postProcess", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
 			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_ssao", 1);
 			trap_Cvar_SetValue("r_pbr", 1);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
 			trap_Cvar_SetValue("r_cubeMapping", 1);
+			trap_Cvar_SetValue("r_imageUpsample", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 0);
 			trap_Cvar_SetValue("r_subdivisions", 1);
@@ -5781,20 +5785,21 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("ui_shaderLevel", 1);
 			trap_Cvar_SetValue("ui_shadowMaps", 2);
 			break;
-		case 5: // highest quality
+		case 5: // very high quality
 			trap_Cvar_SetValue("cg_brassTime", 20000);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 20000);
 			
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
-			trap_Cvar_SetValue("r_postProcess", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
 			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_ssao", 1);
 			trap_Cvar_SetValue("r_pbr", 1);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
 			trap_Cvar_SetValue("r_cubeMapping", 1);
+			trap_Cvar_SetValue("r_imageUpsample", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 0);
 			trap_Cvar_SetValue("r_subdivisions", 1);
@@ -5847,15 +5852,15 @@ static void UI_Update(const char *name)
 		}
 	} else if (Q_stricmp(name, "ui_shaderLevel") == 0) {
 		switch (val) {
-		// per-pixel lighting
-		case 0:	// flat (disabled)
+		// physically-based rendering
+		case 0:	// disabled
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 0);
 			trap_Cvar_SetValue("r_normalMapping", 0);
 			trap_Cvar_SetValue("r_specularMapping", 0);
 			trap_Cvar_SetValue("r_cubeMapping", 0);
 			break;
-		case 1: // bumpy (enabled)
+		case 1: // enabled
 			trap_Cvar_SetValue("r_pbr", 1);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);

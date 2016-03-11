@@ -115,8 +115,8 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Tomi Isoaho\n"
-	     "Richard Allen\n"
+	text "Richard Allen\n"
+	     "Tomi Isoaho\n"
 	     "Andrei Drexler\n"
 	     "James Canete\n"
 	     "Scott Brooks\n"
@@ -138,8 +138,8 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "T.T.I.\n"
-	     "JBravo\n"
+	text "JBravo\n"
+	     "T.T.I.\n"
 	     "Makro\n"
 	     "SmileTheory\n"
 	     "Blaze\n"
@@ -1213,7 +1213,7 @@
 	name "timer16"
 	group timer	
 	subgroup "t16_title"
-	text "Reaction 1.0\n"
+	text "Reaction\n"
 	     "contributions"
 	forecolor 0 0 .1 1
 	style WINDOW_STYLE_EMPTY
@@ -1320,7 +1320,7 @@
 	name "timer18"
 	group timer	
 	subgroup "t18_title"
-	text "REACTION 1.0\n"
+	text "REACTION\n"
 	     "TITLE SCORE\n"
 	     "\n"
 		 "\n"
@@ -1974,7 +1974,7 @@
 	textalignx 220
 	textaligny 80
 	text "THIS HAS BEEN A BOOMSTICK STUDIOS\nPRODUCTION\n\n"
-	     "Copyright 2000 - 2012"
+	     "Copyright 2000 - 2016"
 	autowrapped
 	visible 1
 	decoration
