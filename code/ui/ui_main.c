@@ -5673,7 +5673,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_hdr", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
 			trap_Cvar_SetValue("r_autoExposure", 1);
-			trap_Cvar_SetValue("r_ssao", 1);
+			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 1);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
