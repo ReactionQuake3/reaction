@@ -32,6 +32,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/iqm.h"
 #include "../renderercommon/qgl.h"
 
+#define GLE(ret, name, ...) extern name##proc * qgl##name;
+QGL_1_1_PROCS;
+QGL_1_1_FIXED_FUNCTION_PROCS;
+QGL_DESKTOP_1_1_PROCS;
+QGL_DESKTOP_1_1_FIXED_FUNCTION_PROCS;
+QGL_3_0_PROCS;
+#undef GLE
+
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
@@ -362,8 +370,8 @@ typedef struct shader_s {
 
 	void		(*optimalStageIteratorFunc)( void );
 
-  float clampTime;                                  // time this shader is clamped to
-  float timeOffset;                                 // current time offset for this shader
+  double clampTime;                                  // time this shader is clamped to
+  double timeOffset;                                 // current time offset for this shader
 
   struct shader_s *remappedShader;                  // current shader this one is remapped too
 
@@ -388,7 +396,7 @@ typedef struct {
 	byte		areamask[MAX_MAP_AREA_BYTES];
 	qboolean	areamaskModified;	// qtrue if areamask changed since last scene
 
-	float		floatTime;			// tr.refdef.time / 1000.0
+	double		floatTime;			// tr.refdef.time / 1000.0
 
 	// text messages for deform text shaders
 	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
@@ -411,6 +419,12 @@ typedef struct {
 
 //=================================================================================
 
+// max surfaces per-skin
+// This is an arbitry limit. Vanilla Q3 only supported 32 surfaces in skins but failed to
+// enforce the maximum limit when reading skin files. It was possile to use more than 32
+// surfaces which accessed out of bounds memory past end of skin->surfaces hunk block.
+#define MAX_SKIN_SURFACES	256
+
 // skins allow models to be retextured without modifying the model file
 typedef struct {
 	char		name[MAX_QPATH];
@@ -420,7 +434,7 @@ typedef struct {
 typedef struct skin_s {
 	char		name[MAX_QPATH];		// game path, including extension
 	int			numSurfaces;
-	skinSurface_t	*surfaces[MD3_MAX_SURFACES];
+	skinSurface_t	*surfaces;			// dynamically allocated array of surfaces
 } skin_t;
 
 
@@ -585,28 +599,33 @@ typedef struct {
 	int		num_poses;
 	struct srfIQModel_s	*surfaces;
 
+	int		*triangles;
+
+	// vertex arrays
 	float		*positions;
 	float		*texcoords;
 	float		*normals;
 	float		*tangents;
-	byte		*blendIndexes;
+	byte		*colors;
+	int		*influences; // [num_vertexes] indexes into influenceBlendVertexes
+
+	// unique list of vertex blend indexes/weights for faster CPU vertex skinning
+	byte		*influenceBlendIndexes; // [num_influences]
 	union {
 		float	*f;
 		byte	*b;
-	} blendWeights;
-	byte		*colors;
-	int		*triangles;
+	} influenceBlendWeights; // [num_influences]
 
 	// depending upon the exporter, blend indices and weights might be int/float
 	// as opposed to the recommended byte/byte, for example Noesis exports
 	// int/float whereas the official IQM tool exports byte/byte
-	byte blendWeightsType; // IQM_UBYTE or IQM_FLOAT
+	int		blendWeightsType; // IQM_UBYTE or IQM_FLOAT
 
+	char		*jointNames;
 	int		*jointParents;
 	float		*jointMats;
 	float		*poseMats;
 	float		*bounds;
-	char		*names;
 } iqmData_t;
 
 // inter-quake-model surface
@@ -617,6 +636,7 @@ typedef struct srfIQModel_s {
 	iqmData_t	*data;
 	int		first_vertex, num_vertexes;
 	int		first_triangle, num_triangles;
+	int		first_influence, num_influences;
 } srfIQModel_t;
 
 
@@ -834,7 +854,7 @@ typedef struct {
 	int		msec;			// total msec for backend run
 } backEndCounters_t;
 
-// all state modified by the back end is seperated
+// all state modified by the back end is separated
 // from the front end state
 typedef struct {
 	trRefdef_t	refdef;
@@ -975,7 +995,7 @@ extern cvar_t	*r_measureOverdraw;		// enables stencil buffer overdraw measuremen
 extern cvar_t	*r_lodbias;				// push/pull LOD transitions
 extern cvar_t	*r_lodscale;
 
-extern cvar_t	*r_primitives;			// "0" = based on compiled vertex array existance
+extern cvar_t	*r_primitives;			// "0" = based on compiled vertex array existence
 										// "1" = glDrawElemet tristrips
 										// "2" = glDrawElements triangles
 										// "-1" = no drawing
@@ -1211,7 +1231,7 @@ typedef struct shaderCommands_s
 	color4ub_t	constantColor255[SHADER_MAX_VERTEXES] QALIGN(16);
 
 	shader_t	*shader;
-	float		shaderTime;
+	double		shaderTime;
 	int			fogNum;
 
 	int			dlightBits;	// or together of all vertexDlightBits
@@ -1577,5 +1597,13 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
+void R_DrawElements( int numIndexes, const glIndex_t *indexes );
+void VectorArrayNormalize( vec4_t *normals, unsigned int count );
+
+#ifdef idppc_altivec
+void LerpMeshVertexes_altivec( md3Surface_t *surf, float backlerp );
+void ProjectDlightTexture_altivec( void );
+void RB_CalcDiffuseColor_altivec( unsigned char *colors );
+#endif
 
 #endif //TR_LOCAL_H

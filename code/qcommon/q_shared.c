@@ -23,6 +23,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
+#if 0
+qboolean Q_IsColorString(const char *p) {
+	if (!p)
+		return qfalse;
+
+	if (p[0] != Q_COLOR_ESCAPE)
+		return qfalse;
+
+	if (p[1] == 0)
+		return qfalse;
+
+	if (p[1] == Q_COLOR_ESCAPE)
+		return qfalse;
+
+	return qtrue;
+}
+#endif
+
 float Com_Clamp( float min, float max, float value ) {
 	if ( value < min ) {
 		return min;
@@ -660,15 +678,15 @@ Com_HexStrToInt
 */
 int Com_HexStrToInt( const char *str )
 {
-	if ( !str || !str[ 0 ] )
+	if ( !str )
 		return -1;
 
 	// check for hex code
-	if( str[ 0 ] == '0' && str[ 1 ] == 'x' )
+	if( str[ 0 ] == '0' && str[ 1 ] == 'x' && str[ 2 ] != '\0' )
 	{
-		int i, n = 0;
+		int i, n = 0, len = strlen( str );
 
-		for( i = 2; i < strlen( str ); i++ )
+		for( i = 2; i < len; i++ )
 		{
 			char digit;
 
@@ -746,13 +764,14 @@ qboolean Q_isintegral( float f )
 	return (int)f == f;
 }
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 /*
 =============
 Q_vsnprintf
- 
+
 Special wrapper function for Microsoft's broken _vsnprintf() function.
-MinGW comes with its own snprintf() which is not broken.
+MinGW comes with its own vsnprintf() which is not broken. mingw-w64
+however, uses Microsoft's broken _vsnprintf() function.
 =============
 */
 

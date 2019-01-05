@@ -87,7 +87,7 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 		if ( newnum == oldnum ) {
 			// delta update from old position
 			// because the force parm is qfalse, this will not result
-			// in any bytes being emited if the entity has not changed at all
+			// in any bytes being emitted if the entity has not changed at all
 			MSG_WriteDeltaEntity (msg, oldent, newent, qfalse );
 			oldindex++;
 			newindex++;
@@ -653,6 +653,9 @@ void SV_SendClientMessages(void)
 		if(!c->state)
 			continue;		// not connected
 
+		if(svs.time - c->lastSnapshotTime < c->snapshotMsec * com_timescale->value)
+			continue;		// It's not time yet
+
 		if(*c->downloadName)
 			continue;		// Client is downloading, don't send snapshots
 
@@ -666,10 +669,6 @@ void SV_SendClientMessages(void)
 		     (sv_lanForceRate->integer && Sys_IsLANAddress(c->netchan.remoteAddress))))
 		{
 			// rate control for clients not on LAN 
-			
-			if(svs.time - c->lastSnapshotTime < c->snapshotMsec * com_timescale->value)
-				continue;		// It's not time yet
-
 			if(SV_RateMsec(c) > 0)
 			{
 				// Not enough time since last packet passed through the line
