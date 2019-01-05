@@ -111,7 +111,7 @@
 //
 //-----------------------------------------------------------------------------
 // 
-// string allocation/managment
+// string allocation/management
 
 #include "ui_shared.h"
 #include "../game/bg_public.h"
@@ -360,6 +360,9 @@ const char *String_Alloc(const char *p)
 		}
 
 		str = UI_Alloc(sizeof(stringDef_t));
+		if (!str) {
+			return NULL;
+		}
 		str->next = NULL;
 		str->str = &strPool[ph];
 		if (last) {
@@ -1914,10 +1917,10 @@ void Menu_TransitionItemByName(menuDef_t * menu, const char *p, rectDef_t rectFr
 			//
 			memcpy(&item->window.rectClient, &rectFrom, sizeof(rectDef_t));
 			memcpy(&item->window.rectEffects, &rectTo, sizeof(rectDef_t));
-			item->window.rectEffects2.x = abs(rectTo.x - rectFrom.x) / amt;
-			item->window.rectEffects2.y = abs(rectTo.y - rectFrom.y) / amt;
-			item->window.rectEffects2.w = abs(rectTo.w - rectFrom.w) / amt;
-			item->window.rectEffects2.h = abs(rectTo.h - rectFrom.h) / amt;
+			item->window.rectEffects2.x = fabs(rectTo.x - rectFrom.x) / amt;
+			item->window.rectEffects2.y = fabs(rectTo.y - rectFrom.y) / amt;
+			item->window.rectEffects2.w = fabs(rectTo.w - rectFrom.w) / amt;
+			item->window.rectEffects2.h = fabs(rectTo.h - rectFrom.h) / amt;
 
 			Item_UpdatePosition(item);
 		}
@@ -2952,6 +2955,27 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 			return qtrue;
 		}
 	}
+
+	// Use mouse wheel in vertical and horizontal menus.
+	// If scrolling 3 items would replace over half of the
+	// displayed items, only scroll 1 item at a time.
+	if (key == K_MWHEELUP) {
+		int scroll = viewmax < 6 ? 1 : 3;
+		listPtr->startPos -= scroll;
+		if (listPtr->startPos < 0) {
+			listPtr->startPos = 0;
+		}
+		return qtrue;
+	}
+	if (key == K_MWHEELDOWN) {
+		int scroll = viewmax < 6 ? 1 : 3;
+		listPtr->startPos += scroll;
+		if (listPtr->startPos > max) {
+			listPtr->startPos = max;
+		}
+		return qtrue;
+	}
+
 	// mouse hit
 	if (key == K_MOUSE1 || key == K_MOUSE2) {
 		if (item->window.flags & WINDOW_LB_LEFTARROW) {
@@ -3007,8 +3031,7 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 		listPtr->startPos = max;
 		return qtrue;
 	}
-	//Makro - support for mouse wheel
-	if (key == K_PGUP || key == K_KP_PGUP || key == K_MWHEELUP) {
+	if (key == K_PGUP || key == K_KP_PGUP) {
 		// page up
 		if (!listPtr->notselectable) {
 			listPtr->cursorPos -= viewmax;
@@ -3031,8 +3054,7 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 		}
 		return qtrue;
 	}
-	//Makro - support for mouse wheel
-	if (key == K_PGDN || key == K_KP_PGDN || key == K_MWHEELDOWN) {
+	if (key == K_PGDN || key == K_KP_PGDN) {
 		// page down
 		if (!listPtr->notselectable) {
 			listPtr->cursorPos += viewmax;
@@ -6836,7 +6858,7 @@ typedef struct keywordHash_s {
 
 int KeywordHash_Key(const char *keyword)
 {
-	int register hash, i;
+	int hash, i;
 
 	hash = 0;
 	for (i = 0; keyword[i] != '\0'; i++) {

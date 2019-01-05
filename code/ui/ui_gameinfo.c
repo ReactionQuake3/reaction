@@ -189,12 +189,10 @@ void UI_LoadArenas(void)
 	char filename[128];
 	char dirlist[1024];
 	char *dirptr;
-	int i, n;
+	int i;
 	int dirlen;
-	char *type;
 
 	ui_numArenas = 0;
-	uiInfo.mapCount = 0;
 
 	trap_Cvar_Register(&arenasFile, "g_arenasFile", "", CVAR_INIT | CVAR_ROM);
 	if (*arenasFile.string) {
@@ -216,6 +214,19 @@ void UI_LoadArenas(void)
 	if (UI_OutOfMemory()) {
 		trap_Print(S_COLOR_YELLOW "WARNING: not anough memory in pool to load all arenas\n");
 	}
+}
+
+/*
+===============
+UI_LoadArenasIntoMapList
+===============
+*/
+void UI_LoadArenasIntoMapList(void)
+{
+	int i, n;
+	char *type;
+
+	uiInfo.mapCount = 0;
 
 	for (n = 0; n < ui_numArenas; n++) {
 		// determine type
@@ -302,7 +313,7 @@ static void UI_LoadBotsFromFile(char *filename)
 		return;
 	}
 	if (len >= MAX_BOTS_TEXT) {
-		trap_Print(va(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT));
+		trap_Print(va(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT));
 		trap_FS_FCloseFile(f);
 		return;
 	}
