@@ -465,8 +465,10 @@ qboolean PM_SlideMove(qboolean gravity)
 			// slide along the plane
 			PM_ClipVelocity(pm->ps->velocity, planes[i], clipVelocity, OVERCLIP);
 
-			// slide along the plane
-			PM_ClipVelocity(endVelocity, planes[i], endClipVelocity, OVERCLIP);
+			if (gravity) {
+				// slide along the plane
+				PM_ClipVelocity(endVelocity, planes[i], endClipVelocity, OVERCLIP);
+			}
 
 			// see if there is a second plane that the new move enters
 			for (j = 0; j < numplanes; j++) {
@@ -490,10 +492,12 @@ qboolean PM_SlideMove(qboolean gravity)
 				d = DotProduct(dir, pm->ps->velocity);
 				VectorScale(dir, d, clipVelocity);
 
-				CrossProduct(planes[i], planes[j], dir);
-				VectorNormalize(dir);
-				d = DotProduct(dir, endVelocity);
-				VectorScale(dir, d, endClipVelocity);
+				if (gravity) {
+					CrossProduct(planes[i], planes[j], dir);
+					VectorNormalize(dir);
+					d = DotProduct(dir, endVelocity);
+					VectorScale(dir, d, endClipVelocity);
+				}
 
 				// see if there is a third plane the the new move enters
 				for (k = 0; k < numplanes; k++) {
@@ -511,7 +515,11 @@ qboolean PM_SlideMove(qboolean gravity)
 
 			// if we have fixed all interactions, try another move
 			VectorCopy(clipVelocity, pm->ps->velocity);
-			VectorCopy(endClipVelocity, endVelocity);
+
+			if (gravity) {
+				VectorCopy(endClipVelocity, endVelocity);
+			}
+
 			break;
 		}
 	}

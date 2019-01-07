@@ -1032,7 +1032,7 @@ char *ConcatArgs(int start);
 void Cmd_Score_f(gentity_t * ent);
 void StopFollowing(gentity_t * ent);
 void BroadcastTeamChange(gclient_t * client, int oldTeam);
-void SetTeam(gentity_t * ent, char *s);
+void SetTeam(gentity_t * ent, const char *s);
 void Cmd_FollowCycle_f(gentity_t * ent, int dir);
 void Cmd_Unzoom(gentity_t * ent);
 void Cmd_OpenDoor(gentity_t * ent);
@@ -1389,7 +1389,6 @@ void BotInterbreedEndMatch(void);
 typedef struct bot_settings_s {
 	char characterfile[MAX_FILEPATH];
 	float skill;
-	char team[MAX_FILEPATH];
 } bot_settings_t;
 
 int BotAISetup(int restart);
@@ -1462,6 +1461,7 @@ extern vmCvar_t g_enableBreath;
 extern vmCvar_t g_enableFogLaser;
 extern vmCvar_t g_singlePlayer;
 extern vmCvar_t g_proxMineTimeout;
+extern vmCvar_t g_localTeamPref;
 
 // JBravo: unlagged
 extern vmCvar_t g_delagHitscan;

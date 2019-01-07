@@ -119,7 +119,7 @@
 
   Respawnable items don't actually go away when picked up, they are
   just made invisible and untouchable.  This allows them to ride
-  movers and respawn apropriately.
+  movers and respawn appropriately.
 */
 
 #define	RESPAWN_ARMOR		25

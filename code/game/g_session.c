@@ -97,10 +97,6 @@ void G_WriteClientSessionData(gclient_t * client)
 
 	//Slicer how about savedTeam ?!
 
-	if (!g_RQ3_matchmode.integer && g_gametype.integer >= GT_TEAM) {
-		//Reset teams on map changes / map_restarts, except on matchmode
-		client->sess.savedTeam = TEAM_SPECTATOR;
-	}
 	s = va("%i %i %i %i %i %i %i %i %i %i %i",
 	       client->sess.sessionTeam,
 	       client->sess.spectatorTime,
@@ -164,7 +160,9 @@ void G_ReadSessionData(gclient_t * client)
 
 	if (g_gametype.integer == GT_CTF) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
-		client->sess.savedTeam = TEAM_SPECTATOR;
+		if (!(g_entities[(int)(client-level.clients)].r.svFlags & SVF_BOT)) {
+			client->sess.savedTeam = TEAM_SPECTATOR;
+		}
 		client->sess.captain = TEAM_FREE;
 		client->sess.sub = TEAM_FREE;
 	}
@@ -201,25 +199,29 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 // JBravo: adding PERS_SAVEDTEAM
 	client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;
 
+	// check for team preference, mainly for bots
+	value = Info_ValueForKey( userinfo, "teampref" );
+
+	// check for human's team preference set by start server menu
+	if ( !value[0] && g_localTeamPref.string[0] && client->pers.localClient ) {
+		value = g_localTeamPref.string;
+
+		// clear team so it's only used once
+		trap_Cvar_Set( "g_localTeamPref", "" );
+	}
+
 	// initial team determination
 	if (g_gametype.integer >= GT_TEAM) {
-		if ( g_teamAutoJoin.integer && !(g_entities[ client - level.clients ].r.svFlags & SVF_BOT) ) {
-			if (g_gametype.integer == GT_TEAMPLAY) {
-				sess->savedTeam = PickTeam(-1);
-				client->ps.persistant[PERS_SAVEDTEAM] = sess->savedTeam;
-			} else if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM) {
-				sess->savedTeam = PickTeam(-1);
-				client->ps.persistant[PERS_SAVEDTEAM] = sess->savedTeam;
-				sess->sessionTeam = sess->savedTeam;
-			} else
-				sess->sessionTeam = PickTeam(-1);
-			BroadcastTeamChange(client, -1);
-		} else {
-			// always spawn as spectator in team games
-			sess->sessionTeam = TEAM_SPECTATOR;
+		// always spawn as spectator in team games
+		sess->sessionTeam = TEAM_SPECTATOR;
+		sess->spectatorState = SPECTATOR_FREE;
+		client->specMode = SPECTATOR_FREE;
+		sess->spectatorTime = level.time;
+
+		if (value[0] || g_teamAutoJoin.integer) {
+			SetTeam(&g_entities[client - level.clients], value[0] ? value : "auto");
 		}
 	} else {
-		value = Info_ValueForKey(userinfo, "team");
 		if (value[0] == 's') {
 			// a willing spectator, not a waiting-in-line
 			sess->sessionTeam = TEAM_SPECTATOR;
@@ -245,11 +247,11 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 				break;
 			}
 		}
-	}
 
-	sess->spectatorState = SPECTATOR_FREE;
-	client->specMode = SPECTATOR_FREE;
-	sess->spectatorTime = level.time;
+		sess->spectatorState = SPECTATOR_FREE;
+		client->specMode = SPECTATOR_FREE;
+		sess->spectatorTime = level.time;
+	}
 
 	G_WriteClientSessionData(client);
 }
@@ -290,6 +292,11 @@ void G_WriteSessionData(void)
 
 	for (i = 0; i < level.maxclients; i++) {
 		if (level.clients[i].pers.connected == CON_CONNECTED) {
+			if (!g_RQ3_matchmode.integer && g_gametype.integer >= GT_TEAM && !(g_entities[i].r.svFlags & SVF_BOT)) {
+				//Slicer: reset teams on map changes / map_restarts, except on matchmode
+				level.clients[i].sess.savedTeam = TEAM_SPECTATOR;
+			}
+
 			G_WriteClientSessionData(&level.clients[i]);
 		}
 	}

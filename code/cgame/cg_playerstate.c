@@ -83,6 +83,9 @@ void CG_CheckAmmo(void)
 	//if ( ! ( weapons & ( 1 << i ) ) ) {
 	//continue;
 	//}
+	//if ( cg.snap->ps.ammo[i] < 0 ) {
+	//continue;
+	//}
 //Blaze: Dont need this
 /*
 		switch ( i ) {

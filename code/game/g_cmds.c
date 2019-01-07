@@ -505,8 +505,6 @@
 #include "../ui/menudef.h"	// for the voice chats
 //Blaze for door code
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator);
-// JBravo: for kicking code
-gentity_t *getEntByName(char *name);
 
 /*
 ==================
@@ -516,11 +514,16 @@ DeathmatchScoreboardMessage
 */
 void DeathmatchScoreboardMessage(gentity_t * ent)
 {
-	char entry[1024], string[1400];
+	char entry[1024], string[1000];
 	int stringlength, i, j;
 	gclient_t *cl;
 	int numSorted, scoreFlags, accuracy;
 	int alive;
+
+	// don't send scores to bots, they don't parse it
+	if ( ent->r.svFlags & SVF_BOT ) {
+		return;
+	}
 
 	// send the latest information on all clients
 	string[0] = 0;
@@ -705,6 +708,33 @@ char *ConcatArgs(int start)
 	return line;
 }
 
+
+/*
+==================
+StringIsInteger
+==================
+*/
+qboolean StringIsInteger(const char * s)
+{
+	int i;
+	int len;
+	qboolean foundDigit;
+
+	len = strlen(s);
+	foundDigit = qfalse;
+
+	for (i=0 ; i < len ; i++) {
+		if (!isdigit(s[i])) {
+			return qfalse;
+		}
+
+		foundDigit = qtrue;
+	}
+
+	return foundDigit;
+}
+
+
 /*
 ==================
 ClientNumberFromString
@@ -713,37 +743,36 @@ Returns a player number for either a number or name string
 Returns -1 if invalid
 ==================
 */
-int ClientNumberFromString(gentity_t * to, char *s)
+int ClientNumberFromString(gentity_t *to, char *s, qboolean checkNums, qboolean checkNames)
 {
 	gclient_t *cl;
 	int idnum;
-	char s2[MAX_STRING_CHARS];
-	char n2[MAX_STRING_CHARS];
+	char cleanName[MAX_STRING_CHARS];
 
-	// numeric values are just slot numbers
-	if (s[0] >= '0' && s[0] <= '9') {
-		idnum = atoi(s);
-		if (idnum < 0 || idnum >= level.maxclients) {
-			trap_SendServerCommand(to - g_entities, va("print \"^1Bad client slot: %i\n\"", idnum));
-			return -1;
+	if ( checkNums ) {
+		// numeric values could be slot numbers
+		if (StringIsInteger(s)) {
+			idnum = atoi(s);
+			if (idnum >= 0 && idnum < level.maxclients) {
+				cl = &level.clients[idnum];
+				if (cl->pers.connected == CON_CONNECTED) {
+					return idnum;
+				}
+			}
 		}
-
-		cl = &level.clients[idnum];
-		if (cl->pers.connected != CON_CONNECTED) {
-			trap_SendServerCommand(to - g_entities, va("print \"^1Client %i is not active\n\"", idnum));
-			return -1;
-		}
-		return idnum;
 	}
-	// check for a name match
-	SanitizeString(s, s2);
-	for (idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++) {
-		if (cl->pers.connected != CON_CONNECTED) {
-			continue;
-		}
-		SanitizeString(cl->pers.netname, n2);
-		if (!strcmp(n2, s2)) {
-			return idnum;
+
+	if ( checkNames ) {
+		// check for a name match
+		for (idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++) {
+			if (cl->pers.connected != CON_CONNECTED) {
+				continue;
+			}
+			Q_strncpyz(cleanName, cl->pers.netname, sizeof(cleanName));
+			Q_CleanStr(cleanName);
+			if (!Q_stricmp(cleanName, s)) {
+				return idnum;
+			}
 		}
 	}
 
@@ -1079,7 +1108,7 @@ void BroadcastTeamChange(gclient_t * client, int oldTeam)
 SetTeam
 =================
 */
-void SetTeam(gentity_t * ent, char *s)
+void SetTeam(gentity_t * ent, const char *s)
 {
 	int team, oldTeam, clientNum;
 	gclient_t *client;
@@ -1131,7 +1160,7 @@ void SetTeam(gentity_t * ent, char *s)
 			team = PickTeam(clientNum);
 		}
 
-		if (g_teamForceBalance.integer) {
+		if (g_teamForceBalance.integer && !client->pers.localClient && !(ent->r.svFlags & SVF_BOT)) {
 			int counts[TEAM_NUM_TEAMS];
 
 			counts[TEAM_BLUE] = TeamCount( clientNum, TEAM_BLUE );
@@ -1185,10 +1214,11 @@ void SetTeam(gentity_t * ent, char *s)
 	if(g_gametype.integer >= GT_TEAM && (oldTeam == TEAM_FREE || oldTeam == TEAM_SPECTATOR) && (team == TEAM_RED || team == TEAM_BLUE))
 		ent->client->sess.refHear = qfalse;
 
-	// if the player was dead leave the body
-	if (client->ps.stats[STAT_HEALTH] <= 0) {
+	// if the player was dead leave the body, but only if they're actually in game
+	if (client->ps.stats[STAT_HEALTH] <= 0 && client->pers.connected == CON_CONNECTED) {
 		CopyToBodyQue(ent);
 	}
+
 	// he starts at 'base'
 	client->pers.teamState.state = TEAM_BEGIN;
 
@@ -1242,9 +1272,8 @@ void SetTeam(gentity_t * ent, char *s)
 	}
 
 	client->sess.teamLeader = qfalse;
-	BroadcastTeamChange(client, oldTeam);
 
-	// get and distribute relevent paramters
+	// get and distribute relevant parameters
 
 // JBravo: save sessionTeam and then set it correctly for the call to ClientUserinfoChanged
 //         so the scoreboard will be correct.  Also check for uneven teams.
@@ -1269,8 +1298,19 @@ void SetTeam(gentity_t * ent, char *s)
 			client->radioGender = level.team2gender;
 	} else {
 		ClientUserinfoChanged(clientNum);
-		ClientBegin(clientNum);
+
+		if (client->pers.connected == CON_CONNECTED) {
+			ClientBegin(clientNum);
+		}
 	}
+
+	BroadcastTeamChange(client, oldTeam);
+
+	// client hasn't spawned yet, they sent an early team command, teampref userinfo, or g_teamAutoJoin is enabled
+	if (client->pers.connected != CON_CONNECTED) {
+		return;
+	}
+
 	if (g_gametype.integer == GT_CTF || (g_gametype.integer == GT_TEAM && client->sess.savedTeam == TEAM_SPECTATOR))
 		MakeSpectator (ent);
 // JBravo: If the game is in progress, lets spawn players joining.
@@ -1423,7 +1463,7 @@ void Cmd_Follow_f(gentity_t * ent)
 	}
 
 	trap_Argv(1, arg, sizeof(arg));
-	i = ClientNumberFromString(ent, arg);
+	i = ClientNumberFromString(ent, arg, qtrue, qtrue);
 	if (i == -1) {
 		return;
 	}
@@ -1685,7 +1725,7 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 // JBravo: Log it like AQ does
 	G_LogPrintf("%s%s\n", name, text);
 
-	// send it to all the apropriate clients
+	// send it to all the appropriate clients
 	for (j = 0; j < level.maxclients; j++) {
 		//Blaze: Prit out some Debug info
 		if (&g_entities[j] == NULL) G_Printf("Ln 1532\n");
@@ -1694,6 +1734,18 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 		G_SayTo(ent, other, mode, color, name, text);
 	}
 }
+
+static void SanitizeChatText(char *text)
+{
+	int i;
+
+	for (i = 0; text[i]; i++) {
+		if (text[i] == '\n' || text[i] == '\r') {
+			text[i] = ' ';
+		}
+	}
+}
+
 
 /*
 ==================
@@ -1732,6 +1784,8 @@ static void Cmd_Say_f(gentity_t * ent, int mode, qboolean arg0)
 		}
 	}
 
+	SanitizeChatText( p );
+
 	G_Say(ent, NULL, mode, p);
 }
 
@@ -1747,7 +1801,8 @@ static void Cmd_Tell_f(gentity_t * ent)
 	char *p;
 	char arg[MAX_TOKEN_CHARS];
 
-	if (trap_Argc() < 2) {
+	if (trap_Argc () < 3) {
+		trap_SendServerCommand( ent-g_entities, "print \"Usage: tell <player id> <message>\n\"" );
 		return;
 	}
 
@@ -1756,19 +1811,21 @@ static void Cmd_Tell_f(gentity_t * ent)
 		return;
 
 	trap_Argv(1, arg, sizeof(arg));
-	targetNum = atoi(arg);
-	if (targetNum < 0 || targetNum >= level.maxclients) {
+	targetNum = ClientNumberFromString(ent, arg, qtrue, qtrue);
+	if (targetNum == -1) {
 		return;
 	}
 	//Blaze: Prit out some Debug info
 	if (&g_entities[targetNum] == NULL) G_Printf("Ln 1608\n");
 
 	target = &g_entities[targetNum];
-	if (!target || !target->inuse || !target->client) {
+	if (!target->inuse || !target->client) {
 		return;
 	}
 
 	p = ConcatArgs(2);
+
+	SanitizeChatText(p);
 
 	G_LogPrintf("tell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, p);
 	G_Say(ent, target, SAY_TELL, p);
@@ -1832,7 +1889,7 @@ void G_Voice(gentity_t * ent, gentity_t * target, int mode, const char *id, qboo
 	if (g_dedicated.integer) {
 		G_Printf("voice: %s %s\n", ent->client->pers.netname, id);
 	}
-	// send it to all the apropriate clients
+	// send it to all the appropriate clients
 	for (j = 0; j < level.maxclients; j++) {
 		//Blaze: Prit out some Debug info
 		if (&g_entities[j] == NULL) G_Printf("Ln 1682\n");
@@ -1861,6 +1918,8 @@ static void Cmd_Voice_f(gentity_t * ent, int mode, qboolean arg0, qboolean voice
 		p = ConcatArgs(1);
 	}
 
+	SanitizeChatText(p);
+
 	G_Voice(ent, NULL, mode, p, voiceonly);
 }
 
@@ -1876,24 +1935,27 @@ static void Cmd_VoiceTell_f(gentity_t * ent, qboolean voiceonly)
 	char *id;
 	char arg[MAX_TOKEN_CHARS];
 
-	if (trap_Argc() < 2) {
+	if (trap_Argc () < 3) {
+		trap_SendServerCommand(ent-g_entities, va("print \"Usage: %s <player id> <voice id>\n\"", voiceonly ? "votell" : "vtell"));
 		return;
 	}
 
 	trap_Argv(1, arg, sizeof(arg));
-	targetNum = atoi(arg);
-	if (targetNum < 0 || targetNum >= level.maxclients) {
+	targetNum = ClientNumberFromString(ent, arg, qtrue, qtrue);
+	if (targetNum == -1) {
 		return;
 	}
 	//Blaze: Prit out some Debug info
 	if (&g_entities[targetNum] == NULL) G_Printf("Ln 1733\n");
 
 	target = &g_entities[targetNum];
-	if (!target || !target->inuse || !target->client) {
+	if (!target->inuse || !target->client) {
 		return;
 	}
 
 	id = ConcatArgs(2);
+
+	SanitizeChatText(id);
 
 	G_LogPrintf("vtell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, id);
 	G_Voice(ent, target, SAY_TELL, id, voiceonly);
@@ -1989,28 +2051,49 @@ static char *gc_orders[] = {
 	"report"
 };
 
-void Cmd_GameCommand_f(gentity_t * ent)
+static const int numgc_orders = ARRAY_LEN(gc_orders);
+
+void Cmd_GameCommand_f(gentity_t *ent)
 {
-	int player;
-	int order;
-	char str[MAX_TOKEN_CHARS];
+	int			targetNum;
+	gentity_t	*target;
+	int			order;
+	char		arg[MAX_TOKEN_CHARS];
 
-	trap_Argv(1, str, sizeof(str));
-	player = atoi(str);
-	trap_Argv(2, str, sizeof(str));
-	order = atoi(str);
-
-	if (player < 0 || player >= MAX_CLIENTS) {
+	if (trap_Argc() != 3) {
+		trap_SendServerCommand(ent-g_entities, va("print \"Usage: gc <player id> <order 0-%d>\n\"", numgc_orders - 1));
 		return;
 	}
-	if (order < 0 || order > ARRAY_LEN(gc_orders)) {
+
+	trap_Argv(2, arg, sizeof(arg));
+	order = atoi(arg);
+
+	if (order < 0 || order >= numgc_orders) {
+		trap_SendServerCommand(ent-g_entities, va("print \"Bad order: %i\n\"", order));
 		return;
 	}
+
+	trap_Argv(1, arg, sizeof(arg));
+	targetNum = ClientNumberFromString(ent, arg, qtrue, qtrue);
+	if (targetNum == -1) {
+		return;
+	}
+
 	//Blaze: Prit out some Debug info
-	if (&g_entities[player] == NULL) G_Printf("Ln 1854\n");
+	if (&g_entities[targetNum] == NULL) G_Printf("Ln 1854\n");
 
-	G_Say(ent, &g_entities[player], SAY_TELL, gc_orders[order]);
-	G_Say(ent, ent, SAY_TELL, gc_orders[order]);
+	target = &g_entities[targetNum];
+	if (!target->inuse || !target->client) {
+		return;
+	}
+
+	G_LogPrintf( "tell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, gc_orders[order]);
+	G_Say(ent, target, SAY_TELL, gc_orders[order]);
+	// don't tell to the player self if it was already directed to this player
+	// also don't send the chat back to a bot
+	if (ent != target && !(ent->r.svFlags & SVF_BOT)) {
+		G_Say(ent, ent, SAY_TELL, gc_orders[order]);
+	}
 }
 
 /*
@@ -2044,12 +2127,12 @@ Cmd_CallVote_f
 */
 void Cmd_CallVote_f(gentity_t * ent)
 {
-	int i, kickNum;
+	char *c;
+	int i;
 	float delay;
 	char arg1[MAX_STRING_TOKENS];
 	char arg2[MAX_STRING_TOKENS];
 	char *v_gametype, *v_map;
-	gentity_t *kicked;
 
 	if (!g_allowVote.integer) {
 		trap_SendServerCommand(ent - g_entities, "print \"^1Voting not allowed here.\n\"");
@@ -2090,9 +2173,16 @@ void Cmd_CallVote_f(gentity_t * ent)
 	trap_Argv(1, arg1, sizeof(arg1));
 	trap_Argv(2, arg2, sizeof(arg2));
 
-	if (strchr(arg1, ';') || strchr(arg2, ';')) {
-		trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote string.\n\"");
-		return;
+	// check for command separators in arg2
+	for(c = arg2; *c; ++c) {
+		switch(*c) {
+			case '\n':
+			case '\r':
+			case ';':
+				trap_SendServerCommand(ent-g_entities, "print \"^1Invalid vote string.\n\"");
+				return;
+			break;
+		}
 	}
 	
 	if (!Q_stricmp(arg1, "cyclemap")) {	
@@ -2244,16 +2334,19 @@ void Cmd_CallVote_f(gentity_t * ent)
 	} else if (!Q_stricmp(arg1, "cyclemap")) {
 		Com_sprintf(level.voteString, sizeof(level.voteString), "cyclemap");
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
-	} else if (!Q_strncmp(arg1, "kick", 4)) {
-		kicked = getEntByName(arg2);
-		if (kicked && kicked->client) {
-			kickNum = kicked->client - level.clients;
-			Com_sprintf(level.voteString, sizeof(level.voteString), "clientkick \"%i\"", kickNum);
-			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s \"%s\"", arg1, arg2);
-		} else {
-			Com_sprintf(level.voteString, sizeof(level.voteString), "%s \"%s\"", arg1, arg2);
-			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
+	} else if (!Q_stricmp(arg1, "clientkick") || !Q_stricmp(arg1, "kick")) {
+		i = ClientNumberFromString(ent, arg2, !Q_stricmp(arg1, "clientkick"), !Q_stricmp(arg1, "kick"));
+		if (i == -1) {
+			return;
 		}
+
+		if (level.clients[i].pers.localClient) {
+			trap_SendServerCommand(ent - g_entities, "print \"Cannot kick host player.\n\"");
+			return;
+		}
+
+		Com_sprintf(level.voteString, sizeof(level.voteString), "clientkick %d", i);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "kick %s", level.clients[i].pers.netname);
 	} else {
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s \"%s\"", arg1, arg2);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
@@ -2331,6 +2424,7 @@ Cmd_CallTeamVote_f
 */
 void Cmd_CallTeamVote_f(gentity_t * ent)
 {
+	char *c;
 	int i, team, cs_offset;
 	char arg1[MAX_STRING_TOKENS];
 	char arg2[MAX_STRING_TOKENS];
@@ -2376,9 +2470,16 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 		trap_Argv(i, &arg2[strlen(arg2)], sizeof(arg2) - strlen(arg2));
 	}
 
-	if (strchr(arg1, ';') || strchr(arg2, ';')) {
-		trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote string.\n\"");
+	// check for command separators in arg2
+	for(c = arg2; *c; ++c) {
+		switch(*c) {
+			case '\n':
+			case '\r':
+			case ';':
+				trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote string.\n\"");
 		return;
+			break;
+		}
 	}
 
 	if (!Q_stricmp(arg1, "leader")) {
@@ -3004,6 +3105,14 @@ void ClientCommand(int clientNum)
 
 	ent = g_entities + clientNum;
 	if (!ent->client || ent->client->pers.connected != CON_CONNECTED) {
+		if (ent->client && ent->client->pers.localClient) {
+			// Handle early team command sent by UI when starting a local
+			// team play game.
+			trap_Argv( 0, cmd, sizeof( cmd ) );
+			if (Q_stricmp (cmd, "team") == 0) {
+				Cmd_Team_f (ent);
+			}
+		}
 		return;		// not fully in game yet
 	}
 

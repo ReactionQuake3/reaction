@@ -155,7 +155,7 @@ Testmodel will create a fake entity 100 units in front of the current view
 position, directly facing the viewer.  It will remain immobile, so you can
 move around it to view it from different angles.
 
-Testgun will cause the model to follow the player around and supress the real
+Testgun will cause the model to follow the player around and suppress the real
 view weapon model.  The default frame 0 of most guns is completely off screen,
 so you will probably have to cycle a couple frames to see it.
 
@@ -185,6 +185,7 @@ void CG_TestModel_f(void)
 {
 	vec3_t angles;
 
+	cg.testGun = qfalse;
 	memset(&cg.testModelEntity, 0, sizeof(cg.testModelEntity));
 	if (trap_Argc() < 2) {
 		return;
@@ -210,7 +211,6 @@ void CG_TestModel_f(void)
 	angles[ROLL] = 0;
 
 	AnglesToAxis(angles, cg.testModelEntity.axis);
-	cg.testGun = qfalse;
 }
 
 /*
@@ -223,6 +223,11 @@ Replaces the current view weapon with the given model
 void CG_TestGun_f(void)
 {
 	CG_TestModel_f();
+
+	if ( !cg.testModelEntity.hModel ) {
+		return;
+	}
+
 	cg.testGun = qtrue;
 	cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
 }
@@ -1341,7 +1346,8 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 
 	// decide on third person view
 	// Elder: remove third-person death rendering
-	cg.renderingThirdPerson = cg_thirdPerson.integer;	//|| (cg.snap->ps.stats[STAT_HEALTH] <= 0);
+	cg.renderingThirdPerson = cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR
+							&& (cg_thirdPerson.integer);	//|| (cg.snap->ps.stats[STAT_HEALTH] <= 0));
 
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
