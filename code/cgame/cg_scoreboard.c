@@ -791,7 +791,7 @@ Draw the oversize scoreboard for tournements
 =================
 */
 
-void CG_DrawOldTourneyScoreboard(void)
+void CG_DrawTourneyScoreboard(void)
 {
 	const char *s;
 	vec4_t color;

@@ -222,7 +222,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // cg_servercmds.c -- reliably sequenced text commands sent by the server
-// these are processed at snapshot transition time, so there will definately
+// these are processed at snapshot transition time, so there will definitely
 // be a valid snapshot this frame
 
 #include "cg_local.h"
@@ -899,7 +899,7 @@ int CG_ParseVoiceChats(const char *filename, voiceChatList_t * voiceChatList, in
 		voiceChats[i].id[0] = 0;
 	}
 	token = COM_ParseExt(p, qtrue);
-	if (!token || token[0] == 0) {
+	if (!token[0]) {
 		return qtrue;
 	}
 	if (!Q_stricmp(token, "female")) {
@@ -916,7 +916,7 @@ int CG_ParseVoiceChats(const char *filename, voiceChatList_t * voiceChatList, in
 	voiceChatList->numVoiceChats = 0;
 	while (1) {
 		token = COM_ParseExt(p, qtrue);
-		if (!token || token[0] == 0) {
+		if (!token[0]) {
 			return qtrue;
 		}
 		Com_sprintf(voiceChats[voiceChatList->numVoiceChats].id,
@@ -929,7 +929,7 @@ int CG_ParseVoiceChats(const char *filename, voiceChatList_t * voiceChatList, in
 		voiceChats[voiceChatList->numVoiceChats].numSounds = 0;
 		while (1) {
 			token = COM_ParseExt(p, qtrue);
-			if (!token || token[0] == 0) {
+			if (!token[0]) {
 				return qtrue;
 			}
 			if (!Q_stricmp(token, "}"))
@@ -938,7 +938,7 @@ int CG_ParseVoiceChats(const char *filename, voiceChatList_t * voiceChatList, in
 			voiceChats[voiceChatList->numVoiceChats].sounds[voiceChats[voiceChatList->numVoiceChats].
 					numSounds] = sound;
 			token = COM_ParseExt(p, qtrue);
-			if (!token || token[0] == 0) {
+			if (!token[0]) {
 				return qtrue;
 			}
 			Com_sprintf(voiceChats[voiceChatList->numVoiceChats].
@@ -1011,7 +1011,7 @@ int CG_HeadModelVoiceChats(char *filename)
 	p = &ptr;
 
 	token = COM_ParseExt(p, qtrue);
-	if (!token || token[0] == 0) {
+	if (!token[0]) {
 		return -1;
 	}
 
@@ -1561,12 +1561,14 @@ static void CG_ServerCommand(void)
 	}
 
 	if (!strcmp(cmd, "chat")) {
-		if (!cg_teamChatsOnly.integer) {
-			trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-			Q_strncpyz(text, CG_Argv(1), sizeof(text));
-			CG_RemoveChatEscapeChar(text);
-			CG_AddMessage(text);
+		if (cgs.gametype >= GT_TEAM && cg_teamChatsOnly.integer) {
+			return;
 		}
+
+		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
+		Q_strncpyz(text, CG_Argv(1), sizeof(text));
+		CG_RemoveChatEscapeChar(text);
+		CG_AddMessage(text);
 		return;
 	}
 

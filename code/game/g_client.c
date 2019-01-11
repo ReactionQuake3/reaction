@@ -402,7 +402,7 @@ void SP_info_player_deathmatch(gentity_t * ent)
 }
 
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
-equivelant to info_player_deathmatch
+equivalent to info_player_deathmatch
 */
 void SP_info_player_start(gentity_t * ent)
 {
@@ -703,7 +703,7 @@ void ClearBodyQue(void)
 =============
 BodySink
 
-After sitting around for five seconds, fall into the ground and dissapear
+After sitting around for five seconds, fall into the ground and disappear
 =============
 */
 void BodySink(gentity_t * ent)
@@ -994,7 +994,7 @@ void ClientUserinfoChanged(int clientNum)
 {
 	gentity_t *ent;
 	gclient_t *client;
-	int teamTask, teamLeader, team, health, gender;
+	int teamTask, teamLeader, health, gender;
 	char *s, model[MAX_QPATH], headModel[MAX_QPATH], oldname[MAX_STRING_CHARS];
 	char c1[MAX_INFO_STRING], c2[MAX_INFO_STRING], redTeam[MAX_INFO_STRING];
 	char blueTeam[MAX_INFO_STRING], userinfo[MAX_INFO_STRING];
@@ -1011,11 +1011,7 @@ void ClientUserinfoChanged(int clientNum)
 		// don't keep those clients and userinfo
 		trap_DropClient(clientNum, "Invalid userinfo");
 	}
-	// check for local client
-	s = Info_ValueForKey(userinfo, "ip");
-	if (!strcmp(s, "localhost")) {
-		client->pers.localClient = qtrue;
-	}
+
 	// check the item prediction
 	s = Info_ValueForKey(userinfo, "cg_predictItems");
 	if (!atoi(s)) {
@@ -1144,20 +1140,6 @@ void ClientUserinfoChanged(int clientNum)
 		} else if (gender != GENDER_NEUTER)
 			client->radioGender = gender;
 	}
-	// bots set their team a few frames later
-	if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
-		s = Info_ValueForKey(userinfo, "team");
-		if (!Q_stricmp(s, "red") || !Q_stricmp(s, "r") || !Q_stricmp(s, "1")) {
-			team = TEAM_RED;
-		} else if (!Q_stricmp(s, "blue") || !Q_stricmp(s, "b") || !Q_stricmp(s, "2")) {
-			team = TEAM_BLUE;
-		} else {
-			// pick the team with the least number of players
-			team = PickTeam(clientNum);
-		}
-	} else {
-		team = client->sess.sessionTeam;
-	}
 
 	// teamInfo
 	s = Info_ValueForKey(userinfo, "teamoverlay");
@@ -1173,11 +1155,11 @@ void ClientUserinfoChanged(int clientNum)
 	teamLeader = client->sess.teamLeader;
 
 	// colors
-	strcpy(c1, Info_ValueForKey(userinfo, "color1"));
-	strcpy(c2, Info_ValueForKey(userinfo, "color2"));
+	Q_strncpyz(c1, Info_ValueForKey(userinfo, "color1"), sizeof(c1));
+	Q_strncpyz(c2, Info_ValueForKey(userinfo, "color2"), sizeof(c2));
 
-	strcpy(redTeam, Info_ValueForKey(userinfo, "g_redteam"));
-	strcpy(blueTeam, Info_ValueForKey(userinfo, "g_blueteam"));
+	Q_strncpyz(redTeam, Info_ValueForKey(userinfo, "g_redteam"), sizeof(redTeam));
+	Q_strncpyz(blueTeam, Info_ValueForKey(userinfo, "g_blueteam"), sizeof(blueTeam));
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
@@ -1185,7 +1167,7 @@ void ClientUserinfoChanged(int clientNum)
 		//Makro - adding teamplay weapon/item info for bots
 		s = va
 		    ("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d\\tpw\\%s\\tpi\\%s",
-		     client->pers.netname, team, model, headModel, c1, c2, client->pers.maxHealth, client->sess.wins,
+		     client->pers.netname, client->sess.sessionTeam, model, headModel, c1, c2, client->pers.maxHealth, client->sess.wins,
 		     client->sess.losses,
 		     //Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
 		     Info_ValueForKey(userinfo, "skill"), teamTask, teamLeader, Info_ValueForKey(userinfo, "tpw"),
@@ -1339,11 +1321,11 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 // JBravo: Clear zcam flag for cgame
 	client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 
-	// read or initialize the session data
-	if (firstTime || level.newSession) {
-		G_InitSessionData(client, userinfo);
+	// check for local client
+	value = Info_ValueForKey( userinfo, "ip" );
+	if ( !strcmp( value, "localhost" ) ) {
+		client->pers.localClient = qtrue;
 	}
-	G_ReadSessionData(client);
 
 	if (isBot) {
 		ent->r.svFlags |= SVF_BOT;
@@ -1352,6 +1334,13 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 			return "BotConnectfailed";
 		}
 	}
+
+	// read or initialize the session data
+	if (firstTime || level.newSession) {
+		G_InitSessionData(client, userinfo);
+	}
+	G_ReadSessionData(client);
+
 // slicer : make sessionTeam = to savedTeam for scoreboard on cgame
 // JBravo: only for teambased games. Could break DM
 	if (g_gametype.integer >= GT_TEAM) {

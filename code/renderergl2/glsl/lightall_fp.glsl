@@ -45,6 +45,8 @@ uniform vec4      u_CubeMapInfo;
 #endif
 #endif
 
+uniform int       u_AlphaTest;
+
 varying vec4      var_TexCoords;
 
 varying vec4      var_Color;
@@ -53,14 +55,9 @@ varying vec4      var_ColorAmbient;
 #endif
 
 #if (defined(USE_LIGHT) && !defined(USE_FAST_LIGHT))
-  #if defined(USE_VERT_TANGENT_SPACE)
 varying vec4   var_Normal;
 varying vec4   var_Tangent;
 varying vec4   var_Bitangent;
-  #else
-varying vec3   var_Normal;
-varying vec3   var_ViewDir;
-  #endif
 #endif
 
 #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
@@ -196,24 +193,35 @@ float CalcLightAttenuation(float point, float normDist)
 	return attenuation;
 }
 
-// from http://www.thetenthplanet.de/archives/1180
-mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
+
+vec4 hitCube(vec3 ray, vec3 pos, vec3 invSize, float lod, samplerCube tex)
 {
-	// get edge vectors of the pixel triangle
-	vec3 dp1 = dFdx( p );
-	vec3 dp2 = dFdy( p );
-	vec2 duv1 = dFdx( uv );
-	vec2 duv2 = dFdy( uv );
+	// find any hits on cubemap faces facing the camera
+	vec3 scale = (sign(ray) - pos) / ray;
 
-	// solve the linear system
-	vec3 dp2perp = cross( dp2, N );
-	vec3 dp1perp = cross( N, dp1 );
-	vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
-	vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+	// find the nearest hit
+	float minScale = min(min(scale.x, scale.y), scale.z);
 
-	// construct a scale-invariant frame 
-	float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
-	return mat3( T * invmax, B * invmax, N );
+	// if the nearest hit is behind the camera, ignore
+	// should not be necessary as long as pos is inside the cube
+	//if (minScale < 0.0)
+		//return vec4(0.0);
+
+	// calculate the hit position, that's our texture coordinates
+	vec3 tc = pos + ray * minScale;
+
+	// if the texture coordinates are outside the cube, ignore
+	// necessary since we're not fading out outside the cube
+	if (any(greaterThan(abs(tc), vec3(1.00001))))
+		return vec4(0.0);
+
+	// fade out when approaching the cubemap edges
+	//vec3 fade3 = abs(pos);
+	//float fade = max(max(fade3.x, fade3.y), fade3.z);
+	//fade = clamp(1.0 - fade, 0.0, 1.0);
+			
+	//return vec4(textureCubeLod(tex, tc, lod).rgb * fade, fade);
+	return vec4(textureCubeLod(tex, tc, lod).rgb, 1.0);
 }
 
 void main()
@@ -223,13 +231,8 @@ void main()
 	float NL, NH, NE, EH, attenuation;
 
 #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
-  #if defined(USE_VERT_TANGENT_SPACE)
 	mat3 tangentToWorld = mat3(var_Tangent.xyz, var_Bitangent.xyz, var_Normal.xyz);
 	viewDir = vec3(var_Normal.w, var_Tangent.w, var_Bitangent.w);
-  #else
-	mat3 tangentToWorld = cotangent_frame(var_Normal, -var_ViewDir, var_TexCoords.xy);
-	viewDir = var_ViewDir;
-  #endif
 	E = normalize(viewDir);
 #endif
 
@@ -257,6 +260,23 @@ void main()
 #endif
 
 	vec4 diffuse = texture2D(u_DiffuseMap, texCoords);
+	
+	float alpha = diffuse.a * var_Color.a;
+	if (u_AlphaTest == 1)
+	{
+		if (alpha == 0.0)
+			discard;
+	}
+	else if (u_AlphaTest == 2)
+	{
+		if (alpha >= 0.5)
+			discard;
+	}
+	else if (u_AlphaTest == 3)
+	{
+		if (alpha < 0.5)
+			discard;
+	}
 
 #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
 	L = var_LightDir.xyz;
@@ -292,7 +312,7 @@ void main()
 	float shadowValue = texture2D(u_ShadowMap, shadowTex).r;
 
 	// surfaces not facing the light are always shadowed
-	shadowValue *= clamp(dot(var_Normal.xyz, var_PrimaryLightDir.xyz), 0.0, 1.0);
+	shadowValue *= clamp(dot(N, var_PrimaryLightDir.xyz), 0.0, 1.0);
 
     #if defined(SHADOWMAP_MODULATE)
 	lightColor *= shadowValue * (1.0 - u_PrimaryLightAmbient.r) + u_PrimaryLightAmbient.r;
@@ -302,6 +322,9 @@ void main()
   #if !defined(USE_LIGHT_VECTOR)
 	ambientColor = lightColor;
 	float surfNL = clamp(dot(var_Normal.xyz, L), 0.0, 1.0);
+
+	// reserve 25% ambient to avoid black areas on normalmaps
+	lightColor *= 0.75;
 
 	// Scale the incoming light to compensate for the baked-in light angle
 	// attenuation.
@@ -316,6 +339,9 @@ void main()
 
 	NL = clamp(dot(N, L), 0.0, 1.0);
 	NE = clamp(dot(N, E), 0.0, 1.0);
+	H = normalize(L + E);
+	EH = clamp(dot(E, H), 0.0, 1.0);
+	NH = clamp(dot(N, H), 0.0, 1.0);
 
   #if defined(USE_SPECULARMAP)
 	vec4 specular = texture2D(u_SpecularMap, texCoords);
@@ -330,11 +356,12 @@ void main()
 
   #if defined(USE_PBR)
 	// diffuse rgb is base color
-	// specular red is smoothness
+	// specular red is gloss
 	// specular green is metallicness
 	float gloss = specular.r;
-	specular.rgb = specular.g * diffuse.rgb + vec3(0.04 - 0.04 * specular.g);
-	diffuse.rgb *= 1.0 - specular.g;
+	float metal = specular.g;
+	specular.rgb = metal * diffuse.rgb + vec3(0.04 - 0.04 * metal);
+	diffuse.rgb *= 1.0 - metal;
   #else
 	// diffuse rgb is diffuse
 	// specular rgb is specular reflectance at normal incidence
@@ -357,6 +384,14 @@ void main()
 
 	reflectance  = CalcDiffuse(diffuse.rgb, NH, EH, roughness);
 
+  #if defined(r_deluxeSpecular)
+    #if defined(USE_LIGHT_VECTOR)
+	reflectance += CalcSpecular(specular.rgb, NH, EH, roughness) * r_deluxeSpecular;
+    #else
+	reflectance += CalcSpecular(specular.rgb, NH, EH, pow(roughness, r_deluxeSpecular));
+    #endif
+  #endif
+
 	gl_FragColor.rgb  = lightColor   * reflectance * (attenuation * NL);
 	gl_FragColor.rgb += ambientColor * diffuse.rgb;
 
@@ -369,11 +404,15 @@ void main()
 	// from http://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
 	vec3 parallax = u_CubeMapInfo.xyz + u_CubeMapInfo.w * viewDir;
 
-	vec3 cubeLightColor = textureCubeLod(u_CubeMap, R + parallax, 7.0 * roughness).rgb * u_EnableTextures.w;
+  #if defined(USE_BOX_CUBEMAP_PARALLAX)
+	vec3 cubeLightColor = hitCube(R * u_CubeMapInfo.w, parallax, u_CubeMapInfo.www, ROUGHNESS_MIPS * roughness, u_CubeMap).rgb * u_EnableTextures.w;
+  #else
+	vec3 cubeLightColor = textureCubeLod(u_CubeMap, R + parallax, ROUGHNESS_MIPS * roughness).rgb * u_EnableTextures.w;
+  #endif
 
-	// normalize cubemap based on lowest mip (~diffuse)
+	// normalize cubemap based on last roughness mip (~diffuse)
 	// multiplying cubemap values by lighting below depends on either this or the cubemap being normalized at generation
-	//vec3 cubeLightDiffuse = max(textureCubeLod(u_CubeMap, N, 6.0).rgb, 0.5 / 255.0);
+	//vec3 cubeLightDiffuse = max(textureCubeLod(u_CubeMap, N, ROUGHNESS_MIPS).rgb, 0.5 / 255.0);
 	//cubeLightColor /= dot(cubeLightDiffuse, vec3(0.2125, 0.7154, 0.0721));
 
     #if defined(USE_PBR)
@@ -431,5 +470,5 @@ void main()
 
 #endif
 
-	gl_FragColor.a = diffuse.a * var_Color.a;
+	gl_FragColor.a = alpha;
 }

@@ -1260,6 +1260,7 @@ static void SV_ConSay_f(void) {
 
 	strcat(text, p);
 
+	Com_Printf("%s\n", text);
 	SV_SendServerCommand(NULL, "chat \"%s\"", text);
 }
 
@@ -1299,6 +1300,7 @@ static void SV_ConTell_f(void) {
 
 	strcat(text, p);
 
+	Com_Printf("%s\n", text);
 	SV_SendServerCommand(cl, "chat \"%s\"", text);
 }
 
@@ -1364,6 +1366,7 @@ static void SV_ConSayto_f(void) {
 
 	strcat(text, p);
 
+	Com_Printf("%s\n", text);
 	SV_SendServerCommand(saytocl, "chat \"%s\"", text);
 }
 
@@ -1480,7 +1483,7 @@ SV_CompletePlayerName
 static void SV_CompletePlayerName( char *args, int argNum ) {
 	if( argNum == 2 ) {
 		char		names[MAX_CLIENTS][MAX_NAME_LENGTH];
-		char		*namesPtr[MAX_CLIENTS];
+		const char	*namesPtr[MAX_CLIENTS];
 		client_t	*cl;
 		int			i;
 		int			nameCount;

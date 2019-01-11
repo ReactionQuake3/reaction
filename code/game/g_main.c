@@ -514,6 +514,7 @@ vmCvar_t pmove_fixed;
 vmCvar_t pmove_msec;
 vmCvar_t g_rankings;
 vmCvar_t g_listEntity;
+vmCvar_t g_localTeamPref;
 
 //Slicer: Matchmode
 vmCvar_t g_RQ3_matchmode;
@@ -614,7 +615,7 @@ static cvarTable_t gameCvarTable[] = {
 
 	// noset vars
 	{NULL, "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
-	{NULL, "gamedate", __DATE__, CVAR_ROM, 0, qfalse},
+	{NULL, "gamedate", PRODUCT_DATE, CVAR_ROM, 0, qfalse},
 	{&g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse},
 
 	// latched vars
@@ -674,6 +675,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse},
 	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
+	{&g_localTeamPref, "g_localTeamPref", "", 0, 0, qfalse},
 	//Slicer: Matchmode
 	{&g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_forceteamtalk, "g_RQ3_forceteamtalk", "0", 0, 0, qtrue},
@@ -847,7 +849,7 @@ void G_FindTeams(void)
 
 	c = 0;
 	c2 = 0;
-	for (i = 1, e = g_entities + i; i < level.num_entities; i++, e++) {
+	for (i = MAX_CLIENTS, e = g_entities + i; i < level.num_entities; i++, e++) {
 		if (!e->inuse)
 			continue;
 		if (!e->team)
@@ -1251,7 +1253,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	G_Printf("------- Game Initialization -------\n");
 	G_Printf("gamename: %s\n", GAMEVERSION);
-	G_Printf("gamedate: %s\n", __DATE__);
+	G_Printf("gamedate: %s\n", PRODUCT_DATE);
 
 	srand(randomSeed);
 
@@ -2284,6 +2286,12 @@ void CheckExitRules(void)
 	//Slicer
 	if (g_gametype.integer >= GT_TEAM) {
 		//Let's check fraglimit here, everything else is on teamplay.c
+		if ( g_fraglimit.integer < 0 ) {
+			G_Printf( "fraglimit %i is out of range, defaulting to 0\n", g_fraglimit.integer );
+			trap_Cvar_Set( "fraglimit", "0" );
+			trap_Cvar_Update( &g_fraglimit );
+		}
+
 		if (g_fraglimit.integer > 0) {
 			for (i = 0; i < g_maxclients.integer; i++) {
 				cl = level.clients + i;
@@ -2315,6 +2323,12 @@ void CheckExitRules(void)
 		return;
 	}
 
+	if ( g_timelimit.integer < 0 || g_timelimit.integer > INT_MAX / 60000 ) {
+		G_Printf( "timelimit %i is out of range, defaulting to 0\n", g_timelimit.integer );
+		trap_Cvar_Set( "timelimit", "0" );
+		trap_Cvar_Update( &g_timelimit );
+	}
+
 	if (g_timelimit.integer && !level.warmupTime) {
 		if (level.time - level.startTime >= g_timelimit.integer * 60000) {
 			trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
@@ -2326,6 +2340,12 @@ void CheckExitRules(void)
 /*	if (level.numPlayingClients < 2) {
 		return;
 	} */
+
+	if ( g_fraglimit.integer < 0 ) {
+		G_Printf( "fraglimit %i is out of range, defaulting to 0\n", g_fraglimit.integer );
+		trap_Cvar_Set( "fraglimit", "0" );
+		trap_Cvar_Update( &g_fraglimit );
+	}
 
 	if (g_gametype.integer < GT_CTF && g_fraglimit.integer) {
 		if (level.teamScores[TEAM_RED] >= g_fraglimit.integer) {
@@ -2356,6 +2376,12 @@ void CheckExitRules(void)
 				return;
 			}
 		}
+	}
+
+	if ( g_capturelimit.integer < 0 ) {
+		G_Printf( "capturelimit %i is out of range, defaulting to 0\n", g_capturelimit.integer );
+		trap_Cvar_Set( "capturelimit", "0" );
+		trap_Cvar_Update( &g_capturelimit );
 	}
 
 	if (g_gametype.integer >= GT_CTF && g_capturelimit.integer) {
@@ -2442,7 +2468,7 @@ void CheckTournament(void)
 		int counts[TEAM_NUM_TEAMS];
 		qboolean notEnough = qfalse;
 
-		if (g_gametype.integer > GT_TEAM) {
+		if (g_gametype.integer >= GT_TEAM) {
 			counts[TEAM_BLUE] = TeamCount(-1, TEAM_BLUE);
 			counts[TEAM_RED] = TeamCount(-1, TEAM_RED);
 
