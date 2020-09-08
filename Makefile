@@ -1224,8 +1224,9 @@ define DO_REF_STR
 $(echo_cmd) "REF_STR $<"
 $(Q)rm -f $@
 $(Q)echo "const char *fallbackShader_$(notdir $(basename $<)) =" >> $@
-$(Q)cat $< | sed -e 's/^\(.*\)$$/\"\1\\n\"/' >> $@
+$(Q)cat $< | perl -pe 's/^(.*)$$/\"$$1\\n\"/' >> $@
 $(Q)echo ";" >> $@
+$(Q)cat $@
 endef
 
 define DO_BOT_CC
@@ -2702,6 +2703,7 @@ $(B)/renderergl1/%.o: $(RGL1DIR)/%.c
 $(B)/renderergl1/tr_altivec.o: $(RGL1DIR)/tr_altivec.c
 	$(DO_REF_CC_ALTIVEC)
 
+.PRECIOUS: $(B)/renderergl2/glsl/%.c
 $(B)/renderergl2/glsl/%.c: $(RGL2DIR)/glsl/%.glsl
 	$(DO_REF_STR)
 
