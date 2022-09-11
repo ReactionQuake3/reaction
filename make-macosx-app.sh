@@ -329,6 +329,8 @@ PLIST="${PLIST}
     <string>Reaction Copyright © 2000-2012 Boomstick Studios.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+    <key>NSHighResolutionCapable</key>
+    <false/>
 </dict>
 </plist>
 "

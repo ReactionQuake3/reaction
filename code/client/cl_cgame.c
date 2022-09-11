@@ -186,7 +186,6 @@ void CL_AddCgameCommand( const char *cmdName ) {
 	Cmd_AddCommand( cmdName, NULL );
 }
 
-
 /*
 =====================
 CL_ConfigstringModified
