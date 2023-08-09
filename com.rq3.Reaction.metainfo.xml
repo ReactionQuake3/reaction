@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<component type="desktop">
+  <!--Created with jdAppStreamEdit 7.0-->
+  <id>com.rq3.Reaction</id>
+  <name>Reaction</name>
+  <summary>Movie realism first-person-shooter</summary>
+  <developer_name></developer_name>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0</project_license>
+  <description>
+    <p>Reaction Quake 3 ports Action Quake 2 to idTech3 for better graphics and enhanced gametypes like Teamplay, Team Deathmatch, and Capture the Briefcase. It adds fast paced gameplay with realistic weapons and damage. It adds a variety of movement options such as strafe, ramp, ladder, and double jump.</p>
+  </description>
+  <screenshots>
+    <screenshot type="default">
+      <image type="source">https://media.moddb.com/images/mods/1/1/245/3233.jpg</image>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://media.moddb.com/images/mods/1/1/245/3225.jpg</image>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://media.moddb.com/images/mods/1/1/245/3229.jpg</image>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="1.0" date="2012-03-31" type="stable"/>
+  </releases>
+  <url type="homepage">https://www.rq3.com/</url>
+  <url type="bugtracker">https://bugzilla.icculus.org/describecomponents.cgi?product=Reaction</url>
+  <url type="faq">https://www.rq3.com/?page=faqs</url>
+  <url type="vcs-browser">https://github.com/ReactionQuake3/reaction</url>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-realistic">intense</content_attribute>
+    <content_attribute id="violence-bloodshed">moderate</content_attribute>
+    <content_attribute id="drugs-alcohol">mild</content_attribute>
+    <content_attribute id="drugs-narcotics">mild</content_attribute>
+    <content_attribute id="drugs-tobacco">mild</content_attribute>
+    <content_attribute id="social-chat">intense</content_attribute>
+    <content_attribute id="social-audio">intense</content_attribute>
+  </content_rating>
+</component>
