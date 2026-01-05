@@ -31,6 +31,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <ctype.h>
 #include <errno.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 #ifndef DEDICATED
 #ifdef USE_LOCAL_HEADERS
 #	include "SDL.h"
@@ -579,7 +583,7 @@ Used to load a development dll instead of a virtual machine
 =================
 */
 void *Sys_LoadGameDll(const char *name,
-	intptr_t (QDECL **entryPoint)(int, ...),
+	vmMainProc *entryPoint,
 	intptr_t (*systemcalls)(intptr_t, ...))
 {
 	void *libHandle;
@@ -642,6 +646,80 @@ void Sys_ParseArgs( int argc, char **argv )
 	}
 }
 
+#ifdef PROTOCOL_HANDLER
+/*
+=================
+Sys_ParseProtocolUri
+
+This parses a protocol URI, e.g. "quake3://connect/example.com:27950"
+to a string that can be run in the console, or a null pointer if the
+operation is invalid or unsupported.
+At the moment only the "connect" command is supported.
+=================
+*/
+char *Sys_ParseProtocolUri( const char *uri )
+{
+	// Both "quake3://" and "quake3:" can be used
+	if ( Q_strncmp( uri, PROTOCOL_HANDLER ":", strlen( PROTOCOL_HANDLER ":" ) ) )
+	{
+		Com_Printf( "Sys_ParseProtocolUri: unsupported protocol.\n" );
+		return NULL;
+	}
+	uri += strlen( PROTOCOL_HANDLER ":" );
+	if ( !Q_strncmp( uri, "//", strlen( "//" ) ) )
+	{
+		uri += strlen( "//" );
+	}
+	Com_Printf( "Sys_ParseProtocolUri: %s\n", uri );
+
+	// At the moment, only "connect/hostname:port" is supported
+	if ( !Q_strncmp( uri, "connect/", strlen( "connect/" ) ) )
+	{
+		int i, bufsize;
+		char *out;
+
+		uri += strlen( "connect/" );
+		if ( *uri == '\0' || *uri == '?' )
+		{
+			Com_Printf( "Sys_ParseProtocolUri: missing argument.\n" );
+			return NULL;
+		}
+
+		// Check for any unsupported characters
+		// For safety reasons, the "hostname:port" part can only
+		// contain characters from: a-zA-Z0-9.:-[]
+		for ( i=0; uri[i] != '\0'; i++ )
+		{
+			if ( uri[i] == '?' )
+			{
+				// For forwards compatibility, any query string parameters are ignored (e.g. "?password=abcd")
+				// However, these are not passed on macOS, so it may be a bad idea to add them.
+				break;
+			}
+
+			if ( isalpha( uri[i] ) == 0 && isdigit( uri[i] ) == 0
+				&& uri[i] != '.' && uri[i] != ':' && uri[i] != '-'
+				&& uri[i] != '[' && uri[i] != ']' )
+			{
+				Com_Printf( "Sys_ParseProtocolUri: hostname contains unsupported character.\n" );
+				return NULL;
+			}
+		}
+
+		bufsize = strlen( "connect " ) + i + 1;
+		out = malloc( bufsize );
+		strcpy( out, "connect " );
+		strncat( out, uri, i );
+		return out;
+	}
+	else
+	{
+		Com_Printf( "Sys_ParseProtocolUri: unsupported command.\n" );
+		return NULL;
+	}
+}
+#endif
+
 #ifndef DEFAULT_BASEDIR
 #	ifdef __APPLE__
 #		define DEFAULT_BASEDIR Sys_StripAppBundle(Sys_BinaryPath())
@@ -690,6 +768,9 @@ int main( int argc, char **argv )
 {
 	int   i;
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
+#ifdef PROTOCOL_HANDLER
+	char *protocolCommand = NULL;
+#endif
 
 	extern void Sys_LaunchAutoupdater(int argc, char **argv);
 	Sys_LaunchAutoupdater(argc, argv);
@@ -740,7 +821,22 @@ int main( int argc, char **argv )
 	// Concatenate the command line for passing to Com_Init
 	for( i = 1; i < argc; i++ )
 	{
-		const qboolean containsSpaces = strchr(argv[i], ' ') != NULL;
+		qboolean containsSpaces;
+
+		// For security reasons we always detect --uri, even when PROTOCOL_HANDLER is undefined
+		// Any arguments after "--uri quake3://..." is ignored
+		if ( !strcmp( argv[i], "--uri" ) )
+		{
+#ifdef PROTOCOL_HANDLER
+			if ( argc > i+1 )
+			{
+				protocolCommand = Sys_ParseProtocolUri( argv[i+1] );
+			}
+#endif
+			break;
+		}
+
+		containsSpaces = strchr(argv[i], ' ') != NULL;
 		if (containsSpaces)
 			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
 
@@ -752,6 +848,15 @@ int main( int argc, char **argv )
 		Q_strcat( commandLine, sizeof( commandLine ), " " );
 	}
 
+#ifdef PROTOCOL_HANDLER
+	if ( protocolCommand != NULL )
+	{
+		Q_strcat( commandLine, sizeof( commandLine ), "+" );
+		Q_strcat( commandLine, sizeof( commandLine ), protocolCommand );
+		free( protocolCommand );
+	}
+#endif
+
 	CON_Init( );
 	Com_Init( commandLine );
 	NET_Init( );
@@ -762,10 +867,14 @@ int main( int argc, char **argv )
 	signal( SIGTERM, Sys_SigHandler );
 	signal( SIGINT, Sys_SigHandler );
 
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop( Com_Frame, 0, 1 );
+#else
 	while( 1 )
 	{
 		Com_Frame( );
 	}
+#endif
 
 	return 0;
 }

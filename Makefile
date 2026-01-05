@@ -6,6 +6,14 @@
 COMPILE_PLATFORM=$(shell uname | sed -e 's/_.*//' | tr '[:upper:]' '[:lower:]' | sed -e 's/\//_/g')
 COMPILE_ARCH=$(shell uname -m | sed -e 's/i.86/x86/' | sed -e 's/^arm.*/arm/')
 
+#arm64 hack!
+ifeq ($(shell uname -m), arm64)
+  COMPILE_ARCH=arm64
+endif
+ifeq ($(shell uname -m), aarch64)
+  COMPILE_ARCH=arm64
+endif
+
 ifeq ($(COMPILE_PLATFORM),sunos)
   # Solaris uname and GNU uname differ
   COMPILE_ARCH=$(shell uname -p | sed -e 's/i.86/x86/')
@@ -32,6 +40,9 @@ endif
 ifndef BUILD_MISSIONPACK
   BUILD_MISSIONPACK=
 endif
+ifndef BUILD_RENDERER_OPENGL1
+  BUILD_RENDERER_OPENGL1=
+endif
 ifndef BUILD_RENDERER_OPENGL2
   BUILD_RENDERER_OPENGL2=
 endif
@@ -51,6 +62,11 @@ endif
 
 ifeq ($(COMPILE_PLATFORM),cygwin)
   PLATFORM=mingw32
+endif
+
+# detect "emmake make"
+ifeq ($(findstring /emcc,$(CC)),/emcc)
+  PLATFORM=emscripten
 endif
 
 ifndef PLATFORM
@@ -264,6 +280,7 @@ VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.6
 OPUSDIR=$(MOUNT_DIR)/opus-1.2.1
 OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.9
 ZDIR=$(MOUNT_DIR)/zlib
+TOOLSDIR=$(MOUNT_DIR)/tools
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
 Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
@@ -274,6 +291,7 @@ LIBTOMCRYPTSRCDIR=$(AUTOUPDATERSRCDIR)/rsa_tools/libtomcrypt-1.17
 TOMSFASTMATHSRCDIR=$(AUTOUPDATERSRCDIR)/rsa_tools/tomsfastmath-0.13.1
 LOKISETUPDIR=misc/setup
 NSISDIR=misc/nsis
+WEBDIR=$(MOUNT_DIR)/web
 SDLHDIR=$(MOUNT_DIR)/SDL2
 LIBSDIR=$(MOUNT_DIR)/libs
 
@@ -435,7 +453,34 @@ ifeq ($(PLATFORM),darwin)
 
   # Default minimum Mac OS X version
   ifeq ($(MACOSX_VERSION_MIN),)
-    MACOSX_VERSION_MIN=10.7
+    MACOSX_VERSION_MIN=10.9
+    ifneq ($(findstring $(ARCH),ppc ppc64),)
+      MACOSX_VERSION_MIN=10.5
+    endif
+    ifeq ($(ARCH),x86)
+      MACOSX_VERSION_MIN=10.6
+    endif
+    ifeq ($(ARCH),x86_64)
+      # trying to find default SDK version is hard
+      # macOS 10.15 requires -sdk macosx but 10.11 doesn't support it
+      # macOS 10.6 doesn't have -show-sdk-version
+      DEFAULT_SDK=$(shell xcrun -sdk macosx -show-sdk-version 2> /dev/null)
+      ifeq ($(DEFAULT_SDK),)
+        DEFAULT_SDK=$(shell xcrun -show-sdk-version 2> /dev/null)
+      endif
+      ifeq ($(DEFAULT_SDK),)
+        $(error Error: Unable to determine macOS SDK version.  On macOS 10.6 to 10.8 run: make MACOSX_VERSION_MIN=10.6  On macOS 10.9 or later run: make MACOSX_VERSION_MIN=10.9 );
+      endif
+
+      ifneq ($(findstring $(DEFAULT_SDK),10.6 10.7 10.8),)
+        MACOSX_VERSION_MIN=10.6
+      else
+        MACOSX_VERSION_MIN=10.9
+      endif
+    endif
+    ifeq ($(ARCH),arm64)
+      MACOSX_VERSION_MIN=11.0
+    endif
   endif
 
   MACOSX_MAJOR=$(shell echo $(MACOSX_VERSION_MIN) | cut -d. -f1)
@@ -452,6 +497,11 @@ ifeq ($(PLATFORM),darwin)
   BASE_CFLAGS += -mmacosx-version-min=$(MACOSX_VERSION_MIN) \
                  -DMAC_OS_X_VERSION_MIN_REQUIRED=$(MAC_OS_X_VERSION_MIN_REQUIRED) \
                   -DREACTION
+
+  MACOSX_ARCH=$(ARCH)
+  ifeq ($(ARCH),x86)
+    MACOSX_ARCH=i386
+  endif
 
   ifeq ($(ARCH),ppc)
     BASE_CFLAGS += -arch ppc
@@ -471,6 +521,10 @@ ifeq ($(PLATFORM),darwin)
     OPTIMIZEVM += -mfpmath=sse
     BASE_CFLAGS += -arch x86_64
   endif
+  ifeq ($(ARCH),arm64)
+    # HAVE_VM_COMPILED=false # TODO: implement compiled vm
+    BASE_CFLAGS += -arch arm64
+  endif
 
   # When compiling on OSX for OSX, we're not cross compiling as far as the
   # Makefile is concerned, as target architecture is specified as a compiler
@@ -480,17 +534,38 @@ ifeq ($(PLATFORM),darwin)
   endif
 
   ifeq ($(CROSS_COMPILING),1)
-    ifeq ($(ARCH),x86_64)
-      CC=x86_64-apple-darwin13-cc
-      RANLIB=x86_64-apple-darwin13-ranlib
-    else
-      ifeq ($(ARCH),x86)
-        CC=i386-apple-darwin13-cc
-        RANLIB=i386-apple-darwin13-ranlib
-      else
-        $(error Architecture $(ARCH) is not supported when cross compiling)
+    # If CC is already set to something generic, we probably want to use
+    # something more specific
+    ifneq ($(findstring $(strip $(CC)),cc gcc),)
+      CC=
+    endif
+
+    ifndef CC
+      ifndef DARWIN
+        # macOS 10.9 SDK
+        DARWIN=13
+        ifneq ($(findstring $(ARCH),ppc ppc64),)
+          # macOS 10.5 SDK, though as of writing osxcross doesn't support ppc/ppc64
+          DARWIN=9
+        endif
+        ifeq ($(ARCH),arm64)
+          # macOS 11.3 SDK
+          DARWIN=20.4
+        endif
+      endif
+
+      CC=$(MACOSX_ARCH)-apple-darwin$(DARWIN)-cc
+      RANLIB=$(MACOSX_ARCH)-apple-darwin$(DARWIN)-ranlib
+      LIPO=$(MACOSX_ARCH)-apple-darwin$(DARWIN)-lipo
+
+      ifeq ($(call bin_path, $(CC)),)
+        $(error Unable to find osxcross $(CC))
       endif
     endif
+  endif
+
+  ifndef LIPO
+    LIPO=lipo
   endif
 
   BASE_CFLAGS += -fno-strict-aliasing -fno-common -pipe
@@ -517,20 +592,39 @@ ifeq ($(PLATFORM),darwin)
   RENDERER_LIBS += -framework OpenGL
 
   ifeq ($(USE_LOCAL_HEADERS),1)
-    # libSDL2-2.0.0.dylib for PPC is SDL 2.0.1 + changes to compile
-    ifneq ($(findstring $(ARCH),ppc ppc64),)
-      BASE_CFLAGS += -I$(SDLHDIR)/include-macppc
-    else
+    ifeq ($(shell test $(MAC_OS_X_VERSION_MIN_REQUIRED) -ge 1090; echo $$?),0)
+      # Universal Binary 2 - for running on macOS 10.9 or later
+      # x86_64 (10.9 or later), arm64 (11.0 or later)
+      MACLIBSDIR=$(LIBSDIR)/macosx-ub2
       BASE_CFLAGS += -I$(SDLHDIR)/include
+    else
+      # Universal Binary - for running on Mac OS X 10.5 or later
+      # ppc (10.5/10.6), x86 (10.6 or later), x86_64 (10.6 or later)
+      #
+      # x86/x86_64 on 10.5 will run the ppc build.
+      #
+      # SDL 2.0.1,  last with Mac OS X PowerPC
+      # SDL 2.0.4,  last with Mac OS X 10.5 (x86/x86_64)
+      # SDL 2.0.22, last with Mac OS X 10.6 (x86/x86_64)
+      #
+      # code/libs/macosx-ub/libSDL2-2.0.0.dylib contents
+      # - ppc build is SDL 2.0.1 with a header change so it compiles
+      # - x86/x86_64 build are SDL 2.0.22
+      MACLIBSDIR=$(LIBSDIR)/macosx-ub
+      ifneq ($(findstring $(ARCH),ppc ppc64),)
+        BASE_CFLAGS += -I$(SDLHDIR)/include-macppc
+      else
+        BASE_CFLAGS += -I$(SDLHDIR)/include-2.0.22
+      endif
     endif
 
     # We copy sdlmain before ranlib'ing it so that subversion doesn't think
     #  the file has been modified by each build.
     LIBSDLMAIN=$(B)/libSDL2main.a
-    LIBSDLMAINSRC=$(LIBSDIR)/macosx/libSDL2main.a
-    CLIENT_LIBS += $(LIBSDIR)/macosx/libSDL2-2.0.0.dylib
-    RENDERER_LIBS += $(LIBSDIR)/macosx/libSDL2-2.0.0.dylib
-    CLIENT_EXTRA_FILES += $(LIBSDIR)/macosx/libSDL2-2.0.0.dylib
+    LIBSDLMAINSRC=$(MACLIBSDIR)/libSDL2main.a
+    CLIENT_LIBS += $(MACLIBSDIR)/libSDL2-2.0.0.dylib
+    RENDERER_LIBS += $(MACLIBSDIR)/libSDL2-2.0.0.dylib
+    CLIENT_EXTRA_FILES += $(MACLIBSDIR)/libSDL2-2.0.0.dylib
   else
     BASE_CFLAGS += -I/Library/Frameworks/SDL2.framework/Headers
     CLIENT_LIBS += -framework SDL2
@@ -634,7 +728,19 @@ ifdef MINGW
 
   ifeq ($(COMPILE_PLATFORM),cygwin)
     TOOLS_BINEXT=.exe
-    TOOLS_CC=$(CC)
+
+    # Under cygwin the default of using gcc for TOOLS_CC won't work, so
+    # we need to figure out the appropriate compiler to use, based on the
+    # host architecture that we're running under (as tools run on the host)
+    ifeq ($(COMPILE_ARCH),x86_64)
+      TOOLS_MINGW_PREFIXES=x86_64-w64-mingw32 amd64-mingw32msvc
+    endif
+    ifeq ($(COMPILE_ARCH),x86)
+      TOOLS_MINGW_PREFIXES=i686-w64-mingw32 i586-mingw32msvc i686-pc-mingw32
+    endif
+
+    TOOLS_CC=$(firstword $(strip $(foreach TOOLS_MINGW_PREFIX, $(TOOLS_MINGW_PREFIXES), \
+      $(call bin_path, $(TOOLS_MINGW_PREFIX)-gcc))))
   endif
 
   LIBS= -lws2_32 -lwinmm -lpsapi
@@ -709,6 +815,8 @@ else # ifdef MINGW
 #############################################################################
 
 ifeq ($(PLATFORM),freebsd)
+  # Use the default C compiler
+  TOOLS_CC=cc
 
   # flags
   BASE_CFLAGS = \
@@ -945,6 +1053,67 @@ ifeq ($(PLATFORM),sunos)
 else # ifeq sunos
 
 #############################################################################
+# SETUP AND BUILD -- emscripten
+#############################################################################
+
+ifeq ($(PLATFORM),emscripten)
+
+  ifneq ($(findstring /emcc,$(CC)),/emcc)
+    CC=emcc
+  endif
+  ARCH=wasm32
+  BINEXT=.js
+
+  # dlopen(), opengl1, and networking are not functional
+  USE_RENDERER_DLOPEN=0
+  USE_OPENAL_DLOPEN=0
+  BUILD_GAME_SO=0
+  BUILD_RENDERER_OPENGL1=0
+  BUILD_SERVER=0
+
+  CLIENT_CFLAGS+=-s USE_SDL=2
+
+  CLIENT_LDFLAGS+=-s TOTAL_MEMORY=768MB
+  CLIENT_LDFLAGS+=-s STACK_SIZE=5MB
+  CLIENT_LDFLAGS+=-s MIN_WEBGL_VERSION=1 -s MAX_WEBGL_VERSION=2
+
+  # The HTML file can use these functions to load extra files before the game starts.
+  CLIENT_LDFLAGS+=-s EXPORTED_RUNTIME_METHODS=FS,addRunDependency,removeRunDependency
+  CLIENT_LDFLAGS+=-s EXIT_RUNTIME=1
+  CLIENT_LDFLAGS+=-s EXPORT_ES6
+  CLIENT_LDFLAGS+=-s EXPORT_NAME=ioquake3
+
+  # Game data files can be packaged by emcc into a .data file that lives next to the wasm bundle
+  # and added to the virtual filesystem before the game starts. This requires the game data to be
+  # present at build time and it can't be changed afterward.
+  # For more flexibility, game data files can be loaded from a web server at runtime by listing
+  # them in client-config.json. This way they don't have to be present at build time and can be
+  # changed later.
+  ifeq ($(EMSCRIPTEN_PRELOAD_FILE),1)
+    ifeq ($(wildcard $(BASEGAME)/*),)
+      $(error "No files in '$(BASEGAME)' directory for emscripten to preload.")
+    endif
+    CLIENT_LDFLAGS+=--preload-file $(BASEGAME)
+  endif
+
+  OPTIMIZEVM = -O3
+  OPTIMIZE = $(OPTIMIZEVM) -ffast-math
+
+  # These allow a warning-free build.
+  # Some of these warnings may actually be legit problems and should be fixed at some point.
+  BASE_CFLAGS+=-Wno-deprecated-non-prototype -Wno-dangling-else -Wno-implicit-const-int-float-conversion -Wno-misleading-indentation -Wno-format-overflow -Wno-logical-not-parentheses -Wno-absolute-value
+
+  DEBUG_CFLAGS=-g3 -O0 # -fsanitize=address -fsanitize=undefined
+  # Emscripten needs debug compiler flags to be passed to the linker as well
+  DEBUG_LDFLAGS=$(DEBUG_CFLAGS)
+
+  SHLIBEXT=wasm
+  SHLIBCFLAGS=-fPIC
+  SHLIBLDFLAGS=-s SIDE_MODULE
+
+else # ifeq emscripten
+
+#############################################################################
 # SETUP AND BUILD -- GENERIC
 #############################################################################
   BASE_CFLAGS=
@@ -962,6 +1131,7 @@ endif #OpenBSD
 endif #NetBSD
 endif #IRIX
 endif #SunOS
+endif #emscripten
 
 ifndef CC
   CC=gcc
@@ -973,7 +1143,6 @@ endif
 
 ifneq ($(HAVE_VM_COMPILED),true)
   BASE_CFLAGS += -DNO_VM_COMPILED
-  BUILD_GAME_QVM=0
 endif
 
 TARGETS =
@@ -992,12 +1161,18 @@ endif
 
 ifneq ($(BUILD_CLIENT),0)
   ifneq ($(USE_RENDERER_DLOPEN),0)
-    TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT) $(B)/renderer_opengl1_$(SHLIBNAME)
+    TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
+
+    ifneq ($(BUILD_RENDERER_OPENGL1),0)
+      TARGETS += $(B)/renderer_opengl1_$(SHLIBNAME)
+    endif
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
       TARGETS += $(B)/renderer_opengl2_$(SHLIBNAME)
     endif
   else
-    TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
+    ifneq ($(BUILD_RENDERER_OPENGL1),0)
+      TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
+    endif
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
       TARGETS += $(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT)
     endif
@@ -1042,6 +1217,42 @@ ifneq ($(BUILD_AUTOUPDATER),0)
   #  So don't call this thing "autoupdater" here!
   AUTOUPDATER_BIN := autosyncerator$(FULLBINEXT)
   TARGETS += $(B)/$(AUTOUPDATER_BIN)
+endif
+
+ifeq ($(PLATFORM),emscripten)
+  ifneq ($(BUILD_SERVER),0)
+    GENERATEDTARGETS += $(B)/$(SERVERBIN).$(ARCH).wasm
+    ifeq ($(EMSCRIPTEN_PRELOAD_FILE),1)
+      GENERATEDTARGETS += $(B)/$(SERVERBIN).$(ARCH).data
+    endif
+  endif
+
+  ifneq ($(BUILD_CLIENT),0)
+    TARGETS += $(B)/$(CLIENTBIN).html
+    ifneq ($(EMSCRIPTEN_PRELOAD_FILE),1)
+      TARGETS += $(B)/$(CLIENTBIN)-config.json
+    endif
+
+    ifneq ($(USE_RENDERER_DLOPEN),0)
+      GENERATEDTARGETS += $(B)/$(CLIENTBIN).$(ARCH).wasm
+      ifeq ($(EMSCRIPTEN_PRELOAD_FILE),1)
+        GENERATEDTARGETS += $(B)/$(CLIENTBIN).$(ARCH).data
+      endif
+    else
+      ifneq ($(BUILD_RENDERER_OPENGL1),0)
+        GENERATEDTARGETS += $(B)/$(CLIENTBIN).$(ARCH).wasm
+        ifeq ($(EMSCRIPTEN_PRELOAD_FILE),1)
+          GENERATEDTARGETS += $(B)/$(CLIENTBIN).$(ARCH).data
+        endif
+      endif
+      ifneq ($(BUILD_RENDERER_OPENGL2),0)
+        GENERATEDTARGETS += $(B)/$(CLIENTBIN)_opengl2.$(ARCH).wasm
+        ifeq ($(EMSCRIPTEN_PRELOAD_FILE),1)
+          GENERATEDTARGETS += $(B)/$(CLIENTBIN)_opengl2.$(ARCH).data
+        endif
+      endif
+    endif
+  endif
 endif
 
 ifeq ($(USE_OPENAL),1)
@@ -1223,10 +1434,7 @@ endef
 define DO_REF_STR
 $(echo_cmd) "REF_STR $<"
 $(Q)rm -f $@
-$(Q)echo "const char *fallbackShader_$(notdir $(basename $<)) =" >> $@
-$(Q)cat $< | perl -pe 's/^(.*)$$/\"$$1\\n\"/' >> $@
-$(Q)echo ";" >> $@
-$(Q)cat $@
+$(Q)$(STRINGIFY) $< $@
 endef
 
 define DO_BOT_CC
@@ -1312,7 +1520,8 @@ all: debug release
 debug:
 	@$(MAKE) targets B=$(BD) CFLAGS="$(CFLAGS) $(BASE_CFLAGS) $(DEPEND_CFLAGS)" \
 	  OPTIMIZE="$(DEBUG_CFLAGS)" OPTIMIZEVM="$(DEBUG_CFLAGS)" \
-	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V)
+	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V) \
+	  LDFLAGS="$(LDFLAGS) $(DEBUG_LDFLAGS)"
 
 release:
 	@$(MAKE) targets B=$(BR) CFLAGS="$(CFLAGS) $(BASE_CFLAGS) $(DEPEND_CFLAGS)" \
@@ -1349,6 +1558,7 @@ ifneq ($(BUILD_CLIENT),0)
 endif
 
 NAKED_TARGETS=$(shell echo $(TARGETS) | sed -e "s!$(B)/!!g")
+NAKED_GENERATEDTARGETS=$(shell echo $(GENERATEDTARGETS) | sed -e "s!$(B)/!!g")
 
 print_list=-@for i in $(1); \
      do \
@@ -1387,6 +1597,9 @@ endif
 	@echo "  SERVER_CFLAGS:"
 	$(call print_wrapped, $(SERVER_CFLAGS))
 	@echo ""
+	@echo "  TOOLS_CFLAGS:"
+	$(call print_wrapped, $(TOOLS_CFLAGS))
+	@echo ""
 	@echo "  LDFLAGS:"
 	$(call print_wrapped, $(LDFLAGS))
 	@echo ""
@@ -1401,6 +1614,7 @@ endif
 	@echo ""
 	@echo "  Output:"
 	$(call print_list, $(NAKED_TARGETS))
+	$(call print_list, $(NAKED_GENERATEDTARGETS))
 	@echo ""
 ifneq ($(TARGETS),)
   ifndef DEBUG_MAKEFILE
@@ -1417,9 +1631,10 @@ endif
 ifneq ($(PLATFORM),darwin)
   ifdef ARCHIVE
 	@rm -f $@
-	@(cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS))
+	@(cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS) $(NAKED_GENERATEDTARGETS))
   endif
 endif
+	@:
 
 makedirs:
 	@$(MKDIR) $(B)/autoupdater
@@ -1492,6 +1707,7 @@ Q3RCC       = $(B)/tools/q3rcc$(TOOLS_BINEXT)
 Q3CPP       = $(B)/tools/q3cpp$(TOOLS_BINEXT)
 Q3LCC       = $(B)/tools/q3lcc$(TOOLS_BINEXT)
 Q3ASM       = $(B)/tools/q3asm$(TOOLS_BINEXT)
+STRINGIFY   = $(B)/tools/stringify$(TOOLS_BINEXT)
 
 LBURGOBJ= \
   $(B)/tools/lburg/lburg.o \
@@ -1584,6 +1800,10 @@ $(B)/tools/etc/%.o: $(Q3LCCETCDIR)/%.c
 $(Q3LCC): $(Q3LCCOBJ) $(Q3RCC) $(Q3CPP)
 	$(echo_cmd) "LD $@"
 	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $(Q3LCCOBJ) $(TOOLS_LIBS)
+
+$(STRINGIFY): $(TOOLSDIR)/stringify.c
+	$(echo_cmd) "TOOLS_CC $@"
+	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $(TOOLSDIR)/stringify.c $(TOOLS_LIBS)
 
 define DO_Q3LCC
 $(echo_cmd) "Q3LCC $<"
@@ -1769,8 +1989,13 @@ ifdef MINGW
   Q3OBJ += \
     $(B)/client/con_passive.o
 else
+ifeq ($(PLATFORM),emscripten)
+  Q3OBJ += \
+    $(B)/client/con_passive.o
+else
   Q3OBJ += \
     $(B)/client/con_tty.o
+endif
 endif
 
 Q3R2OBJ = \
@@ -2219,7 +2444,11 @@ endif
 ifneq ($(strip $(LIBSDLMAIN)),)
 ifneq ($(strip $(LIBSDLMAINSRC)),)
 $(LIBSDLMAIN) : $(LIBSDLMAINSRC)
+ifeq ($(PLATFORM),darwin)
+	$(LIPO) -extract $(MACOSX_ARCH) $< -o $@
+else
 	cp $< $@
+endif
 	$(RANLIB) $@
 endif
 endif
@@ -2704,7 +2933,7 @@ $(B)/renderergl1/tr_altivec.o: $(RGL1DIR)/tr_altivec.c
 	$(DO_REF_CC_ALTIVEC)
 
 .PRECIOUS: $(B)/renderergl2/glsl/%.c
-$(B)/renderergl2/glsl/%.c: $(RGL2DIR)/glsl/%.glsl
+$(B)/renderergl2/glsl/%.c: $(RGL2DIR)/glsl/%.glsl $(STRINGIFY)
 	$(DO_REF_STR)
 
 $(B)/renderergl2/glsl/%.o: $(B)/renderergl2/glsl/%.c
@@ -2837,6 +3066,19 @@ $(B)/$(MISSIONPACK)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 
 
 #############################################################################
+# EMSCRIPTEN
+#############################################################################
+
+$(B)/$(CLIENTBIN).html: $(WEBDIR)/client.html
+	$(echo_cmd) "SED $@"
+	$(Q)sed 's/__CLIENTBIN__/$(CLIENTBIN)/g;s/__BASEGAME__/$(BASEGAME)/g;s/__EMSCRIPTEN_PRELOAD_FILE__/$(EMSCRIPTEN_PRELOAD_FILE)/g' < $< > $@
+
+$(B)/$(CLIENTBIN)-config.json: $(WEBDIR)/client-config.json
+	$(echo_cmd) "CP $@"
+	$(Q)cp $< $@
+
+
+#############################################################################
 # MISC
 #############################################################################
 
@@ -2859,13 +3101,18 @@ ifneq ($(BUILD_GAME_SO),0)
 endif
 
 ifneq ($(BUILD_CLIENT),0)
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)$(FULLBINEXT)
   ifneq ($(USE_RENDERER_DLOPEN),0)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)$(FULLBINEXT)
+    ifneq ($(BUILD_RENDERER_OPENGL1),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl1_$(SHLIBNAME) $(COPYBINDIR)/renderer_opengl1_$(SHLIBNAME)
+    endif
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl2_$(SHLIBNAME) $(COPYBINDIR)/renderer_opengl2_$(SHLIBNAME)
     endif
   else
+    ifneq ($(BUILD_RENDERER_OPENGL1),0)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)$(FULLBINEXT)
+    endif
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)_opengl2$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)_opengl2$(FULLBINEXT)
     endif
@@ -2916,6 +3163,7 @@ clean2:
 	@rm -f $(OBJ_D_FILES)
 	@rm -f $(STRINGOBJ)
 	@rm -f $(TARGETS)
+	@rm -f $(GENERATEDTARGETS)
 
 toolsclean: toolsclean-debug toolsclean-release
 
@@ -2929,7 +3177,7 @@ toolsclean2:
 	@echo "TOOLS_CLEAN $(B)"
 	@rm -f $(TOOLSOBJ)
 	@rm -f $(TOOLSOBJ_D_FILES)
-	@rm -f $(LBURG) $(DAGCHECK_C) $(Q3RCC) $(Q3CPP) $(Q3LCC) $(Q3ASM)
+	@rm -f $(LBURG) $(DAGCHECK_C) $(Q3RCC) $(Q3CPP) $(Q3LCC) $(Q3ASM) $(STRINGIFY)
 
 distclean: clean toolsclean
 	@rm -rf $(BUILD_DIR)
@@ -2954,6 +3202,11 @@ dist:
 #############################################################################
 # DEPENDENCIES
 #############################################################################
+
+# Rebuild every target if Makefile or Makefile.local changes
+ifneq ($(DEPEND_MAKEFILE),0)
+.EXTRA_PREREQS:= $(MAKEFILE_LIST)
+endif
 
 ifneq ($(B),)
   OBJ_D_FILES=$(filter %.d,$(OBJ:%.o=%.d))

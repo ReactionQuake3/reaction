@@ -1304,12 +1304,12 @@ void SetTeam(gentity_t * ent, const char *s)
 		}
 	}
 
-	BroadcastTeamChange(client, oldTeam);
-
 	// client hasn't spawned yet, they sent an early team command, teampref userinfo, or g_teamAutoJoin is enabled
 	if (client->pers.connected != CON_CONNECTED) {
 		return;
 	}
+
+	BroadcastTeamChange(client, oldTeam);
 
 	if (g_gametype.integer == GT_CTF || (g_gametype.integer == GT_TEAM && client->sess.savedTeam == TEAM_SPECTATOR))
 		MakeSpectator (ent);

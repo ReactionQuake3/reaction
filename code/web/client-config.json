@@ -1,0 +1,10 @@
+{
+    "Boomstick": {
+        "files": [
+            {"src": "Boomstick/reaction1.pk3", "dst": "/Boomstick"},
+            {"src": "Boomstick/vm/cgame.qvm", "dst": "/Boomstick/vm"},
+            {"src": "Boomstick/vm/qagame.qvm", "dst": "/Boomstick/vm"},
+            {"src": "Boomstick/vm/ui.qvm", "dst": "/Boomstick/vm"}
+        ]
+    }
+}

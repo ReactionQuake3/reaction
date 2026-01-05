@@ -2470,7 +2470,7 @@ void Com_ReadCDKey( const char *filename ) {
 
 	FS_SV_FOpenFileRead( fbuffer, &f );
 	if ( !f ) {
-		Q_strncpyz( cl_cdkey, "                ", 17 );
+		Com_Memset( cl_cdkey, '\0', 17 );
 		return;
 	}
 
@@ -2482,7 +2482,7 @@ void Com_ReadCDKey( const char *filename ) {
 	if (CL_CDKeyValidate(buffer, NULL)) {
 		Q_strncpyz( cl_cdkey, buffer, 17 );
 	} else {
-		Q_strncpyz( cl_cdkey, "                ", 17 );
+		Com_Memset( cl_cdkey, '\0', 17 );
 	}
 }
 
@@ -2500,7 +2500,7 @@ void Com_AppendCDKey( const char *filename ) {
 
 	FS_SV_FOpenFileRead( fbuffer, &f );
 	if (!f) {
-		Q_strncpyz( &cl_cdkey[16], "                ", 17 );
+		Com_Memset( &cl_cdkey[16], '\0', 17 );
 		return;
 	}
 
@@ -2512,7 +2512,7 @@ void Com_AppendCDKey( const char *filename ) {
 	if (CL_CDKeyValidate(buffer, NULL)) {
 		strcat( &cl_cdkey[16], buffer );
 	} else {
-		Q_strncpyz( &cl_cdkey[16], "                ", 17 );
+		Com_Memset( &cl_cdkey[16], '\0', 17 );
 	}
 }
 
@@ -2741,7 +2741,14 @@ void Com_Init( char *commandLine ) {
 	// init commands and vars
 	//
 	com_altivec = Cvar_Get ("com_altivec", "1", CVAR_ARCHIVE);
+#ifdef __EMSCRIPTEN__
+	// Under Emscripten the browser handles throttling the frame rate.
+	// Manual framerate throttling interacts poorly with Emscripten's
+	// browser-driven event loop. So default throttling to off.
+	com_maxfps = Cvar_Get ("com_maxfps", "0", CVAR_ARCHIVE);
+#else
 	com_maxfps = Cvar_Get ("com_maxfps", "85", CVAR_ARCHIVE);
+#endif
 	com_blood = Cvar_Get ("com_blood", "1", CVAR_ARCHIVE);
 
 	com_logfile = Cvar_Get ("logfile", "0", CVAR_TEMP );
