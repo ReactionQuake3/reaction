@@ -1289,7 +1289,7 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
 	// check to see if they are on the banned IP list
 	value = Info_ValueForKey(userinfo, "ip");
-	strncpy(ipaddr, value, sizeof(ipaddr));
+	Q_strncpyz(ipaddr, value, sizeof(ipaddr));
 	if (G_FilterPacket(value)) {
 		return "You are banned from this server..";
 	}

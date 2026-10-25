@@ -2058,7 +2058,7 @@ static void CG_RegisterBreakables(void)
 				cgs.media.breakables[id].model[2] =
 				    trap_R_RegisterModel(va("breakables/%s/models/break3.md3", name));
 			} else {
-				strncpy(baseName, name, 80);
+				Q_strncpyz(baseName, name, sizeof(baseName));
 				//Makro - crash bug fix; TODO: find a better way to handle this
 				if (!strstr(name, "_"))
 					return;
@@ -2078,7 +2078,7 @@ static void CG_RegisterBreakables(void)
 				cgs.media.breakables[id].sound[2] =
 				    trap_S_RegisterSound(va("breakables/%s/sounds/break3.wav", name), qfalse);
 			} else {
-				strncpy(baseName, name, 80);
+				Q_strncpyz(baseName, name, sizeof(baseName));
 				baseName[strstr(name, "_") - name] = '\0';
 				cgs.media.breakables[id].sound[0] =
 				    trap_S_RegisterSound(va("breakables/%s/sounds/break1.wav", baseName), qfalse);
@@ -2091,7 +2091,7 @@ static void CG_RegisterBreakables(void)
 				cgs.media.breakables[id].exp_sound =
 				    trap_S_RegisterSound(va("breakables/%s/sounds/explosion.wav", name), qfalse);
 			} else {
-				strncpy(baseName, name, 80);
+				Q_strncpyz(baseName, name, sizeof(baseName));
 				baseName[strstr(name, "_") - name] = '\0';
 				cgs.media.breakables[id].exp_sound =
 				    trap_S_RegisterSound(va("breakables/%s/sounds/explosion.wav", baseName), qfalse);
