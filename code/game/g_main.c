@@ -2277,6 +2277,13 @@ void CheckExitRules(void)
 	int i;
 	gclient_t *cl;
 
+	// before any return: CheckTeamRules reads timelimit right after this in every frame
+	if ( g_timelimit.integer < 0 || g_timelimit.integer > INT_MAX / 60000 ) {
+		G_Printf( "timelimit %i is out of range, defaulting to 0\n", g_timelimit.integer );
+		trap_Cvar_Set( "timelimit", "0" );
+		trap_Cvar_Update( &g_timelimit );
+	}
+
 	// if at the intermission, wait for all non-bots to
 	// signal ready, then go to next level
 	if (level.intermissiontime) {
@@ -2321,12 +2328,6 @@ void CheckExitRules(void)
 			BeginIntermission();
 		}
 		return;
-	}
-
-	if ( g_timelimit.integer < 0 || g_timelimit.integer > INT_MAX / 60000 ) {
-		G_Printf( "timelimit %i is out of range, defaulting to 0\n", g_timelimit.integer );
-		trap_Cvar_Set( "timelimit", "0" );
-		trap_Cvar_Update( &g_timelimit );
 	}
 
 	if (g_timelimit.integer && !level.warmupTime) {
