@@ -621,7 +621,8 @@ void CheckTeamRules()
 					return;
 				}
 			} else {
-				if (level.time - level.startTime >= g_timelimit.integer * 60000) {
+				// the match clock starts with the first round (ContinueLCA sets level.startTime)
+				if (level.startTime && level.time - level.startTime >= g_timelimit.integer * 60000) {
 					//Slicer : Let's do a normal console print instead..
 					trap_SendServerCommand(-1, "print \"^1Timelimit hit.\n\"");
 					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
