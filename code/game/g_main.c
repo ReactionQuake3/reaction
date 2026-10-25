@@ -2277,11 +2277,23 @@ void CheckExitRules(void)
 	int i;
 	gclient_t *cl;
 
-	// before any return: CheckTeamRules reads timelimit right after this in every frame
+	// before any return: CheckTeamRules reads these limits right after this in every frame
 	if ( g_timelimit.integer < 0 || g_timelimit.integer > INT_MAX / 60000 ) {
 		G_Printf( "timelimit %i is out of range, defaulting to 0\n", g_timelimit.integer );
 		trap_Cvar_Set( "timelimit", "0" );
 		trap_Cvar_Update( &g_timelimit );
+	}
+
+	if ( g_RQ3_roundlimit.integer < 0 ) {
+		G_Printf( "g_RQ3_roundlimit %i is out of range, defaulting to 0\n", g_RQ3_roundlimit.integer );
+		trap_Cvar_Set( "g_RQ3_roundlimit", "0" );
+		trap_Cvar_Update( &g_RQ3_roundlimit );
+	}
+
+	if ( g_RQ3_roundtimelimit.integer < 0 ) {
+		G_Printf( "g_RQ3_roundtimelimit %i is out of range, defaulting to 0\n", g_RQ3_roundtimelimit.integer );
+		trap_Cvar_Set( "g_RQ3_roundtimelimit", "0" );
+		trap_Cvar_Update( &g_RQ3_roundtimelimit );
 	}
 
 	// if at the intermission, wait for all non-bots to
