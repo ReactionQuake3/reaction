@@ -759,7 +759,7 @@ Adapt the gain if necessary to get a quicker fadeout when the source is too far 
 
 static void S_AL_ScaleGain(src_t *chksrc, vec3_t origin)
 {
-	float distance;
+	float distance = 0.0f;
 	
 	if(!chksrc->local)
 		distance = Distance(origin, lastListenerOrigin);
@@ -3007,7 +3007,7 @@ static void S_Cmd_AL_DumpSoundShader( void )
 	else
 		filename = Cmd_Argv(1);
 
-	file = FS_FOpenFileWrite(filename);
+	file = FS_FOpenFileWrite_HomeData(filename);
 	if (!file)
 	{
 		Com_Printf ("Couldn't write %s.\n", filename );
@@ -3054,7 +3054,7 @@ static void S_Cmd_AL_DumpCustinfoparms( void )
 	else
 		filename = Cmd_Argv(1);
 
-	file = FS_FOpenFileWrite(filename);
+	file = FS_FOpenFileWrite_HomeData(filename);
 	if (!file)
 	{
 		Com_Printf ("Couldn't write %s.\n", filename );

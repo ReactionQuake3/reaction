@@ -243,10 +243,6 @@ ifndef USE_RENDERER_DLOPEN
 USE_RENDERER_DLOPEN=1
 endif
 
-ifndef USE_ARCHLESS_FILENAMES
-USE_ARCHLESS_FILENAMES=0
-endif
-
 ifndef USE_YACC
 USE_YACC=0
 endif
@@ -1065,28 +1061,14 @@ ifndef RANLIB
   RANLIB=ranlib
 endif
 
-ifneq ($(HAVE_VM_COMPILED),true)
-  BASE_CFLAGS += -DNO_VM_COMPILED
-endif
-
 TARGETS =
 
 ifndef FULLBINEXT
-  ifeq ($(USE_ARCHLESS_FILENAMES),1)
-    FULLBINEXT=$(BINEXT)
-  else
-    FULLBINEXT=.$(ARCH)$(BINEXT)
-  endif
+  FULLBINEXT=$(BINEXT)
 endif
 
 ifndef SHLIBNAME
-  ifeq ($(USE_ARCHLESS_FILENAMES),1)
-    SHLIBNAME=.$(SHLIBEXT)
-    RSHLIBNAME=$(SHLIBNAME)
-  else
-    SHLIBNAME=$(ARCH).$(SHLIBEXT)
-    RSHLIBNAME=_$(SHLIBNAME)
-  endif
+  SHLIBNAME=.$(SHLIBEXT)
 endif
 
 ifneq ($(BUILD_SERVER),0)
@@ -1098,10 +1080,10 @@ ifneq ($(BUILD_CLIENT),0)
     TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
 
     ifneq ($(BUILD_RENDERER_OPENGL1),0)
-      TARGETS += $(B)/renderer_opengl1$(RSHLIBNAME)
+      TARGETS += $(B)/renderer_opengl1$(SHLIBNAME)
     endif
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
-      TARGETS += $(B)/renderer_opengl2$(RSHLIBNAME)
+      TARGETS += $(B)/renderer_opengl2$(SHLIBNAME)
     endif
   else
     ifneq ($(BUILD_RENDERER_OPENGL1),0)
@@ -1323,10 +1305,6 @@ ifeq ($(BUILD_STANDALONE),1)
   BASE_CFLAGS += -DSTANDALONE
 endif
 
-ifeq ($(USE_ARCHLESS_FILENAMES),1)
-  BASE_CFLAGS += -DUSE_ARCHLESS_FILENAMES
-endif
-
 ifeq ($(GENERATE_DEPENDENCIES),1)
   DEPEND_CFLAGS = -MMD
 else
@@ -1483,12 +1461,14 @@ debug:
 	@$(MAKE) targets B=$(BD) CFLAGS="$(CFLAGS) $(BASE_CFLAGS) $(DEPEND_CFLAGS)" \
 	  OPTIMIZE="$(DEBUG_CFLAGS)" OPTIMIZEVM="$(DEBUG_CFLAGS)" \
 	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V) \
-	  LDFLAGS="$(LDFLAGS) $(DEBUG_LDFLAGS)"
+	  LDFLAGS="$(LDFLAGS) $(DEBUG_LDFLAGS)" \
+	  I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED=${I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED}
 
 release:
 	@$(MAKE) targets B=$(BR) CFLAGS="$(CFLAGS) $(BASE_CFLAGS) $(DEPEND_CFLAGS)" \
 	  OPTIMIZE="-DNDEBUG $(OPTIMIZE)" OPTIMIZEVM="-DNDEBUG $(OPTIMIZEVM)" \
-	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V)
+	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V) \
+	  I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED=${I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED}
 
 ifneq ($(call bin_path, tput),)
   TERM_COLUMNS=$(shell if c=`tput cols`; then echo $$(($$c-4)); else echo 76; fi)
@@ -1533,9 +1513,43 @@ else
   print_wrapped=$(print_list)
 endif
 
+REQUIRE_DEPRECATION_ACK=1
+
 # Create the build directories, check libraries and print out
 # an informational message, then start building
 targets: makedirs
+ifneq ($(I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED),1)
+	@echo ""
+	@echo "=== IMPORTANT NOTICE ==========================================================="
+	@echo ""
+	@echo "  Going forward, ioq3 is transitioning to the CMake build system and using the"
+	@echo "  Makefile is now deprecated."
+	@echo "  Our plan is currently to remove this Makefile by November 6, 2025."
+	@echo ""
+	@echo "  For more information please read the following "
+	@echo "  ioquake3 news post:"
+	@echo ""
+	@echo "https://ioquake3.org/ioquake3/breaking-changes-ioquake3-switching-to-cmake-makefile-deprecated/"
+	@echo ""
+	@echo "    If you are a developer who uses ioquake3 for your project, please read and"
+	@echo "    comment on this GitHub issue:"
+	@echo ""
+	@echo "    https://github.com/ioquake/ioq3/issues/748"
+	@echo ""
+	@echo "  CMake can be downloaded from:"
+	@echo ""
+	@echo "    https://cmake.org/download/"
+	@echo ""
+	@echo "  To disable this message, please add the following to Makefile.local:"
+	@echo ""
+	@echo "    I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED=1"
+	@echo "================================================================================"
+ifeq ($(REQUIRE_DEPRECATION_ACK),1)
+	@false
+else
+	@[ -t 0 ] && echo "Press a key to continue..." && read dummy || true
+endif
+endif
 	@echo ""
 	@echo "Building in $(B):"
 	@echo "  PLATFORM: $(PLATFORM)"
@@ -2141,8 +2155,6 @@ endif
 
 ifeq ($(ARCH),x86)
   Q3OBJ += \
-    $(B)/client/snd_mixa.o \
-    $(B)/client/matha.o \
     $(B)/client/snapvector.o \
     $(B)/client/ftola.o
 endif
@@ -2389,12 +2401,12 @@ $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 		-o $@ $(Q3OBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
 
-$(B)/renderer_opengl1$(RSHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
+$(B)/renderer_opengl1$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(JPGOBJ) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
 
-$(B)/renderer_opengl2$(RSHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
+$(B)/renderer_opengl2$(SHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
@@ -2503,7 +2515,6 @@ Q3DOBJ = \
 
 ifeq ($(ARCH),x86)
   Q3DOBJ += \
-      $(B)/ded/matha.o \
       $(B)/ded/snapvector.o \
       $(B)/ded/ftola.o
 endif
@@ -2529,7 +2540,7 @@ ifeq ($(HAVE_VM_COMPILED),true)
       $(B)/ded/vm_x86.o
   endif
   ifneq ($(findstring $(ARCH),ppc ppc64),)
-    Q3DOBJ += $(B)/ded/vm_powerpc.o $(B)/ded/vm_powerpc_asm.o
+    Q3DOBJ += $(B)/ded/vm_powerpc.o
   endif
   ifeq ($(ARCH),sparc)
     Q3DOBJ += $(B)/ded/vm_sparc.o
@@ -2826,7 +2837,7 @@ $(B)/$(MISSIONPACK)/vm/ui.qvm: $(MPUIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 ## CLIENT/SERVER RULES
 #############################################################################
 
-$(B)/client/%.o: $(ASMDIR)/%.s
+$(B)/client/%.o: $(ASMDIR)/%.S
 	$(DO_AS)
 
 # k8 so inline assembler knows about SSE
@@ -2926,7 +2937,7 @@ $(B)/renderergl2/%.o: $(RGL2DIR)/%.c
 	$(DO_REF_CC)
 
 
-$(B)/ded/%.o: $(ASMDIR)/%.s
+$(B)/ded/%.o: $(ASMDIR)/%.S
 	$(DO_AS)
 
 # k8 so inline assembler knows about SSE
@@ -3096,10 +3107,10 @@ ifneq ($(BUILD_CLIENT),0)
   ifneq ($(USE_RENDERER_DLOPEN),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)$(FULLBINEXT)
     ifneq ($(BUILD_RENDERER_OPENGL1),0)
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl1$(RSHLIBNAME) $(COPYBINDIR)/renderer_opengl1$(RSHLIBNAME)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl1$(SHLIBNAME) $(COPYBINDIR)/renderer_opengl1$(SHLIBNAME)
     endif
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl2$(RSHLIBNAME) $(COPYBINDIR)/renderer_opengl2$(RSHLIBNAME)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl2$(SHLIBNAME) $(COPYBINDIR)/renderer_opengl2$(SHLIBNAME)
     endif
   else
     ifneq ($(BUILD_RENDERER_OPENGL1),0)
