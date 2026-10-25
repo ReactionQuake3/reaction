@@ -9,7 +9,7 @@ if(EMSCRIPTEN)
     return()
 endif()
 
-set(INTERNAL_SDL_DIR ${SOURCE_DIR}/thirdparty/SDL2-2.32.8)
+set(INTERNAL_SDL_DIR ${SOURCE_DIR}/thirdparty/SDL2-${SDL_VERSION})
 
 include(utils/arch)
 

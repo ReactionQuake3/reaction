@@ -2,11 +2,12 @@ name: Build
 on: [push, pull_request]
 
 jobs:
-  version:
-    name: Extract Version
+  versions:
+    name: Extract Versions
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.extract-version.outputs.result }}
+      base: ${{ steps.extract-version.outputs.base }}
+      sdl: ${{ steps.extract-library-versions.outputs.sdl }}
     steps:
     - uses: actions/checkout@v4
     - name: CMake Configure
@@ -15,63 +16,17 @@ jobs:
         cmake -S . -B build -G Ninja -DBUILD_CLIENT=NO
         VERSION=$(cat build/version.txt)
         echo "VERSION: ${VERSION}"
-        echo "result=${VERSION}" >> $GITHUB_OUTPUT
-
-  linux-legacy:
-    name: Linux (Legacy Makefile)
-    runs-on: ubuntu-22.04
-    steps:
-    - uses: actions/checkout@v4
-    - name: Install Dependencies
+        echo "base=${VERSION}" >> $GITHUB_OUTPUT
+    - name: Library Versions
+      id: extract-library-versions
       run: |
-        sudo apt-get update
-        sudo apt-get install libsdl2-dev
-    - name: Compile
-      run: |
-        echo I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED=1 > Makefile.local
-        make release -j$(nproc)
-  windows-legacy:
-    name: Windows (Legacy Makefile)
-    runs-on: windows-2022
-    steps:
-    - uses: actions/checkout@v4
-    - name: Compile
-      run: |
-        echo I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED=1 > Makefile.local
-        make release -j $env:NUMBER_OF_PROCESSORS
-  macos-legacy:
-    name: macOS (Legacy Makefile)
-    runs-on: macos-15
-    steps:
-    - uses: actions/checkout@v4
-    - name: Compile
-      run:  |
-        echo I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED=1 > Makefile.local
-        make release -j$(sysctl -n hw.logicalcpu)
-  emscripten-legacy:
-    name: Emscripten (Legacy Makefile)
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/checkout@v4
-      with:
-        repository: emscripten-core/emsdk
-        path: emsdk
-    - name: Install Dependencies
-      run: |
-        cd emsdk
-        ./emsdk install 4.0.18
-        ./emsdk activate 4.0.18
-    - name: Compile
-      run: |
-        echo I_ACKNOWLEDGE_THE_MAKEFILE_IS_DEPRECATED=1 > Makefile.local
-        source emsdk/emsdk_env.sh
-        emmake make release -j$(nproc)
+        . misc/lib-versions.sh
+        echo "sdl=${SDL_VERSION}" >> $GITHUB_OUTPUT
 
   linux:
     name: Linux
     runs-on: ubuntu-22.04
-    needs: version
+    needs: versions
     steps:
     - uses: actions/checkout@v4
     - name: Install Dependencies
@@ -87,13 +42,13 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.event.repository.name }}-linux-${{ needs.version.outputs.version }}
+        name: ${{ github.event.repository.name }}-linux-${{ needs.versions.outputs.base }}
         path: |
           build/Release/**/*
   windows-msvc:
     name: Windows MSVC
     runs-on: windows-2022
-    needs: version
+    needs: versions
     steps:
     - uses: actions/checkout@v4
     - name: Compile
@@ -105,7 +60,7 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.event.repository.name }}-windows-msvc-${{ needs.version.outputs.version }}
+        name: ${{ github.event.repository.name }}-windows-msvc-${{ needs.versions.outputs.base }}
         path: |
           build/Release/**/*.dll
           build/Release/**/*.exe
@@ -113,7 +68,7 @@ jobs:
   windows-mingw:
     name: Windows MinGW
     runs-on: windows-2022
-    needs: version
+    needs: versions
     steps:
     - uses: actions/checkout@v4
     - name: Compile
@@ -125,7 +80,7 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.event.repository.name }}-windows-mingw-${{ needs.version.outputs.version }}
+        name: ${{ github.event.repository.name }}-windows-mingw-${{ needs.versions.outputs.base }}
         path: |
           build/Release/**/*.dll
           build/Release/**/*.exe
@@ -133,13 +88,13 @@ jobs:
   macos:
     name: macOS
     runs-on: macos-15
-    needs: version
+    needs: versions
     steps:
     - uses: actions/checkout@v4
     - name: Import Code Signing Certificate
       if: github.ref_name == 'main'
       run: |
-        misc/ci-macos-import-codesign-cert.sh
+        misc/macos/ci-macos-import-codesign-cert.sh
         echo "APPLE_CERTIFICATE_ID=${{ secrets.APPLE_CERTIFICATE_ID }}" >> $GITHUB_ENV
       env:
         APPLE_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
@@ -168,7 +123,7 @@ jobs:
     - name: Notarize
       if: github.ref_name == 'main'
       run: |
-        misc/ci-macos-notarize.sh build/Release/*.dmg
+        misc/macos/ci-macos-notarize.sh build/Release/*.dmg
       env:
         APPLE_NOTARIZATION_USERNAME: ${{ secrets.APPLE_NOTARIZATION_USERNAME }}
         APPLE_NOTARIZATION_PASSWORD: ${{ secrets.APPLE_NOTARIZATION_PASSWORD }}
@@ -176,13 +131,13 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.event.repository.name }}-macOS-${{ needs.version.outputs.version }}
+        name: ${{ github.event.repository.name }}-macOS-${{ needs.versions.outputs.base }}
         path: |
           build/Release/**/*
   emscripten:
     name: Emscripten
     runs-on: ubuntu-22.04
-    needs: version
+    needs: versions
     steps:
     - uses: actions/checkout@v4
     - name: Install emsdk
@@ -196,12 +151,13 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.event.repository.name }}-emscripten-${{ needs.version.outputs.version }}
+        name: ${{ github.event.repository.name }}-emscripten-${{ needs.versions.outputs.base }}
         path: |
           build/Release/**/*
   linux-external-libraries:
     name: Linux (USE_INTERNAL_LIBS OFF)
     runs-on: ubuntu-22.04
+    needs: versions
     steps:
     - uses: actions/checkout@v4
     - name: Install Dependencies
@@ -216,6 +172,7 @@ jobs:
   linux-32bit:
     name: Linux 32-bit
     runs-on: ubuntu-22.04
+    needs: versions
     steps:
     - uses: actions/checkout@v4
     - name: Install Dependencies
@@ -230,6 +187,7 @@ jobs:
   freebsd:
     name: FreeBSD
     runs-on: ubuntu-latest
+    needs: versions
     steps:
     - uses: actions/checkout@v4
     - name: Compile
@@ -243,6 +201,7 @@ jobs:
   openbsd:
     name: OpenBSD
     runs-on: ubuntu-latest
+    needs: versions
     steps:
     - uses: actions/checkout@v4
     - name: Compile
@@ -258,7 +217,7 @@ jobs:
     if: github.event_name != 'pull_request'
     name: Check For Release Tag
     runs-on: ubuntu-latest
-    needs: version
+    needs: versions
     outputs:
       is-release: ${{ steps.is-release-test.outputs.result }}
     steps:
@@ -273,8 +232,8 @@ jobs:
           echo "result=false" >> $GITHUB_OUTPUT
         else
           echo "GIT_TAG: ${GIT_TAG}""
-          echo "needs.version.outputs.version: ${{ needs.version.outputs.version }}""
-          if [[ "${GIT_TAG}" = "${{ needs.version.outputs.version }}" ]]
+          echo "needs.versions.outputs.base: ${{ needs.versions.outputs.base }}""
+          if [[ "${GIT_TAG}" = "${{ needs.versions.outputs.base }}" ]]
           then
             echo "'${GIT_TAG}' is a release"
             echo "result=true" >> $GITHUB_OUTPUT
@@ -289,7 +248,7 @@ jobs:
     if: github.event_name != 'pull_request' && needs.check-is-release.outputs.is-release == 'true'
     runs-on: ubuntu-latest
     needs:
-      - version
+      - versions
       - check-is-release
       - windows-msvc
       - macos
@@ -300,21 +259,21 @@ jobs:
     - name: Prepare Release Artifacts
       run: |
         mkdir release-artifacts
-        mv ${{ github.event.repository.name }}-linux-${{ needs.version.outputs.version }}/${{ github.event.repository.name }}-${{ needs.version.outputs.version }}.deb \
+        mv ${{ github.event.repository.name }}-linux-${{ needs.versions.outputs.base }}/${{ github.event.repository.name }}-${{ needs.versions.outputs.base }}.deb \
           release-artifacts
-        zip -r9 release-artifacts/${{ github.event.repository.name }}-linux-${{ needs.version.outputs.version }}.zip \
-          ${{ github.event.repository.name }}-linux-${{ needs.version.outputs.version }}
-        mv ${{ github.event.repository.name }}-windows-msvc-${{ needs.version.outputs.version }}/${{ github.event.repository.name }}-${{ needs.version.outputs.version }}.exe \
+        zip -r9 release-artifacts/${{ github.event.repository.name }}-linux-${{ needs.versions.outputs.base }}.zip \
+          ${{ github.event.repository.name }}-linux-${{ needs.versions.outputs.base }}
+        mv ${{ github.event.repository.name }}-windows-msvc-${{ needs.versions.outputs.base }}/${{ github.event.repository.name }}-${{ needs.versions.outputs.base }}.exe \
           release-artifacts
-        mv ${{ github.event.repository.name }}-macOS-${{ needs.version.outputs.version }}/${{ github.event.repository.name }}-${{ needs.version.outputs.version }}.dmg \
+        mv ${{ github.event.repository.name }}-macOS-${{ needs.versions.outputs.base }}/${{ github.event.repository.name }}-${{ needs.versions.outputs.base }}.dmg \
           release-artifacts
-        zip -r9 release-artifacts/${{ github.event.repository.name }}-emscripten-${{ needs.version.outputs.version }}.zip \
-          ${{ github.event.repository.name }}-emscripten-${{ needs.version.outputs.version }}
+        zip -r9 release-artifacts/${{ github.event.repository.name }}-emscripten-${{ needs.versions.outputs.base }}.zip \
+          ${{ github.event.repository.name }}-emscripten-${{ needs.versions.outputs.base }}
     - name: Publish Release Artifacts
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref }}
-        name: Release ${{ needs.version.outputs.version }}
+        name: Release ${{ needs.versions.outputs.base }}
         files: release-artifacts/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

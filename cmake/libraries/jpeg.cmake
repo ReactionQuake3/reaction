@@ -5,7 +5,7 @@ endif()
 include(utils/disable_warnings)
 include(utils/find_include_dirs)
 
-set(INTERNAL_JPEG_DIR ${SOURCE_DIR}/thirdparty/jpeg-9f)
+set(INTERNAL_JPEG_DIR ${SOURCE_DIR}/thirdparty/jpeg-${JPEG_VERSION})
 
 if(USE_INTERNAL_JPEG)
     file(GLOB_RECURSE JPEG_SOURCES ${INTERNAL_JPEG_DIR}/j*.c)

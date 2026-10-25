@@ -8,7 +8,7 @@ endif()
 
 include(utils/disable_warnings)
 
-set(INTERNAL_OGG_DIR ${SOURCE_DIR}/thirdparty/libogg-1.3.6)
+set(INTERNAL_OGG_DIR ${SOURCE_DIR}/thirdparty/libogg-${OGG_VERSION})
 
 if(USE_INTERNAL_OGG)
     file(GLOB_RECURSE OGG_SOURCES ${INTERNAL_OGG_DIR}/*.c)

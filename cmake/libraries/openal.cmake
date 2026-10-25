@@ -6,7 +6,7 @@ if(NOT BUILD_CLIENT)
     return()
 endif()
 
-set(INTERNAL_OPENAL_DIR ${SOURCE_DIR}/thirdparty/openal-soft-1.24.3)
+set(INTERNAL_OPENAL_DIR ${SOURCE_DIR}/thirdparty/openal-soft-${OPENAL_VERSION})
 
 find_package(OpenAL QUIET)
 

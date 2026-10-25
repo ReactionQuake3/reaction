@@ -8,7 +8,7 @@ endif()
 
 include(utils/disable_warnings)
 
-set(INTERNAL_VORBIS_DIR ${SOURCE_DIR}/thirdparty/libvorbis-1.3.7)
+set(INTERNAL_VORBIS_DIR ${SOURCE_DIR}/thirdparty/libvorbis-${VORBIS_VERSION})
 
 if(USE_INTERNAL_VORBIS)
     file(GLOB_RECURSE VORBIS_SOURCES ${INTERNAL_VORBIS_DIR}/*.c)

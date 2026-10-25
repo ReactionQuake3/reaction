@@ -9,8 +9,8 @@ endif()
 include(utils/disable_warnings)
 include(utils/find_include_dirs)
 
-set(INTERNAL_OPUS_DIR ${SOURCE_DIR}/thirdparty/opus-1.5.2)
-set(INTERNAL_OPUSFILE_DIR ${SOURCE_DIR}/thirdparty/opusfile-0.12)
+set(INTERNAL_OPUS_DIR ${SOURCE_DIR}/thirdparty/opus-${OPUS_VERSION})
+set(INTERNAL_OPUSFILE_DIR ${SOURCE_DIR}/thirdparty/opusfile-${OPUSFILE_VERSION})
 
 if(USE_INTERNAL_OPUS)
     file(GLOB_RECURSE OPUS_SOURCES ${INTERNAL_OPUS_DIR}/*.c)

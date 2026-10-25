@@ -6,7 +6,7 @@ if(NOT BUILD_CLIENT)
     return()
 endif()
 
-set(INTERNAL_CURL_DIR ${SOURCE_DIR}/thirdparty/curl-8.15.0)
+set(INTERNAL_CURL_DIR ${SOURCE_DIR}/thirdparty/curl-${CURL_VERSION})
 
 find_package(CURL QUIET)
 

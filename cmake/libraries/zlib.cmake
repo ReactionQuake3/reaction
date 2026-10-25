@@ -1,7 +1,7 @@
 include(utils/disable_warnings)
 include(utils/find_include_dirs)
 
-set(INTERNAL_ZLIB_DIR ${SOURCE_DIR}/thirdparty/zlib-1.3.1)
+set(INTERNAL_ZLIB_DIR ${SOURCE_DIR}/thirdparty/zlib-${ZLIB_VERSION})
 
 if(USE_INTERNAL_ZLIB)
     file(GLOB_RECURSE ZLIB_SOURCES ${INTERNAL_ZLIB_DIR}/*.c)

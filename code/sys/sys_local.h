@@ -70,6 +70,12 @@ qboolean Sys_PIDIsRunning( int pid );
 
 qboolean Sys_OpenFolderInPlatformFileManager( const char *path );
 
+qboolean Sys_SetMaxFileLimit( void );
+
 #ifdef PROTOCOL_HANDLER
 char *Sys_ParseProtocolUri( const char *uri );
+#endif
+
+#ifdef USE_AUTOUPDATER
+void Sys_LaunchAutoupdater(int argc, char **argv);
 #endif
