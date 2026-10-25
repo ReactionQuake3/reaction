@@ -986,11 +986,14 @@ static float CG_DrawFPSandPing(float y)
 
 		MAKERGBA(Color, 0.0f, 1.0f, 0.0f, 1.0f);								// Green, All good
 
-		if (lagometer.snapshotSamples[l] < 0)
+		// MAKERGBA is four statements, so each needs braces under its if
+		if (lagometer.snapshotSamples[l] < 0) {
 			MAKERGBA(Color, 1.0f, 0.0f, 0.0f, 1.0f);							// Red. Missed packet
+		}
 
-		if (lagometer.snapshotFlags[l] & SNAPFLAG_RATE_DELAYED)					// Yellow. Delayed packet
+		if (lagometer.snapshotFlags[l] & SNAPFLAG_RATE_DELAYED) {				// Yellow. Delayed packet
 			MAKERGBA(Color, 1.0f, 1.0f, 0.0f, 1.0f);
+		}
 
 		CG_DrawStringExt(cgs.screenXMax - x - 9, y + 2, sping, Color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 	}
