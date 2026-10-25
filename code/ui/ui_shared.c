@@ -9036,6 +9036,7 @@ int Display_CursorType(int x, int y)
 		r2.x = Menus[i].window.rect.x - 3;
 		r2.y = Menus[i].window.rect.y - 3;
 		r2.w = r2.h = 7;
+		r2.hasVectors = qfalse;
 		if (Rect_ContainsPoint(&r2, x, y)) {
 			return CURSOR_SIZER;
 		}
