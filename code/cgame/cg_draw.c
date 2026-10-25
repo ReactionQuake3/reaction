@@ -958,10 +958,10 @@ static float CG_DrawFPSandPing(float y)
 
 	// Draw ping here:
 	//Makro - not during demo playback
-	if (cg_drawPing.integer && !cg.demoPlayback) {	
+	if (cg_drawPing.integer && !cg.demoPlayback) {
+		// the newest snapshot samples, indexed as CG_AddLagometerSnapshotInfo writes them
 		for (i = 0; i < (LAG_SAMPLES / 2); i++) {
-			l = (lagometer.frameCount & (LAG_SAMPLES - 1)) - i;
-			if (l < 0) l += LAG_SAMPLES;
+			l = (lagometer.snapshotCount - 1 - i) & (LAG_SAMPLES - 1);
 
 			if (lagometer.snapshotSamples[l] >= 0)  {
 				avgping += lagometer.snapshotSamples[l];
@@ -978,8 +978,8 @@ static float CG_DrawFPSandPing(float y)
 		w = CG_DrawStrlen(sping) * SMALLCHAR_WIDTH;
 		x += w;
 
-		l = (lagometer.frameCount & (LAG_SAMPLES - 1)) - 1;
-		if (l < 0) l += LAG_SAMPLES;
+		// the newest snapshot; a dropped one keeps the flags of the sample it replaced, so only a received one has flags
+		l = (lagometer.snapshotCount - 1) & (LAG_SAMPLES - 1);
 
 
 		CG_DrawFuzzyShadow(cgs.screenXMax - x - 12 - expand, y - 1 - expand, w + 6 + expand + expand, SMALLCHAR_HEIGHT + 6 + expand + expand, corner, shadowAlpha);
@@ -989,9 +989,7 @@ static float CG_DrawFPSandPing(float y)
 		// MAKERGBA is four statements, so each needs braces under its if
 		if (lagometer.snapshotSamples[l] < 0) {
 			MAKERGBA(Color, 1.0f, 0.0f, 0.0f, 1.0f);							// Red. Missed packet
-		}
-
-		if (lagometer.snapshotFlags[l] & SNAPFLAG_RATE_DELAYED) {				// Yellow. Delayed packet
+		} else if (lagometer.snapshotFlags[l] & SNAPFLAG_RATE_DELAYED) {		// Yellow. Delayed packet
 			MAKERGBA(Color, 1.0f, 1.0f, 0.0f, 1.0f);
 		}
 
