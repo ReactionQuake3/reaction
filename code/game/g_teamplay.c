@@ -680,7 +680,8 @@ void CheckTeamRules()
 			    (level.current_round_length > g_RQ3_roundtimelimit.integer * 60 * level.fps))
 			{
 				matchOver = qtrue;
-			} else if ( !g_RQ3_matchmode.integer && level.time - level.startTime >= g_timelimit.integer * 60000)
+			} else if ( !g_RQ3_matchmode.integer && g_timelimit.integer &&
+			    (level.time - level.startTime >= g_timelimit.integer * 60000))
 			{
 				matchOver = qtrue;
 			}
