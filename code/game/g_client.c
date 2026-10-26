@@ -1528,7 +1528,7 @@ void ClientBegin(int clientNum)
 					client->teamplayWeapon = WP_PISTOL;
 				}
 			}
-			if (!client->teamplayItem && ((int) g_RQ3_weaponban.integer & ITF_LASER))
+			if (!client->teamplayItem && ((int) g_RQ3_itemban.integer & ITF_LASER))
 				client->teamplayItem = HI_LASER;
 		} else {
 			if (!client->teamplayWeapon) {
@@ -1542,7 +1542,7 @@ void ClientBegin(int clientNum)
 					client->teamplayWeapon = WP_PISTOL;
 				}
 			}
-			if (!client->teamplayItem && ((int) g_RQ3_weaponban.integer & ITF_KEVLAR))
+			if (!client->teamplayItem && ((int) g_RQ3_itemban.integer & ITF_KEVLAR))
 				client->teamplayItem = HI_KEVLAR;
 		}
 		i = RQ3TeamCount(-1, client->sess.sessionTeam);
