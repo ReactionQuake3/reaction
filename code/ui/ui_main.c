@@ -5657,6 +5657,8 @@ static void UI_Update(const char *name)
 	} else if (Q_stricmp(name, "ui_glCustom") == 0) {
 		switch (val) {
 		//TTI: new presets
+		// No preset turns on cubemap reflections: the maps ship no cubemap probes, so the renderer would capture
+		// them at the spawn points and reflect them on every wall and weapon, also in shadow.
 		case 1:	// normal quality
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
@@ -5670,7 +5672,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
-			trap_Cvar_SetValue("r_cubeMapping", 1);
+			trap_Cvar_SetValue("r_cubeMapping", 0);
 			trap_Cvar_SetValue("r_imageUpsample", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 0);
@@ -5760,7 +5762,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
-			trap_Cvar_SetValue("r_cubeMapping", 1);
+			trap_Cvar_SetValue("r_cubeMapping", 0);
 			trap_Cvar_SetValue("r_imageUpsample", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 0);
@@ -5790,7 +5792,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
-			trap_Cvar_SetValue("r_cubeMapping", 1);
+			trap_Cvar_SetValue("r_cubeMapping", 0);
 			trap_Cvar_SetValue("r_imageUpsample", 0);
 			
 			trap_Cvar_SetValue("r_lodBias", 0);
@@ -5857,7 +5859,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
-			trap_Cvar_SetValue("r_cubeMapping", 1);
+			trap_Cvar_SetValue("r_cubeMapping", 0);	// no cubemap probes in the maps, see the presets
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_shadowMaps") == 0) {
