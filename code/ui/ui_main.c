@@ -5658,7 +5658,9 @@ static void UI_Update(const char *name)
 		switch (val) {
 		//TTI: new presets
 		// No preset turns on cubemap reflections: the maps ship no cubemap probes, so the renderer would capture
-		// them at the spawn points and reflect them on every wall and weapon, also in shadow.
+		// them at the spawn points and reflect them on every wall and weapon, also in shadow. Reflections (water,
+		// glass, metal) need each map to place its own probes first, as misc_cubemap entities or in
+		// cubemaps/<map>/env.json, and specular maps or shader gloss on the surfaces meant to shine.
 		case 1:	// normal quality
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
