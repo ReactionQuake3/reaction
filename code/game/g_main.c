@@ -2990,39 +2990,39 @@ void RQ3_StartUniqueItems(void)
 	G_Printf("RQ3_StartUniqueItems: Starting unique item spawn code...\n");
 
 	// JBravo: adding itembanning
-	if ((int) g_RQ3_weaponban.integer & ITF_SLIPPERS) {
+	if ((int) g_RQ3_itemban.integer & ITF_SLIPPERS) {
 		rq3_item = BG_FindItemForHoldable(HI_SLIPPERS);
 		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
 		//Makro: TODO - stop server if there is no spawn point, otherwise the game crashes
 		Drop_Item(rq3_temp, rq3_item, angle);
 		angle += 30;
 	}
-	if ((int) g_RQ3_weaponban.integer & ITF_KEVLAR) {
+	if ((int) g_RQ3_itemban.integer & ITF_KEVLAR) {
 		rq3_item = BG_FindItemForHoldable(HI_KEVLAR);
 		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
 		Drop_Item(rq3_temp, rq3_item, angle);
 		angle += 30;
 	}
-	if ((int) g_RQ3_weaponban.integer & ITF_SILENCER) {
+	if ((int) g_RQ3_itemban.integer & ITF_SILENCER) {
 		rq3_item = BG_FindItemForHoldable(HI_SILENCER);
 		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
 		Drop_Item(rq3_temp, rq3_item, angle);
 		angle += 30;
 	}
-	if ((int) g_RQ3_weaponban.integer & ITF_BANDOLIER) {
+	if ((int) g_RQ3_itemban.integer & ITF_BANDOLIER) {
 		rq3_item = BG_FindItemForHoldable(HI_BANDOLIER);
 		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
 		Drop_Item(rq3_temp, rq3_item, angle);
 		angle += 30;
 	}
-	if ((int) g_RQ3_weaponban.integer & ITF_LASER) {
+	if ((int) g_RQ3_itemban.integer & ITF_LASER) {
 		rq3_item = BG_FindItemForHoldable(HI_LASER);
 		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
 		Drop_Item(rq3_temp, rq3_item, angle);
 		angle += 30;
 	}
 	if (g_RQ3_haveHelmet.integer) {
-		if ((int) g_RQ3_weaponban.integer & ITF_HELMET) {
+		if ((int) g_RQ3_itemban.integer & ITF_HELMET) {
 			rq3_item = BG_FindItemForHoldable(HI_HELMET);
 			rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
 			Drop_Item(rq3_temp, rq3_item, angle);
