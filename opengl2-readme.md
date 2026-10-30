@@ -63,6 +63,14 @@ For Win32:
   CVARS
 -------------------------------------------------------------------------------
 
+Cvars for API:
+
+* `r_preferOpenGLES`                - This sets the preference for using OpenGL or OpenGL ES 2.
+                                   Many features are not supported when using OpenGL ES such as sun shadows and HDR.
+                                     1 - Prefer OpenGL ES 2+.
+                                     0 - Prefer desktop OpenGL.
+                                     -1 - Automatically pick (default).
+
 Cvars for simple rendering features:
 
 * `r_ext_compressed_textures`       - Automatically compress textures.
@@ -183,6 +191,11 @@ Cvars for advanced material usage:
                                      0 - No. (default)
                                      1 - Use parallax occlusion mapping.
                                      2 - Use relief mapping. (slower)
+
+*  `r_parallaxMapOffset`            - Set the parallax height offset.
+                                     0    - Values map to -255 - 0. (default)
+                                     0.5  - Values map to -127 - 127.
+                                     1.0  - Values map to 0 - 255.
 
 *  `r_parallaxMapShadows`           - Enable self-shadowing on parallax map
                                    supported materials.

@@ -37,10 +37,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //  #define STEAMPATH_NAME		"Foo Bar"
 //  #define STEAMPATH_APPID		""
 //  #define GOGPATH_ID			""
+//  #define MSSTORE_PATH		""
   #define GAMENAME_FOR_MASTER		"Reaction"
   #define CINEMATICS_LOGO		"Reactionlogo.RoQ"
   #define CINEMATICS_INTRO		"intro.RoQ"
 //  #define LEGACY_PROTOCOL	// You probably don't need this for your standalone game
+//  #define PROTOCOL_HANDLER		"quake3"
 #else
   #define PRODUCT_NAME			"Reaction"
   #define BASEGAME			"Boomstick"
@@ -52,10 +54,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //  #define STEAMPATH_NAME		"Foo Bar"
 //  #define STEAMPATH_APPID		""
 //  #define GOGPATH_ID			""
+//  #define MSSTORE_PATH		""
   #define GAMENAME_FOR_MASTER		"Reaction"
   #define CINEMATICS_LOGO		"Reactionlogo.RoQ"
   #define CINEMATICS_INTRO		"intro.RoQ"
 //  #define LEGACY_PROTOCOL
+//  #define PROTOCOL_HANDLER		"quake3"
 #endif
 
 // Heartbeat for dpmaster protocol. You shouldn't change this unless you know what you're doing

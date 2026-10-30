@@ -186,7 +186,6 @@ void CL_AddCgameCommand( const char *cmdName ) {
 	Cmd_AddCommand( cmdName, NULL );
 }
 
-
 /*
 =====================
 CL_ConfigstringModified
@@ -379,7 +378,7 @@ void CL_CM_LoadMap( const char *mapname ) {
 
 /*
 ====================
-CL_ShutdonwCGame
+CL_ShutdownCGame
 
 ====================
 */

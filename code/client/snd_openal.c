@@ -2532,6 +2532,7 @@ static void S_AL_LerpReverb(const reverb_t* from, const reverb_t* to, float frac
 
 //#define CHECK_ERROR() if (qalGetError() != AL_NO_ERROR) Com_Printf(S_COLOR_YELLOW "Error on line %d\n", __LINE__)
 
+#ifdef USE_OPENAL_DLOPEN
 static qboolean S_AL_SetReverbParameters(const reverb_t *pEFXEAXReverb, ALuint uiEffect)
 {
 	qboolean bReturn = qfalse;
@@ -2574,10 +2575,12 @@ static qboolean S_AL_SetReverbParameters(const reverb_t *pEFXEAXReverb, ALuint u
 
 	return bReturn;
 }
+#endif // USE_OPENAL_DLOPEN
 
 
 static void S_AL_UpdateEnvironment(void)
 {
+#ifdef USE_OPENAL_DLOPEN
 	if (!s_alEffects.initialized)
 		return;
 
@@ -2600,10 +2603,12 @@ static void S_AL_UpdateEnvironment(void)
 		S_AL_SetReverbParameters(&s_alEffects.env.current, s_alEffects.env.alEffect);
 		qalAuxiliaryEffectSloti(s_alEffects.env.alEffectSlot, AL_EFFECTSLOT_EFFECT, s_alEffects.env.alEffect);
 	}
+#endif // USE_OPENAL_DLOPEN
 }
 
 static void S_AL_UpdateUnderwater(void)
 {
+#ifdef USE_OPENAL_DLOPEN
 	if (!s_alEffects.initialized)
 		return;
 
@@ -2639,6 +2644,7 @@ static void S_AL_UpdateUnderwater(void)
 				qalSourcei(src->alSource, AL_DIRECT_FILTER, s_alEffects.water.alFilter);
 		}
 	}
+#endif // USE_OPENAL_DLOPEN
 }
 
 /*
@@ -2740,6 +2746,7 @@ void S_AL_ClearSoundBuffer( void )
 
 static void S_AL_ShutDownEffects(void)
 {
+#ifdef USE_OPENAL_DLOPEN
 	if (!s_alEffects.initialized)
 		return;
 	
@@ -2760,6 +2767,7 @@ static void S_AL_ShutDownEffects(void)
 	Cmd_RemoveCommand("s_alTestReverb");
 	Cmd_RemoveCommand("writesoundshader");
 	Cmd_RemoveCommand("writecustinfoparms");
+#endif // USE_OPENAL_DLOPEN
 }
 
 /*
@@ -2888,8 +2896,7 @@ void S_AL_Shutdown( void )
 	QAL_Shutdown();
 }
 
-#endif
-
+#ifdef USE_OPENAL_DLOPEN
 /*
 =================
 S_AL_InitEFX
@@ -3233,6 +3240,8 @@ static qboolean S_AL_InitEffects(ALCdevice* alDevice)
 	
 	return s_alEffects.initialized;
 }
+#endif // USE_OPENAL_DLOPEN
+#endif // USE_OPENAL
 
 /*
 =================
@@ -3374,7 +3383,9 @@ qboolean S_AL_Init( soundInterface_t *si )
 	}
 	qalcMakeContextCurrent( alContext );
 
+#ifdef USE_OPENAL_DLOPEN
 	S_AL_InitEffects( alDevice ); 
+#endif
 
 
 	// Initialize sources, buffers, music

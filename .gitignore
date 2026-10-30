@@ -2,6 +2,7 @@ build
 *.swp
 *tags
 *~
+/.vscode/
 
 # OS X
 ####################
@@ -12,6 +13,7 @@ build
 .DS_Store
 .LSOverride
 Icon?
+make-macosx-values.local
 
 # Xcode
 ####################
