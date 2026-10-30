@@ -1782,23 +1782,14 @@ static void CG_RegisterSounds(void)
 		cgs.media.female_sounds[53] = trap_S_RegisterSound("sound/radio/female/plost1.wav", qtrue);
 		cgs.media.female_sounds[54] = trap_S_RegisterSound("sound/radio/female/plost2.wav", qtrue);
 		cgs.media.female_sounds[55] = trap_S_RegisterSound("sound/radio/female/plost3.wav", qtrue);
-		cgs.media.captureAwardSound = trap_S_RegisterSound("sound/teamplay/flagcapture_yourteam.wav", qtrue);
 		cgs.media.redLeadsSound = trap_S_RegisterSound("sound/feedback/redleads.wav", qtrue);
 		cgs.media.blueLeadsSound = trap_S_RegisterSound("sound/feedback/blueleads.wav", qtrue);
 		cgs.media.teamsTiedSound = trap_S_RegisterSound("sound/feedback/teamstied.wav", qtrue);
-		cgs.media.hitTeamSound = trap_S_RegisterSound("sound/feedback/hit_teammate.wav", qtrue);
+		// the 1.0 data spells this file with one m
+		cgs.media.hitTeamSound = trap_S_RegisterSound("sound/feedback/hit_teamate.wav", qtrue);
 
 		cgs.media.redScoredSound = trap_S_RegisterSound("sound/teamplay/voc_red_scores.wav", qtrue);
 		cgs.media.blueScoredSound = trap_S_RegisterSound("sound/teamplay/voc_blue_scores.wav", qtrue);
-
-		cgs.media.captureYourTeamSound = trap_S_RegisterSound("sound/teamplay/flagcapture_yourteam.wav", qtrue);
-		cgs.media.captureOpponentSound = trap_S_RegisterSound("sound/teamplay/flagcapture_opponent.wav", qtrue);
-
-		cgs.media.returnYourTeamSound = trap_S_RegisterSound("sound/teamplay/flagreturn_yourteam.wav", qtrue);
-		cgs.media.returnOpponentSound = trap_S_RegisterSound("sound/teamplay/flagreturn_opponent.wav", qtrue);
-
-		cgs.media.takenYourTeamSound = trap_S_RegisterSound("sound/teamplay/flagtaken_yourteam.wav", qtrue);
-		cgs.media.takenOpponentSound = trap_S_RegisterSound("sound/teamplay/flagtaken_opponent.wav", qtrue);
 
 		if (cgs.gametype == GT_CTF || cg_buildScript.integer) {
 			cgs.media.redFlagReturnedSound =
@@ -1812,8 +1803,6 @@ static void CG_RegisterSounds(void)
 		}
 		cgs.media.youHaveFlagSound = trap_S_RegisterSound("sound/teamplay/voc_you_flag.wav", qtrue);
 		cgs.media.holyShitSound = trap_S_RegisterSound("sound/feedback/voc_holyshit.wav", qtrue);
-		cgs.media.neutralFlagReturnedSound =
-		    trap_S_RegisterSound("sound/teamplay/flagreturn_opponent.wav", qtrue);
 		cgs.media.yourTeamTookTheFlagSound = trap_S_RegisterSound("sound/teamplay/voc_team_1flag.wav", qtrue);
 		cgs.media.enemyTookTheFlagSound = trap_S_RegisterSound("sound/teamplay/voc_enemy_1flag.wav", qtrue);
 	}

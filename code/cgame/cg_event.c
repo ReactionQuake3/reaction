@@ -1227,32 +1227,10 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		{
 			DEBUGNAME("EV_GLOBAL_TEAM_SOUND");
 			switch (es->eventParm) {
-			case GTS_RED_CAPTURE:	// CTF: red team captured the blue flag, 1FCTF: red team captured the neutral flag
-				if (cgs.clientinfo[cg.clientNum].team == TEAM_RED)
-					CG_AddBufferedSound(cgs.media.captureYourTeamSound);
-				else
-					CG_AddBufferedSound(cgs.media.captureOpponentSound);
-				break;
-			case GTS_BLUE_CAPTURE:	// CTF: blue team captured the red flag, 1FCTF: blue team captured the neutral flag
-				if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
-					CG_AddBufferedSound(cgs.media.captureYourTeamSound);
-				else
-					CG_AddBufferedSound(cgs.media.captureOpponentSound);
-				break;
 			case GTS_RED_RETURN:	// CTF: blue flag returned, 1FCTF: never used
-				if (cgs.clientinfo[cg.clientNum].team == TEAM_RED)
-					CG_AddBufferedSound(cgs.media.returnYourTeamSound);
-				else
-					CG_AddBufferedSound(cgs.media.returnOpponentSound);
-				//
 				CG_AddBufferedSound(cgs.media.blueFlagReturnedSound);
 				break;
 			case GTS_BLUE_RETURN:	// CTF red flag returned, 1FCTF: neutral flag returned
-				if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
-					CG_AddBufferedSound(cgs.media.returnYourTeamSound);
-				else
-					CG_AddBufferedSound(cgs.media.returnOpponentSound);
-				//
 				CG_AddBufferedSound(cgs.media.redFlagReturnedSound);
 				break;
 
