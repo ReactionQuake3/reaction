@@ -2644,6 +2644,9 @@ void Cmd_SetViewpos_f(gentity_t * ent)
 	angles[YAW] = atof(buffer);
 
 	TeleportPlayer(ent, origin, angles);
+	// TeleportPlayer keeps the view angles so map teleporters do not turn the player,
+	// but this command takes a yaw and must apply it.
+	SetClientViewAngle(ent, angles);
 }
 
 /*
