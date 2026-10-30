@@ -6345,8 +6345,8 @@ static void UI_RunMenuScript(char **args)
 		} else if (Q_stricmp(name, "updateJoinTeamNames") == 0) {
 			char info[MAX_INFO_STRING];
 			trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
-			strncpy(team1Name, UI_Cvar_VariableString("g_RQ3_team1Name"), sizeof(team1Name));
-			strncpy(team2Name, UI_Cvar_VariableString("g_RQ3_team2Name"), sizeof(team2Name));
+			Q_strncpyz(team1Name, UI_Cvar_VariableString("g_RQ3_team1Name"), sizeof(team1Name));
+			Q_strncpyz(team2Name, UI_Cvar_VariableString("g_RQ3_team2Name"), sizeof(team2Name));
 		//Makro - update weapon/item banning info
 		} else if (Q_stricmp(name, "updateItemBans") == 0) {
 			char info[MAX_INFO_STRING];

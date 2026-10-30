@@ -2024,6 +2024,7 @@ static void CG_RegisterBreakables(void)
 	const char *breakInfo;
 	const char *name;
 	char baseName[80];
+	char *underscore;
 
 	CG_Printf("In registerbreakables\n");
 	for (i = 0; i < RQ3_MAX_BREAKABLES; i++) {
@@ -2038,6 +2039,12 @@ static void CG_RegisterBreakables(void)
 		//if (id >= 0 && id < RQ3_MAX_BREAKABLES) {
 			name = Info_ValueForKey(breakInfo, "type");
 			Com_Printf("Registering breakable %s ID=%d\n", name, id);
+			// a type without files of its own falls back to its base type, the part before the first "_"
+			// (glass_blue to glass); a type without "_" is its own base
+			Q_strncpyz(baseName, name, sizeof(baseName));
+			underscore = strchr(baseName, '_');
+			if (underscore)
+				*underscore = '\0';
 			//Blaze: Breakable stuff - register the models, sounds, and explosion shader
 			if (CG_CheckFile(va("breakables/%s/models/break1.md3", name)) == qtrue) {
 				cgs.media.breakables[id].model[0] =
@@ -2047,11 +2054,6 @@ static void CG_RegisterBreakables(void)
 				cgs.media.breakables[id].model[2] =
 				    trap_R_RegisterModel(va("breakables/%s/models/break3.md3", name));
 			} else {
-				strncpy(baseName, name, 80);
-				//Makro - crash bug fix; TODO: find a better way to handle this
-				if (!strstr(name, "_"))
-					return;
-				baseName[strstr(name, "_") - name] = '\0';
 				cgs.media.breakables[id].model[0] =
 				    trap_R_RegisterModel(va("breakables/%s/models/break1.md3", baseName));
 				cgs.media.breakables[id].model[1] =
@@ -2067,8 +2069,6 @@ static void CG_RegisterBreakables(void)
 				cgs.media.breakables[id].sound[2] =
 				    trap_S_RegisterSound(va("breakables/%s/sounds/break3.wav", name), qfalse);
 			} else {
-				strncpy(baseName, name, 80);
-				baseName[strstr(name, "_") - name] = '\0';
 				cgs.media.breakables[id].sound[0] =
 				    trap_S_RegisterSound(va("breakables/%s/sounds/break1.wav", baseName), qfalse);
 				cgs.media.breakables[id].sound[1] =
@@ -2080,8 +2080,6 @@ static void CG_RegisterBreakables(void)
 				cgs.media.breakables[id].exp_sound =
 				    trap_S_RegisterSound(va("breakables/%s/sounds/explosion.wav", name), qfalse);
 			} else {
-				strncpy(baseName, name, 80);
-				baseName[strstr(name, "_") - name] = '\0';
 				cgs.media.breakables[id].exp_sound =
 				    trap_S_RegisterSound(va("breakables/%s/sounds/explosion.wav", baseName), qfalse);
 			}
