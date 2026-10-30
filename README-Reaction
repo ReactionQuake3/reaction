@@ -1,13 +1,19 @@
 Welcome to the sourcecode of Reaction 1.0.   Reaction uses a modified version of the ioquake3 engine and as such much of the ioquake3 documentation also covers Reaction.
 
-To build Reaction on *nix, just Change to the directory containing this readme and run make.
-If you want to compile only certain parts or influence what is included in the build, edit Makefile.local.  You should not change BUILD_RENDERER_GL2 and build Reaction with the Original Quake 3 renderer as many maps, the UI and more depend on many of the new advanced features in our new renderer.
+Reaction builds with CMake 3.25 or newer and a C compiler, like ioquake3. From the directory containing this readme:
 
-Building Windows binaries is also straight forward on *nix.  Make sure the mingw compiler environment is installed and take a look at cross-make-mingw.sh. At the top of the script it looks for the gcc and windres binaries in your distro.  You might have to modify these checks to fit your system.    Then just run cross-make-mingw.sh.
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+    cmake --build build
 
-Building Windows binaries using other environments (Microsoft compilers and such) has not been tested in a long time and is probably broken as the project files have not been updated in ages.    If anyone manages to get this working, please dont hesitate to send us a patch.
+The client (Reaction), the dedicated server (Reactionded), both renderers and the game modules land in build/Release, the
+game modules as libraries in Boomstick/ and as QVMs in Boomstick/vm/. The QVM tools (q3lcc, q3asm) are built on the way
+with the host compiler. CMake options choose what is built (cmake -LH build lists them). Keep BUILD_RENDERER_GL2 on: many
+maps, the UI and more depend on features of the new renderer.
 
-Building on Mac's:  Blaze needs to fill out this part.
+Windows: tested with MinGW-w64 (GCC 13.2) and Ninja on Windows 11. Put MinGW and Ninja on PATH and add -G Ninja to the
+first command. Visual Studio builds are untested; CMake can generate the project files (-G).
+
+Linux and macOS: the same commands follow ioquake3's CMake build but are untested for Reaction.
 
 We have a bugzilla for Reaction that is hosted at icculus.org, the home of ioquake3: https://bugzilla.icculus.org/
 Please file all bugs/patches there and/or drop us a line at bugs@rq3.com

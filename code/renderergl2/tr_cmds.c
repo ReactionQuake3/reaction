@@ -138,6 +138,7 @@ void *R_GetCommandBufferReserved( int bytes, int reservedBytes ) {
 			ri.Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
 		}
 		// if we run out of room, just start dropping commands
+		ri.Printf( PRINT_WARNING, "Failed to allocate render command of size %d\n", bytes );
 		return NULL;
 	}
 
@@ -239,9 +240,9 @@ void	RE_SetColor( const float *rgba ) {
 	}
 	cmd->commandId = RC_SET_COLOR;
 	if ( !rgba ) {
-		static float colorWhite[4] = { 1, 1, 1, 1 };
+		static float white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-		rgba = colorWhite;
+		rgba = white;
 	}
 
 	cmd->color[0] = rgba[0];

@@ -1296,10 +1296,10 @@ void SetLeader(int team, int client);
 void CheckTeamLeader(int team);
 void G_RunThink(gentity_t * ent);
 void AddTournamentQueue(gclient_t *client);
-void QDECL G_LogPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void QDECL G_LogPrintf( const char *fmt, ... ) Q_PRINTF_FUNC(1, 2);
 void SendScoreboardMessageToAllClients(void);
-void QDECL G_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
-void QDECL G_Error( const char *fmt, ... ) __attribute__ ((noreturn, format (printf, 1, 2)));
+void QDECL G_Printf( const char *fmt, ... ) Q_PRINTF_FUNC(1, 2);
+void QDECL G_Error( const char *fmt, ... ) Q_NO_RETURN Q_PRINTF_FUNC(1, 2);
 //void QDECL G_Error( const char *fmt, ... ) __attribute__ ((noreturn, format (printf, 1, 2)));
 //void QDECL G_Error( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 
@@ -1549,7 +1549,7 @@ extern vmCvar_t g_RQ3_maxClientVotes;
 extern vmCvar_t g_RQ3_giveMeWhatsMine;
 
 void trap_Printf(const char *fmt);
-void trap_Error(const char *fmt) __attribute__((noreturn));
+void trap_Error(const char *fmt) Q_NO_RETURN;
 int trap_Milliseconds(void);
 // JBravo: adding missing trap
 int trap_RealTime(qtime_t *qtime);

@@ -592,7 +592,7 @@ void FBO_BlitFromTexture(struct image_s *src, vec4_t inSrcTexCorners, vec2_t inS
 	FBO_Bind(oldFbo);
 }
 
-void FBO_Blit(FBO_t *src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t *dst, ivec4_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
+void FBO_Blit(const FBO_t *src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t *dst, ivec4_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
 {
 	vec4_t srcTexCorners;
 
@@ -617,7 +617,7 @@ void FBO_Blit(FBO_t *src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t *dst, ivec
 	FBO_BlitFromTexture(src->colorImage[0], srcTexCorners, srcTexScale, dst, dstBox, shaderProgram, color, blend | GLS_DEPTHTEST_DISABLE);
 }
 
-void FBO_FastBlit(FBO_t *src, ivec4_t srcBox, FBO_t *dst, ivec4_t dstBox, int buffers, int filter)
+void FBO_FastBlit(const FBO_t *src, ivec4_t srcBox, FBO_t *dst, ivec4_t dstBox, int buffers, int filter)
 {
 	ivec4_t srcBoxFinal, dstBoxFinal;
 	GLuint srcFb, dstFb;
@@ -661,13 +661,13 @@ void FBO_FastBlit(FBO_t *src, ivec4_t srcBox, FBO_t *dst, ivec4_t dstBox, int bu
 		if (scissorBox[2] < 0)
 		{
 			scissorBox[0] += scissorBox[2];
-			scissorBox[2] = fabsf(scissorBox[2]);
+			scissorBox[2] = abs(scissorBox[2]);
 		}
 
 		if (scissorBox[3] < 0)
 		{
 			scissorBox[1] += scissorBox[3];
-			scissorBox[3] = fabsf(scissorBox[3]);
+			scissorBox[3] = abs(scissorBox[3]);
 		}
 
 		qglScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);

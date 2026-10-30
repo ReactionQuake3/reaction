@@ -394,6 +394,9 @@ void RB_BeginDrawingView (void) {
 	// we will only draw a sun if there was sky rendered in this view
 	backEnd.skyRenderedThisView = qfalse;
 
+	// cache the clamped greyscale value
+	backEnd.greyscale = Com_Clamp(0.0f, 1.0f, r_greyscale->value);
+
 	// clip to the plane of the portal
 	if ( backEnd.viewParms.isPortal ) {
 #if 0
@@ -454,7 +457,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
 	for (i = 0, drawSurf = drawSurfs ; i < numDrawSurfs ; i++, drawSurf++) {
-		if ( drawSurf->sort == oldSort && drawSurf->cubemapIndex == oldCubemapIndex) {
+		if ( drawSurf->sort == (unsigned)oldSort && drawSurf->cubemapIndex == oldCubemapIndex) {
 			if (backEnd.depthFill && shader && (shader->sort != SS_OPAQUE && shader->sort != SS_PORTAL))
 				continue;
 
@@ -462,7 +465,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
 			continue;
 		}
-		oldSort = drawSurf->sort;
+		oldSort = (int)drawSurf->sort;
 		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed );
 		cubemapIndex = drawSurf->cubemapIndex;
 
@@ -1147,7 +1150,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 
 		if (r_drawSun->integer)
 		{
-			RB_DrawSun(0.1, tr.sunShader);
+			RB_DrawSun(0.1f, tr.sunShader);
 		}
 
 		if (glRefConfig.framebufferObject && r_drawSunRays->integer)
@@ -1164,7 +1167,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 				qglBeginQuery(glRefConfig.occlusionQueryTarget, tr.sunFlareQuery[tr.sunFlareQueryIndex]);
 			}
 
-			RB_DrawSun(0.3, tr.sunFlareShader);
+			RB_DrawSun(0.3f, tr.sunFlareShader);
 
 			if (glRefConfig.occlusionQuery)
 			{
@@ -1357,6 +1360,84 @@ const void *RB_ClearDepth(const void *data)
 	return (const void *)(cmd + 1);
 }
 
+/*
+=============
+RB_DrawGreyscale
+
+=============
+*/
+static void RB_DrawGreyscale(const FBO_t *src)
+{
+	if (!src || !src->colorImage[0])
+		return;
+
+	FBO_Bind(NULL);
+	qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+	qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
+
+	GLSL_BindProgram(&tr.greyscaleShader);
+	GLSL_SetUniformInt(&tr.greyscaleShader, UNIFORM_TEXTUREMAP, 0);
+	GLSL_SetUniformFloat(&tr.greyscaleShader, UNIFORM_GREYSCALE, backEnd.greyscale);
+	GL_BindToTMU(src->colorImage[0], 0);
+
+	vec4_t quadVerts[4] = {
+		{ 0.0f,                      0.0f,                       0.0f, 1.0f },
+		{ (float)glConfig.vidWidth,  0.0f,                       0.0f, 1.0f },
+		{ (float)glConfig.vidWidth,  (float)glConfig.vidHeight,  0.0f, 1.0f },
+		{ 0.0f,                      (float)glConfig.vidHeight,  0.0f, 1.0f },
+	};
+
+	vec2_t texCoords[4] = { {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 0.0f} };
+
+	RB_InstantQuad2(quadVerts, texCoords);
+}
+
+/*
+=============
+RB_PresentToScreen
+
+=============
+*/
+static void RB_PresentToScreen(void)
+{
+	if (!glRefConfig.framebufferObject)
+		return;
+
+	const FBO_t *src = NULL;
+
+	if (tr.renderFbo && tr.renderFbo->colorImage[0])
+	{
+		// texture-backed render FBO
+		src = tr.renderFbo;
+	}
+	else if (tr.msaaResolveFbo && r_hdr->integer)
+	{
+		// Resolving an RGB16F MSAA FBO to the screen messes with the brightness, so resolve to an RGB16F FBO first
+		FBO_FastBlit(tr.renderFbo, NULL, tr.msaaResolveFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		src = tr.msaaResolveFbo;
+	}
+
+	if (src)
+	{
+		if (backEnd.greyscale > 0.0f)
+		{
+			RB_DrawGreyscale(src);
+		}
+		else
+		{
+			FBO_FastBlit(src, NULL, NULL, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		}
+		return;
+	}
+
+	if (tr.renderFbo)
+	{
+		FBO_FastBlit(tr.renderFbo, NULL, NULL, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	}
+}
+
+
 
 /*
 =============
@@ -1397,19 +1478,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 		ri.Hunk_FreeTempMemory( stencilReadback );
 	}
 
-	if (glRefConfig.framebufferObject)
-	{
-		if (tr.msaaResolveFbo && r_hdr->integer)
-		{
-			// Resolving an RGB16F MSAA FBO to the screen messes with the brightness, so resolve to an RGB16F FBO first
-			FBO_FastBlit(tr.renderFbo, NULL, tr.msaaResolveFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-			FBO_FastBlit(tr.msaaResolveFbo, NULL, NULL, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		}
-		else if (tr.renderFbo)
-		{
-			FBO_FastBlit(tr.renderFbo, NULL, NULL, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		}
-	}
+	RB_PresentToScreen();
 
 	if ( !glState.finishCalled ) {
 		qglFinish();
@@ -1622,44 +1691,44 @@ const void *RB_PostProcess(const void *data)
 
 	if (0 && r_sunlightMode->integer)
 	{
-		ivec4_t dstBox;
-		VectorSet4(dstBox, 0, glConfig.vidHeight - 128, 128, 128);
-		FBO_BlitFromTexture(tr.sunShadowDepthImage[0], NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
-		VectorSet4(dstBox, 128, glConfig.vidHeight - 128, 128, 128);
-		FBO_BlitFromTexture(tr.sunShadowDepthImage[1], NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
-		VectorSet4(dstBox, 256, glConfig.vidHeight - 128, 128, 128);
-		FBO_BlitFromTexture(tr.sunShadowDepthImage[2], NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
-		VectorSet4(dstBox, 384, glConfig.vidHeight - 128, 128, 128);
-		FBO_BlitFromTexture(tr.sunShadowDepthImage[3], NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
+		ivec4_t dstBox2;
+		VectorSet4(dstBox2, 0, glConfig.vidHeight - 128, 128, 128);
+		FBO_BlitFromTexture(tr.sunShadowDepthImage[0], NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
+		VectorSet4(dstBox2, 128, glConfig.vidHeight - 128, 128, 128);
+		FBO_BlitFromTexture(tr.sunShadowDepthImage[1], NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
+		VectorSet4(dstBox2, 256, glConfig.vidHeight - 128, 128, 128);
+		FBO_BlitFromTexture(tr.sunShadowDepthImage[2], NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
+		VectorSet4(dstBox2, 384, glConfig.vidHeight - 128, 128, 128);
+		FBO_BlitFromTexture(tr.sunShadowDepthImage[3], NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
 	}
 
 	if (0 && r_shadows->integer == 4)
 	{
-		ivec4_t dstBox;
-		VectorSet4(dstBox, 512 + 0, glConfig.vidHeight - 128, 128, 128);
-		FBO_BlitFromTexture(tr.pshadowMaps[0], NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
-		VectorSet4(dstBox, 512 + 128, glConfig.vidHeight - 128, 128, 128);
-		FBO_BlitFromTexture(tr.pshadowMaps[1], NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
-		VectorSet4(dstBox, 512 + 256, glConfig.vidHeight - 128, 128, 128);
-		FBO_BlitFromTexture(tr.pshadowMaps[2], NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
-		VectorSet4(dstBox, 512 + 384, glConfig.vidHeight - 128, 128, 128);
-		FBO_BlitFromTexture(tr.pshadowMaps[3], NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
+		ivec4_t dstBox2;
+		VectorSet4(dstBox2, 512 + 0, glConfig.vidHeight - 128, 128, 128);
+		FBO_BlitFromTexture(tr.pshadowMaps[0], NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
+		VectorSet4(dstBox2, 512 + 128, glConfig.vidHeight - 128, 128, 128);
+		FBO_BlitFromTexture(tr.pshadowMaps[1], NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
+		VectorSet4(dstBox2, 512 + 256, glConfig.vidHeight - 128, 128, 128);
+		FBO_BlitFromTexture(tr.pshadowMaps[2], NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
+		VectorSet4(dstBox2, 512 + 384, glConfig.vidHeight - 128, 128, 128);
+		FBO_BlitFromTexture(tr.pshadowMaps[3], NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
 	}
 
 	if (0)
 	{
-		ivec4_t dstBox;
-		VectorSet4(dstBox, 256, glConfig.vidHeight - 256, 256, 256);
-		FBO_BlitFromTexture(tr.renderDepthImage, NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
-		VectorSet4(dstBox, 512, glConfig.vidHeight - 256, 256, 256);
-		FBO_BlitFromTexture(tr.screenShadowImage, NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
+		ivec4_t dstBox2;
+		VectorSet4(dstBox2, 256, glConfig.vidHeight - 256, 256, 256);
+		FBO_BlitFromTexture(tr.renderDepthImage, NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
+		VectorSet4(dstBox2, 512, glConfig.vidHeight - 256, 256, 256);
+		FBO_BlitFromTexture(tr.screenShadowImage, NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
 	}
 
 	if (0)
 	{
-		ivec4_t dstBox;
-		VectorSet4(dstBox, 256, glConfig.vidHeight - 256, 256, 256);
-		FBO_BlitFromTexture(tr.sunRaysImage, NULL, NULL, dstFbo, dstBox, NULL, NULL, 0);
+		ivec4_t dstBox2;
+		VectorSet4(dstBox2, 256, glConfig.vidHeight - 256, 256, 256);
+		FBO_BlitFromTexture(tr.sunRaysImage, NULL, NULL, dstFbo, dstBox2, NULL, NULL, 0);
 	}
 
 #if 0

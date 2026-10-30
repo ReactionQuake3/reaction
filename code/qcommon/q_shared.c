@@ -749,7 +749,7 @@ int Q_isalpha( int c )
 qboolean Q_isanumber( const char *s )
 {
 	char *p;
-	double UNUSED_VAR d;
+	double Q_UNUSED_VAR d;
 
 	if( *s == '\0' )
 		return qfalse;
@@ -1217,7 +1217,7 @@ void Info_RemoveKey( char *s, const char *key ) {
 		}
 		*o = 0;
 
-		if (!strcmp (key, pkey) )
+		if (!Q_stricmp (key, pkey) )
 		{
 			memmove(start, s, strlen(s) + 1); // remove this part
 			
@@ -1273,7 +1273,7 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 		}
 		*o = 0;
 
-		if (!strcmp (key, pkey) )
+		if (!Q_stricmp (key, pkey) )
 		{
 			memmove(start, s, strlen(s) + 1); // remove this part
 			return;

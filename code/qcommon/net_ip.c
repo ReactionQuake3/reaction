@@ -46,6 +46,13 @@ typedef int socklen_t;
 typedef unsigned short sa_family_t;
 #	endif
 
+// Undefine existing real error codes and replace
+// with our pretend compatibility layer ones
+#	undef EAGAIN
+#	undef EADDRNOTAVAIL
+#	undef EAFNOSUPPORT
+#	undef ECONNRESET
+
 #	define EAGAIN					WSAEWOULDBLOCK
 #	define EADDRNOTAVAIL	WSAEADDRNOTAVAIL
 #	define EAFNOSUPPORT		WSAEAFNOSUPPORT
@@ -1046,7 +1053,7 @@ void NET_JoinMulticast6(void)
 	}
 }
 
-void NET_LeaveMulticast6()
+void NET_LeaveMulticast6(void)
 {
 	if(multicast6_socket != INVALID_SOCKET)
 	{

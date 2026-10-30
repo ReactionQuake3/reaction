@@ -759,7 +759,7 @@ Adapt the gain if necessary to get a quicker fadeout when the source is too far 
 
 static void S_AL_ScaleGain(src_t *chksrc, vec3_t origin)
 {
-	float distance;
+	float distance = 0.0f;
 	
 	if(!chksrc->local)
 		distance = Distance(origin, lastListenerOrigin);
@@ -2778,6 +2778,18 @@ S_AL_SoundList
 static
 void S_AL_SoundList( void )
 {
+	int		i;
+	alSfx_t	*sfx;
+	int		size, total;
+
+	total = 0;
+	for (sfx=knownSfx, i=0 ; i<numSfx ; i++, sfx++) {
+		size = sfx->info.samples;
+		total += size;
+		Com_Printf("%6i : %s[%s]\n", size,
+				sfx->filename, sfx->inMemory ? "resident " : "paged out");
+	}
+	Com_Printf ("Total resident: %i\n", total);
 }
 
 #ifdef USE_VOIP
@@ -3007,7 +3019,7 @@ static void S_Cmd_AL_DumpSoundShader( void )
 	else
 		filename = Cmd_Argv(1);
 
-	file = FS_FOpenFileWrite(filename);
+	file = FS_FOpenFileWrite_HomeData(filename);
 	if (!file)
 	{
 		Com_Printf ("Couldn't write %s.\n", filename );
@@ -3054,7 +3066,7 @@ static void S_Cmd_AL_DumpCustinfoparms( void )
 	else
 		filename = Cmd_Argv(1);
 
-	file = FS_FOpenFileWrite(filename);
+	file = FS_FOpenFileWrite_HomeData(filename);
 	if (!file)
 	{
 		Com_Printf ("Couldn't write %s.\n", filename );
