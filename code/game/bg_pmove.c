@@ -1556,17 +1556,19 @@ static void PM_Footsteps(void)
 		}
 		return;
 	}
-	// if not trying to move
-	//Makro - changed condition a bit
-	//if (!pm->cmd.forwardmove && !pm->cmd.rightmove) {
-	//	if (pm->xyspeed < 5) {
-	if ( (!pm->cmd.forwardmove && !pm->cmd.rightmove) || pm->xyspeed < 5) {
+	// standing still restarts the cycle and idles the legs, even pushing against a wall (Makro, as in Quake 2)
+	if (pm->xyspeed < 5) {
 		pm->ps->bobCycle = 0;	// start at beginning of cycle again
 		if (pm->ps->pm_flags & PMF_DUCKED) {
 			PM_ContinueLegsAnim(LEGS_IDLECR);
 		} else {
 			PM_ContinueLegsAnim(LEGS_IDLE);
 		}
+		return;
+	}
+	// still moving without a movement key, such as between two keys: keep the cycle and the legs as they are, as
+	// Quake 3 does, so the view and gun bob do not snap back on every key change
+	if (!pm->cmd.forwardmove && !pm->cmd.rightmove) {
 		return;
 	}
 
