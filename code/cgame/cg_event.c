@@ -454,6 +454,22 @@ static void CG_JumpKick(entityState_t * ent)
 
 /*
 ==============
+CG_StepEventHeight
+
+How far up a step event (EV_STEP_4 to EV_STEP_16) says the player stepped,
+or 0 for any other event
+==============
+*/
+int CG_StepEventHeight(int event)
+{
+	if (event < EV_STEP_4 || event > EV_STEP_16) {
+		return 0;
+	}
+	return 4 * (event - EV_STEP_4 + 1);
+}
+
+/*
+==============
 CG_EntityEvent
 
 An entity has an event value
@@ -728,7 +744,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			}
 
 			// add this amount
-			step = 4 * (event - EV_STEP_4 + 1);
+			step = CG_StepEventHeight(event);
 			cg.stepChange = oldStep + step;
 			if (cg.stepChange > MAX_STEP_CHANGE) {
 				cg.stepChange = MAX_STEP_CHANGE;

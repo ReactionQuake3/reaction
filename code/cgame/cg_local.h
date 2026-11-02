@@ -986,6 +986,7 @@ typedef struct {
 	qboolean drawBetweenTicks;
 	int tickCommandTime[2];
 	vec3_t tickOrigin[2];
+	float tickStepUp;	// how far the newer tick stepped up: CG_StepOffset smooths that, not the view between ticks
 
 	int eventSequence;
 	int predictableEvents[MAX_PREDICTED_EVENTS];
@@ -2243,6 +2244,7 @@ void CG_CheckEvents(centity_t * cent);
 const char *CG_PlaceString(int rank);
 void CG_EntityEvent(centity_t * cent, vec3_t position);
 void CG_PainEvent(centity_t * cent, int health);
+int CG_StepEventHeight(int event);
 
 //
 // cg_ents.c

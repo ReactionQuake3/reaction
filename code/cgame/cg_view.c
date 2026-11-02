@@ -1023,6 +1023,9 @@ static void CG_ViewBetweenTicks(void)
 
 	span = cg.tickCommandTime[1] - cg.tickCommandTime[0];
 	VectorSubtract(cg.tickOrigin[1], cg.tickOrigin[0], step);
+	// a step up is taken at once and smoothed by CG_StepOffset, as on a frame
+	// per tick; eased here as well, the view would first drop by the step
+	step[2] -= cg.tickStepUp;
 	if (span <= 0 || cg.hyperspace || VectorLength(step) > MAX_TICK_STEP) {
 		return;
 	}
