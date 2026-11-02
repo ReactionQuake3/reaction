@@ -44,6 +44,7 @@ cvar_t *s_sdlMixSamps;
 /* The audio callback. All the magic happens here. */
 static int dmapos = 0;
 static int dmasize = 0;
+static Uint8 dmasilence = 0;
 
 static SDL_AudioDeviceID sdlPlaybackDevice;
 
@@ -83,12 +84,17 @@ static void SNDDMA_AudioCallback(void *userdata, Uint8 *stream, int len)
 			len1 = tobufend;
 			len2 = len - len1;
 		}
+		// Silence what the device has taken: a frame the mixer misses
+		//  (a game frame longer than it paints ahead) then plays as a
+		//  short gap, never as the sound from a whole buffer earlier.
 		memcpy(stream, dma.buffer + pos, len1);
+		memset(dma.buffer + pos, dmasilence, len1);
 		if (len2 <= 0)
 			dmapos += (len1 / (dma.samplebits/8));
 		else  /* wraparound? */
 		{
 			memcpy(stream+len1, dma.buffer, len2);
+			memset(dma.buffer, dmasilence, len2);
 			dmapos = (len2 / (dma.samplebits/8));
 		}
 	}
@@ -280,6 +286,7 @@ qboolean SNDDMA_Init(void)
 	tmp -= tmp % obtained.channels;
 
 	dmapos = 0;
+	dmasilence = obtained.silence;
 	dma.samplebits = SDL_AUDIO_BITSIZE(obtained.format);
 	dma.isfloat = SDL_AUDIO_ISFLOAT(obtained.format);
 	dma.channels = obtained.channels;
