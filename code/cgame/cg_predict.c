@@ -624,8 +624,11 @@ void CG_PredictPlayerState(void)
 	cg_pmove.ps = &cg.predictedPlayerState;
 	cg_pmove.trace = CG_Trace;
 	cg_pmove.pointcontents = CG_PointContents;
-	if (cg_pmove.ps->pm_type == PM_DEAD || cg_pmove.ps->pm_type == PM_SPECTATOR) {
-		cg_pmove.tracemask = 0;	//NiceAss: User can go through anything. Before it was: MASK_PLAYERSOLID & ~CONTENTS_BODY;
+	if (cg_pmove.ps->pm_type == PM_DEAD) {
+		// the server's mask for the dead (ClientThink_real), or the predicted corpse falls through the floor between snapshots
+		cg_pmove.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+	} else if (cg_pmove.ps->pm_type == PM_SPECTATOR) {
+		cg_pmove.tracemask = 0;	//NiceAss: User can go through anything.
 	} else {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
 	}
