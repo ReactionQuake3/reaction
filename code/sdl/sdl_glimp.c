@@ -792,6 +792,16 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 			}
 		}
 
+		// REACTION: a window, or fullscreen without r_displayRefresh, shows at
+		// the refresh rate of its display; the client draws at that rate
+		if( !glConfig.displayFrequency )
+		{
+			SDL_DisplayMode displayMode;
+
+			if( SDL_GetDesktopDisplayMode( SDL_GetWindowDisplayIndex( SDL_window ), &displayMode ) == 0 )
+				glConfig.displayFrequency = displayMode.refresh_rate;
+		}
+
 		SDL_SetWindowIcon( SDL_window, icon );
 
 		qglClearColor( 0, 0, 0, 1 );
