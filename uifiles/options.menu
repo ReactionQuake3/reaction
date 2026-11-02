@@ -323,6 +323,16 @@ Group # 1 - Gameplay
     ADD_HINT("hint_bloodfx", "Enable blood effects", "group1")
 
 
+    // Frame rate counter //
+
+	BEGIN_OPTION("Show FPS", "cg_drawFPS", ITEM_TYPE_YESNO, 16, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl15")
+		ASSIGN_HINT("hint_drawfps")
+	END_OPTION
+    ADD_HINT("hint_drawfps", "Show the frame rate in the top right corner", "group1")
+
+
 /*
 ==========================================================
 
