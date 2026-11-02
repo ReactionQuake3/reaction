@@ -5874,7 +5874,9 @@ static void UI_Update(const char *name)
 		case 0:	// disabled
 			trap_Cvar_SetValue("r_sunShadows", 0);
 			trap_Cvar_SetValue("r_shadowFilter", 0);
-			trap_Cvar_SetValue("r_shadowMapSize", 0);
+			// renderergl2 makes the sun shadow maps at this size whenever r_sunlightMode is on, also with
+			// r_sunShadows off, and fails its restart on a size of 0; keep the smallest size the menu offers
+			trap_Cvar_SetValue("r_shadowMapSize", 512);
 			trap_Cvar_SetValue("r_shadowBlur", 0);
 			break;
 		case 1: // low
