@@ -287,14 +287,14 @@ Group # 1 - Graphics
     ADD_HINT("hint_ssao", "Enable screen-space ambient occlusion", "group1")
 
 
-    // Physically-based rendering //
+    // Material maps //
 
-	BEGIN_OPTION("PBR", "ui_shaderLevel", ITEM_TYPE_YESNO, 7, 1)
+	BEGIN_OPTION("Material Maps", "ui_shaderLevel", ITEM_TYPE_YESNO, 7, 1)
 		OPTION_BELOW("gr1_ctrl6")
 		action { uiScript glCustom ; uiScript update "ui_shaderLevel" }
-		ASSIGN_HINT("hint_pbr")
+		ASSIGN_HINT("hint_matmaps")
     END_OPTION
-    ADD_HINT("hint_pbr", "Enable physically-based rendering", "group1")
+    ADD_HINT("hint_matmaps", "Use normal and specular maps where the game has them", "group1")
 
 
     // Cascaded Shadow Maps //

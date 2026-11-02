@@ -5661,6 +5661,10 @@ static void UI_Update(const char *name)
 		// them at the spawn points and reflect them on every wall and weapon, also in shadow. Reflections (water,
 		// glass, metal) need each map to place its own probes first, as misc_cubemap entities or in
 		// cubemaps/<map>/env.json, and specular maps or shader gloss on the surfaces meant to shine.
+		// No preset turns on physically based rendering (r_pbr) either: no texture is made for it. It reads the knife's
+		// and arms' grey specular maps as gloss and metalness, and on every other surface its default specular glows
+		// on dark sunlit walls seen against the sky (teamjungle's rock tops). It needs base colour textures and
+		// specular maps with gloss in red and metalness in green.
 		case 1:	// normal quality
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
@@ -5670,7 +5674,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_toneMap", 1);
 			trap_Cvar_SetValue("r_autoExposure", 1);
 			trap_Cvar_SetValue("r_ssao", 0);
-			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
@@ -5760,7 +5764,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_toneMap", 1);
 			trap_Cvar_SetValue("r_autoExposure", 1);
 			trap_Cvar_SetValue("r_ssao", 1);
-			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
@@ -5790,7 +5794,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_toneMap", 1);
 			trap_Cvar_SetValue("r_autoExposure", 1);
 			trap_Cvar_SetValue("r_ssao", 1);
-			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
@@ -5848,7 +5852,7 @@ static void UI_Update(const char *name)
 		}
 	} else if (Q_stricmp(name, "ui_shaderLevel") == 0) {
 		switch (val) {
-		// physically-based rendering
+		// material maps: normal, specular and deluxe mapping
 		case 0:	// disabled
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 0);
@@ -5857,7 +5861,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_cubeMapping", 0);
 			break;
 		case 1: // enabled
-			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_pbr", 0);	// no PBR materials in the data, see the presets
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
