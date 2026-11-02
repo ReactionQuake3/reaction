@@ -3084,6 +3084,12 @@ void CL_Frame ( int msec ) {
 	// drop the connection
 	CL_CheckTimeout();
 
+	// REACTION: while the cgame draws between movement ticks, commands are made
+	// up to the server time this frame draws (CL_CreateNewCommands)
+	if ( CL_DrawsBetweenTicks() ) {
+		CL_SetCGameTime();
+	}
+
 	// send intentions now
 	CL_SendCmd();
 
@@ -3091,7 +3097,9 @@ void CL_Frame ( int msec ) {
 	CL_CheckForResend();
 
 	// decide on the serverTime to render
-	CL_SetCGameTime();
+	if ( !CL_DrawsBetweenTicks() ) {
+		CL_SetCGameTime();
+	}
 
 	// update the screen
 	SCR_UpdateScreen();
@@ -3659,6 +3667,10 @@ void CL_Init( void ) {
 	cl_lanForcePackets = Cvar_Get ("cl_lanForcePackets", "1", CVAR_ARCHIVE);
 
 	cl_guidServerUniq = Cvar_Get ("cl_guidServerUniq", "1", CVAR_ARCHIVE);
+
+	// REACTION: tells a cgame this client can draw between movement ticks
+	// (CG_RQ3_GETVIEWANGLES); an engine without it lacks that call
+	Cvar_Get( "cl_drawBetweenTicks", "1", CVAR_ROM );
 
 	// ~ and `, as keys and characters
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);

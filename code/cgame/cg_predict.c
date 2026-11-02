@@ -846,6 +846,14 @@ void CG_PredictPlayerState(void)
 
 		moved = qtrue;
 
+		// REACTION: the last two ticks' origins, to draw between them (CG_CalcViewValues)
+		if (cg.drawBetweenTicks) {
+			cg.tickCommandTime[0] = cg.tickCommandTime[1];
+			VectorCopy(cg.tickOrigin[1], cg.tickOrigin[0]);
+			cg.tickCommandTime[1] = cg_pmove.ps->commandTime;
+			VectorCopy(cg_pmove.ps->origin, cg.tickOrigin[1]);
+		}
+
 		// add push trigger movement effects
 		CG_TouchTriggerPrediction();
 

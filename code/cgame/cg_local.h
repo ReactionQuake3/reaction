@@ -980,6 +980,13 @@ typedef struct {
 	int predictedErrorTime;
 	vec3_t predictedError;
 
+	// REACTION: the engine draws between movement ticks (cl_drawBetweenTicks): the
+	// view turns with the client's angles every frame and shows the player between
+	// the predicted origins of the last two ticks ([0] older, [1] newer)
+	qboolean drawBetweenTicks;
+	int tickCommandTime[2];
+	vec3_t tickOrigin[2];
+
 	int eventSequence;
 	int predictableEvents[MAX_PREDICTED_EVENTS];
 
@@ -2603,6 +2610,8 @@ qboolean trap_getCameraInfo(int time, vec3_t * origin, vec3_t * angles);
 
 qboolean trap_GetEntityToken(char *buffer, int bufferSize);
 void trap_RQ3_Key_KeynumToStringBuf(int keynum, char *buf, int buflen);
+// only with cg.drawBetweenTicks: an engine without cl_drawBetweenTicks lacks the call
+void trap_RQ3_GetViewAngles(vec3_t angles);
 
 void CG_ClearParticles(void);
 void CG_AddParticles(void);
