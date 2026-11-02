@@ -40,7 +40,7 @@
 	popup
 	
 	onOOBClick { close _self }
-	onOpen { play "sound/ui/whoosh3.wav" ; uiScript initSystemSettings ;
+	onOpen { play "sound/ui/whoosh3.wav" ; uiScript initSystemSettings ; uiScript loadControls ;
 		setitemcolor hints forecolor HINT_COLOR 1 ; hide hints ;
 		ACTIVATE_TAB(1) ;
 	}
