@@ -1064,7 +1064,9 @@ const void	*RB_DrawSurfs( const void *data ) {
 				}
 			}
 
-			if (r_ssao->integer)
+			// REACTION: a cvar set by the ui or cgame ignores CVAR_LATCH, so r_ssao can turn on without a
+			// vid_restart; its buffers exist only if it was on at R_Init.
+			if (r_ssao->integer && tr.screenSsaoFbo)
 			{
 				vec4_t quadVerts[4];
 				vec2_t texCoords[4];
@@ -1574,7 +1576,8 @@ const void *RB_PostProcess(const void *data)
 	dstBox[2] = backEnd.viewParms.viewportWidth;
 	dstBox[3] = backEnd.viewParms.viewportHeight;
 
-	if (r_ssao->integer)
+	// REACTION: as in RB_DrawSurfs, r_ssao may be on without the buffers R_Init made for it
+	if (r_ssao->integer && tr.screenSsaoFbo)
 	{
 		srcBox[0] = backEnd.viewParms.viewportX      * tr.screenSsaoImage->width  / (float)glConfig.vidWidth;
 		srcBox[1] = backEnd.viewParms.viewportY      * tr.screenSsaoImage->height / (float)glConfig.vidHeight;
