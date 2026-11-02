@@ -262,7 +262,19 @@ qboolean SNDDMA_Init(void)
 	//  reasonable...this is why I let the user override.
 	tmp = s_sdlMixSamps->value;
 	if (!tmp)
-		tmp = (obtained.samples * obtained.channels) * 10;
+	{
+		// Size it by time, not by the callback: the mixer paints up to
+		//  s_mixahead (0.2 s) ahead but never more than this buffer, and
+		//  S_GetSoundtime loses a buffer wrap when a frame takes longer
+		//  than the whole buffer. SDL may pick a callback as short as the
+		//  device period (10 ms with WASAPI), and ten of those hold only
+		//  0.1 s. So take whole callbacks covering at least half a second,
+		//  and never fewer than the ten used before.
+		int callbacks = (obtained.freq / 2 + obtained.samples - 1) / obtained.samples;
+		if (callbacks < 10)
+			callbacks = 10;
+		tmp = (obtained.samples * obtained.channels) * callbacks;
+	}
 
 	// samples must be divisible by number of channels
 	tmp -= tmp % obtained.channels;
