@@ -548,6 +548,7 @@ void PM_StepSlideMove(qboolean gravity)
 	trace_t trace;
 	vec3_t up, down;
 	vec3_t tmp;
+	float down_dist, up_dist;
 
 	VectorCopy(pm->ps->origin, start_o);
 	VectorCopy(pm->ps->velocity, start_v);
@@ -579,15 +580,22 @@ void PM_StepSlideMove(qboolean gravity)
 	if (!trace.allsolid)
 		VectorCopy(trace.endpos, pm->ps->origin);
 
-	//Makro - possible fix for the "player stuck on stairs" bug ?
-	//if (trace.plane.normal[0] || trace.plane.normal[1] || trace.plane.normal[2])
-	//{
-		if (trace.plane.normal[2] < 0.7f) {
-			VectorCopy(down_o, pm->ps->origin);
-			VectorCopy(down_v, pm->ps->velocity);
-			return;
-		}
-	//}
+	// decide which one went farther
+	down_dist = (down_o[0] - start_o[0]) * (down_o[0] - start_o[0]) +
+		(down_o[1] - start_o[1]) * (down_o[1] - start_o[1]);
+	up_dist = (pm->ps->origin[0] - start_o[0]) * (pm->ps->origin[0] - start_o[0]) +
+		(pm->ps->origin[1] - start_o[1]) * (pm->ps->origin[1] - start_o[1]);
+
+	// don't step onto a slope too steep to walk. A push-down that hits nothing has no plane, and its zero
+	// normal is no steep slope: walking up a slope against a wall, the plain move makes no headway, and the
+	// step slides along the wall and the ground plane and ends just above the slope, out of the push-down's
+	// reach. From the ground, keep such a step when it went farther than the plain move.
+	if ((trace.fraction < 1.0f && trace.plane.normal[2] < MIN_WALK_NORMAL) ||
+	    (trace.fraction == 1.0f && (!pml.groundPlane || down_dist >= up_dist))) {
+		VectorCopy(down_o, pm->ps->origin);
+		VectorCopy(down_v, pm->ps->velocity);
+		return;
+	}
 
 	pm->ps->velocity[2] = down_v[2];
 
