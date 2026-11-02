@@ -84,9 +84,12 @@ static void SNDDMA_AudioCallback(void *userdata, Uint8 *stream, int len)
 			len1 = tobufend;
 			len2 = len - len1;
 		}
-		// Silence what the device has taken: a frame the mixer misses
-		//  (a game frame longer than it paints ahead) then plays as a
-		//  short gap, never as the sound from a whole buffer earlier.
+		// REACTION: mix what is taken now if the game thread has not (a
+		//  game frame longer than it mixes ahead), so it plays without a gap
+		S_PaintForDevice(len / (dma.samplebits/8) / dma.channels);
+		// Silence what the device has taken: a stretch nobody mixes (the
+		//  sound muted, or a video being recorded) then plays as silence,
+		//  never as the sound from a whole buffer earlier.
 		memcpy(stream, dma.buffer + pos, len1);
 		memset(dma.buffer + pos, dmasilence, len1);
 		if (len2 <= 0)

@@ -1237,11 +1237,36 @@ void S_Base_Update( void ) {
 	S_Update_();
 }
 
-void S_GetSoundtime(void)
+/*
+================
+S_UpdateSoundtime
+
+Sets s_soundtime to the sample the device takes next.  REACTION: while the
+sound plays, the device's thread calls this too, each time it takes samples
+(S_PaintForDevice), always with the device locked, so no buffer wrap is
+missed then however long a frame runs.
+================
+*/
+static int s_buffers;
+static int s_oldsamplepos;
+
+static void S_UpdateSoundtime(void)
 {
 	int		samplepos;
-	static	int		buffers;
-	static	int		oldsamplepos;
+
+	samplepos = SNDDMA_GetDMAPos();
+	if (samplepos < s_oldsamplepos)
+	{
+		s_buffers++;					// buffer wrapped
+	}
+	s_oldsamplepos = samplepos;
+
+	s_soundtime = s_buffers*dma.fullsamples + samplepos/dma.channels;
+}
+
+void S_GetSoundtime(void)
+{
+	int		start;
 
 	if( CL_VideoRecording( ) )
 	{
@@ -1255,23 +1280,17 @@ void S_GetSoundtime(void)
 		return;
 	}
 
-	// it is possible to miscount buffers if it has wrapped twice between
-	// calls to S_Update.  Oh well.
-	samplepos = SNDDMA_GetDMAPos();
-	if (samplepos < oldsamplepos)
-	{
-		buffers++;					// buffer wrapped
-		
-		if (s_paintedtime > 0x40000000)
-		{	// time to chop things off to avoid 32 bit limits
-			buffers = 0;
-			s_paintedtime = dma.fullsamples;
-			S_Base_StopAllSounds ();
-		}
-	}
-	oldsamplepos = samplepos;
+	S_UpdateSoundtime();
 
-	s_soundtime = buffers*dma.fullsamples + samplepos/dma.channels;
+	// REACTION: here on the game thread, not on the device's: stopping
+	//  every sound prints and closes the music stream
+	if (s_paintedtime > 0x40000000)
+	{	// time to chop things off to avoid 32 bit limits
+		s_buffers = 0;
+		s_paintedtime = dma.fullsamples;
+		S_Base_StopAllSounds ();
+		S_UpdateSoundtime();
+	}
 
 #if 0
 // check to make sure that we haven't overshot
@@ -1283,9 +1302,47 @@ void S_GetSoundtime(void)
 #endif
 
 	if ( dma.submission_chunk < 256 ) {
-		s_paintedtime = s_soundtime + s_mixPreStep->value * dma.speed;
+		start = s_soundtime + s_mixPreStep->value * dma.speed;
 	} else {
-		s_paintedtime = s_soundtime + dma.submission_chunk;
+		start = s_soundtime + dma.submission_chunk;
+	}
+
+	// REACTION: mix again from there, but never start beyond what is
+	//  painted: after a frame longer than the last mix ran ahead, that
+	//  stretch would play as a gap
+	if ( s_paintedtime > start ) {
+		s_paintedtime = start;
+	} else if ( s_paintedtime < s_soundtime ) {
+		s_paintedtime = s_soundtime;
+	}
+}
+
+qboolean s_mixForDevice;
+
+/*
+================
+S_PaintForDevice
+
+REACTION: the device's thread calls this, with the device locked, before it
+takes the next 'samples' sample pairs.  The game thread mixes a little ahead
+each frame (S_Update_); when a frame outlasts that, the device mixes what it
+takes itself, so a long frame leaves no gap in the sound.
+================
+*/
+void S_PaintForDevice( int samples ) {
+	if ( !s_soundStarted || s_soundMuted || CL_VideoRecording( ) ) {
+		return;
+	}
+
+	S_UpdateSoundtime();
+	if ( s_paintedtime < s_soundtime ) {
+		s_paintedtime = s_soundtime;
+	}
+	if ( s_paintedtime < s_soundtime + samples ) {
+		s_mixForDevice = qtrue;
+		S_ScanChannelStarts();
+		S_PaintChannels( s_soundtime + samples );
+		s_mixForDevice = qfalse;
 	}
 }
 
@@ -1553,6 +1610,111 @@ void S_Base_Shutdown( void ) {
 }
 
 /*
+===============================================================================
+
+REACTION: the device's thread mixes too (S_PaintForDevice), so every call that
+changes what the mixer reads (the channels, loop channels and raw samples, the
+sound memory, the sound time) runs with the device locked.  Moving an entity
+and stopping a looping sound change only loopSounds, which the game thread
+reads alone.
+
+===============================================================================
+*/
+
+static void S_Locked_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle ) {
+	SNDDMA_BeginPainting();
+	S_Base_StartSound( origin, entityNum, entchannel, sfxHandle );
+	SNDDMA_Submit();
+}
+
+static void S_Locked_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
+	SNDDMA_BeginPainting();
+	S_Base_StartLocalSound( sfxHandle, channelNum );
+	SNDDMA_Submit();
+}
+
+static void S_Locked_StartBackgroundTrack( const char *intro, const char *loop ) {
+	SNDDMA_BeginPainting();
+	S_Base_StartBackgroundTrack( intro, loop );
+	SNDDMA_Submit();
+}
+
+static void S_Locked_StopBackgroundTrack( void ) {
+	SNDDMA_BeginPainting();
+	S_Base_StopBackgroundTrack();
+	SNDDMA_Submit();
+}
+
+static void S_Locked_RawSamples( int stream, int samples, int rate, int width, int numChannels, const byte *data, float volume, int entityNum ) {
+	SNDDMA_BeginPainting();
+	S_Base_RawSamples( stream, samples, rate, width, numChannels, data, volume, entityNum );
+	SNDDMA_Submit();
+}
+
+static void S_Locked_StopAllSounds( void ) {
+	SNDDMA_BeginPainting();
+	S_Base_StopAllSounds();
+	SNDDMA_Submit();
+}
+
+static void S_Locked_ClearLoopingSounds( qboolean killall ) {
+	SNDDMA_BeginPainting();
+	S_Base_ClearLoopingSounds( killall );
+	SNDDMA_Submit();
+}
+
+static void S_Locked_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle ) {
+	SNDDMA_BeginPainting();
+	S_Base_AddLoopingSound( entityNum, origin, velocity, sfxHandle );
+	SNDDMA_Submit();
+}
+
+static void S_Locked_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle ) {
+	SNDDMA_BeginPainting();
+	S_Base_AddRealLoopingSound( entityNum, origin, velocity, sfxHandle );
+	SNDDMA_Submit();
+}
+
+static void S_Locked_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], int inwater ) {
+	SNDDMA_BeginPainting();
+	S_Base_Respatialize( entityNum, head, axis, inwater );
+	SNDDMA_Submit();
+}
+
+static void S_Locked_Update( void ) {
+	SNDDMA_BeginPainting();
+	S_Base_Update();
+	SNDDMA_Submit();
+}
+
+static void S_Locked_DisableSounds( void ) {
+	SNDDMA_BeginPainting();
+	S_Base_DisableSounds();
+	SNDDMA_Submit();
+}
+
+static void S_Locked_BeginRegistration( void ) {
+	SNDDMA_BeginPainting();
+	S_Base_BeginRegistration();
+	SNDDMA_Submit();
+}
+
+static sfxHandle_t S_Locked_RegisterSound( const char *name, qboolean compressed ) {
+	sfxHandle_t	handle;
+
+	SNDDMA_BeginPainting();
+	handle = S_Base_RegisterSound( name, compressed );
+	SNDDMA_Submit();
+	return handle;
+}
+
+static void S_Locked_ClearSoundBuffer( void ) {
+	SNDDMA_BeginPainting();
+	S_Base_ClearSoundBuffer();
+	SNDDMA_Submit();
+}
+
+/*
 ================
 S_Init
 ================
@@ -1572,6 +1734,8 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 	r = SNDDMA_Init();
 
 	if ( r ) {
+		// REACTION: the device's thread runs already
+		SNDDMA_BeginPainting();
 		s_soundStarted = 1;
 		s_soundMuted = 1;
 //		s_numSfx = 0;
@@ -1582,28 +1746,29 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 		s_paintedtime = 0;
 
 		S_Base_StopAllSounds( );
+		SNDDMA_Submit();
 	} else {
 		return qfalse;
 	}
 
 	si->Shutdown = S_Base_Shutdown;
-	si->StartSound = S_Base_StartSound;
-	si->StartLocalSound = S_Base_StartLocalSound;
-	si->StartBackgroundTrack = S_Base_StartBackgroundTrack;
-	si->StopBackgroundTrack = S_Base_StopBackgroundTrack;
-	si->RawSamples = S_Base_RawSamples;
-	si->StopAllSounds = S_Base_StopAllSounds;
-	si->ClearLoopingSounds = S_Base_ClearLoopingSounds;
-	si->AddLoopingSound = S_Base_AddLoopingSound;
-	si->AddRealLoopingSound = S_Base_AddRealLoopingSound;
+	si->StartSound = S_Locked_StartSound;
+	si->StartLocalSound = S_Locked_StartLocalSound;
+	si->StartBackgroundTrack = S_Locked_StartBackgroundTrack;
+	si->StopBackgroundTrack = S_Locked_StopBackgroundTrack;
+	si->RawSamples = S_Locked_RawSamples;
+	si->StopAllSounds = S_Locked_StopAllSounds;
+	si->ClearLoopingSounds = S_Locked_ClearLoopingSounds;
+	si->AddLoopingSound = S_Locked_AddLoopingSound;
+	si->AddRealLoopingSound = S_Locked_AddRealLoopingSound;
 	si->StopLoopingSound = S_Base_StopLoopingSound;
-	si->Respatialize = S_Base_Respatialize;
+	si->Respatialize = S_Locked_Respatialize;
 	si->UpdateEntityPosition = S_Base_UpdateEntityPosition;
-	si->Update = S_Base_Update;
-	si->DisableSounds = S_Base_DisableSounds;
-	si->BeginRegistration = S_Base_BeginRegistration;
-	si->RegisterSound = S_Base_RegisterSound;
-	si->ClearSoundBuffer = S_Base_ClearSoundBuffer;
+	si->Update = S_Locked_Update;
+	si->DisableSounds = S_Locked_DisableSounds;
+	si->BeginRegistration = S_Locked_BeginRegistration;
+	si->RegisterSound = S_Locked_RegisterSound;
+	si->ClearSoundBuffer = S_Locked_ClearSoundBuffer;
 	si->SoundInfo = S_Base_SoundInfo;
 	si->SoundList = S_Base_SoundList;
 
