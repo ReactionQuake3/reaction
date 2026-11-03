@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+// REACTION: auto exposure blends once per 8 ms, the frame time of 125 frames a second, which 1.0's default.cfg set
+#define AUTO_EXPOSURE_BLEND_MSEC 8
+
 void RB_ToneMap(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo, ivec4_t ldrBox, int autoExposure)
 {
 	ivec4_t srcBox, dstBox;
@@ -71,12 +74,27 @@ void RB_ToneMap(FBO_t *hdrFbo, ivec4_t hdrBox, FBO_t *ldrFbo, ivec4_t ldrBox, in
 		color[0] = 
 		color[1] =
 		color[2] = 1.0f;
-		if (glRefConfig.textureFloat)
-			color[3] = 0.03f;
-		else
-			color[3] = 0.1f;
+		// REACTION: once per step of time, as the blend per frame did at 125 frames a second; per frame, the exposure
+		// adapted 2.6 times as fast once the client drew 330 a second (drawing between movement ticks). Frames between
+		// steps do not blend: a smaller share per frame rounds away in the levels texture and stalls short of the scene.
+		{
+			static int lastBlendTime;
+			int now = ri.Milliseconds();
+			int steps;
 
-		FBO_Blit(tr.targetLevelsFbo, srcBox, NULL, tr.calcLevelsFbo, NULL,  NULL, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+			// the first blend, or after the clock went back, is one step
+			if (!lastBlendTime || now < lastBlendTime)
+				lastBlendTime = now - AUTO_EXPOSURE_BLEND_MSEC;
+			steps = (now - lastBlendTime) / AUTO_EXPOSURE_BLEND_MSEC;
+			if (steps > 0)
+			{
+				float share = glRefConfig.textureFloat ? 0.03f : 0.1f;
+
+				lastBlendTime += steps * AUTO_EXPOSURE_BLEND_MSEC;
+				color[3] = 1.0f - pow(1.0f - share, steps);
+				FBO_Blit(tr.targetLevelsFbo, srcBox, NULL, tr.calcLevelsFbo, NULL,  NULL, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+			}
+		}
 	}
 
 	// tonemap
