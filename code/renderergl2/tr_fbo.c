@@ -280,8 +280,8 @@ void FBO_Init(void)
 	if (multisample != r_ext_framebuffer_multisample->integer)
 		ri.Cvar_SetValue("r_ext_framebuffer_multisample", (float)multisample);
 	
-	// only create a render FBO if we need to resolve MSAA or do HDR
-	// otherwise just render straight to the screen (tr.renderFbo = NULL)
+	// REACTION: always a render FBO, so the present pass can draw the brightness into
+	// the picture (R_GammaInPicture); a multisampled one resolves into a texture first
 	if (multisample && glRefConfig.framebufferMultisample)
 	{
 		tr.renderFbo = FBO_Create("_render", tr.renderDepthImage->width, tr.renderDepthImage->height);
@@ -294,7 +294,7 @@ void FBO_Init(void)
 		FBO_AttachImage(tr.msaaResolveFbo, tr.renderDepthImage, GL_DEPTH_ATTACHMENT, 0);
 		R_CheckFBO(tr.msaaResolveFbo);
 	}
-	else if (r_hdr->integer)
+	else
 	{
 		tr.renderFbo = FBO_Create("_render", tr.renderDepthImage->width, tr.renderDepthImage->height);
 		FBO_AttachImage(tr.renderFbo, tr.renderImage, GL_COLOR_ATTACHMENT0, 0);
@@ -456,6 +456,24 @@ void FBO_Shutdown(void)
 		if(fbo->frameBuffer)
 			qglDeleteFramebuffers(1, &fbo->frameBuffer);
 	}
+}
+
+/*
+============
+FBO_PresentSource
+
+REACTION: the FBO whose texture RB_PresentToScreen draws to the window (a
+multisampled frame is resolved into tr.msaaResolveFbo first), or NULL without
+framebuffer objects
+============
+*/
+const FBO_t *FBO_PresentSource(void)
+{
+	if (tr.renderFbo && tr.renderFbo->colorImage[0])
+		return tr.renderFbo;
+
+	// Resolving an RGB16F MSAA FBO to the screen messes with the brightness, so it resolves to an RGB16F FBO first
+	return tr.msaaResolveFbo;
 }
 
 /*

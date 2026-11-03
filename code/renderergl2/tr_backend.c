@@ -1364,11 +1364,13 @@ const void *RB_ClearDepth(const void *data)
 
 /*
 =============
-RB_DrawGreyscale
+RB_DrawPresent
 
+REACTION: draws the frame's texture to the window through the greyscale shader,
+which also applies the brightness
 =============
 */
-static void RB_DrawGreyscale(const FBO_t *src)
+static void RB_DrawPresent(const FBO_t *src)
 {
 	if (!src || !src->colorImage[0])
 		return;
@@ -1381,6 +1383,7 @@ static void RB_DrawGreyscale(const FBO_t *src)
 	GLSL_BindProgram(&tr.greyscaleShader);
 	GLSL_SetUniformInt(&tr.greyscaleShader, UNIFORM_TEXTUREMAP, 0);
 	GLSL_SetUniformFloat(&tr.greyscaleShader, UNIFORM_GREYSCALE, backEnd.greyscale);
+	GLSL_SetUniformFloat(&tr.greyscaleShader, UNIFORM_GAMMA, tr.pictureGamma);
 	GL_BindToTMU(src->colorImage[0], 0);
 
 	vec4_t quadVerts[4] = {
@@ -1406,37 +1409,17 @@ static void RB_PresentToScreen(void)
 	if (!glRefConfig.framebufferObject)
 		return;
 
-	const FBO_t *src = NULL;
+	// REACTION: with framebuffer objects every frame is drawn into a texture (FBO_Init)
+	const FBO_t *src = FBO_PresentSource();
 
-	if (tr.renderFbo && tr.renderFbo->colorImage[0])
+	if (src == tr.msaaResolveFbo)
 	{
-		// texture-backed render FBO
-		src = tr.renderFbo;
-	}
-	else if (tr.msaaResolveFbo && r_hdr->integer)
-	{
-		// Resolving an RGB16F MSAA FBO to the screen messes with the brightness, so resolve to an RGB16F FBO first
 		FBO_FastBlit(tr.renderFbo, NULL, tr.msaaResolveFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		src = tr.msaaResolveFbo;
 	}
 
-	if (src)
-	{
-		if (backEnd.greyscale > 0.0f)
-		{
-			RB_DrawGreyscale(src);
-		}
-		else
-		{
-			FBO_FastBlit(src, NULL, NULL, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		}
-		return;
-	}
-
-	if (tr.renderFbo)
-	{
-		FBO_FastBlit(tr.renderFbo, NULL, NULL, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	}
+	// REACTION: always through the shader, which also draws the brightness into the picture (R_SetColorMappings).
+	// A blit from the RGBA8 render texture (no HDR) to the window made a fifth of the frames 3 to 4 ms slower (NVIDIA)
+	RB_DrawPresent(src);
 }
 
 

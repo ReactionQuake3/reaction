@@ -1136,7 +1136,11 @@ void GfxInfo_f( void )
 	{
 		ri.Printf( PRINT_ALL, "N/A\n" );
 	}
-	if ( glConfig.deviceSupportsGamma )
+	if ( R_GammaInPicture() )
+	{
+		ri.Printf( PRINT_ALL, "GAMMA: picture w/ %d overbright bits\n", tr.overbrightBits );
+	}
+	else if ( glConfig.deviceSupportsGamma )
 	{
 		ri.Printf( PRINT_ALL, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits );
 	}
@@ -1556,6 +1560,9 @@ void R_Init( void ) {
 
 	if (glRefConfig.framebufferObject)
 		FBO_Init();
+
+	// REACTION: again now that FBO_Init decided whether the picture carries the brightness (R_GammaInPicture)
+	R_SetColorMappings();
 
 	GLSL_InitGPUShaders();
 
