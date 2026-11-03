@@ -5670,8 +5670,10 @@ static void UI_Update(const char *name)
 		// and stains along corners that flicker as the view moves. The lightmaps already hold the maps' shadows. The
 		// SSAO option in Setup > System still turns it on.
 		// REACTION: a preset changes how demanding the game is, never how it looks or how bright it is: every one keeps
-		// Normal's HDR, tone mapping and auto exposure (the owner, 2026-11-03). Without tone mapping the HDR picture is
-		// scaled by 2^r_cameraExposure, twice as bright since ioquake3's dfb9bed2 made that default 1.
+		// Normal's HDR, tone mapping and fixed exposure (the owner, 2026-11-03). Without tone mapping the HDR picture is
+		// scaled by 2^r_cameraExposure, twice as bright since ioquake3's dfb9bed2 made that default 1. Auto exposure only
+		// darkened bright views, mostly of the sky: the tone mapper holds every darker view at the level fixed exposure
+		// shows. r_autoExposure 1 still turns it on.
 		case 1:	// normal quality
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
@@ -5679,7 +5681,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
-			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_autoExposure", 0);
 			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
@@ -5709,7 +5711,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_picmip", 2);
 			trap_Cvar_SetValue("r_hdr", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
-			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_autoExposure", 0);
 			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 0);
@@ -5739,7 +5741,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_picmip", 1);
 			trap_Cvar_SetValue("r_hdr", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
-			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_autoExposure", 0);
 			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 0);
@@ -5769,7 +5771,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
-			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_autoExposure", 0);
 			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
@@ -5799,7 +5801,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
-			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_autoExposure", 0);
 			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
