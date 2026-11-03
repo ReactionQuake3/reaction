@@ -982,9 +982,6 @@ static void CG_DamageBlendBlob(void)
 	trap_R_AddRefEntityToScene(&ent);
 }
 
-// REACTION: farther than a player moves in one movement tick: a teleport or respawn
-#define MAX_TICK_STEP	64
-
 /*
 ===============
 CG_ViewBetweenTicks
@@ -1026,7 +1023,7 @@ static void CG_ViewBetweenTicks(void)
 	// a step up is taken at once and smoothed by CG_StepOffset, as on a frame
 	// per tick; eased here as well, the view would first drop by the step
 	step[2] -= cg.tickStepUp;
-	if (span <= 0 || cg.hyperspace || VectorLength(step) > MAX_TICK_STEP) {
+	if (span <= 0 || cg.hyperspace) {
 		return;
 	}
 	// this frame shows the moment one tick before its time, so the newest tick

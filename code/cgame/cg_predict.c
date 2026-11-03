@@ -618,6 +618,8 @@ void CG_PredictPlayerState(void)
 	int stateIndex = 0, predictCmd = 0;
 	int numPredicted = 0, numPlayedBack = 0;
 	int stepSequence;
+	int tickStartTime;
+	vec3_t tickStartOrigin;
 
 	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
 
@@ -845,6 +847,9 @@ void CG_PredictPlayerState(void)
 
 		// REACTION: the events this command's move adds start here (cg.tickStepUp)
 		stepSequence = cg_pmove.ps->eventSequence;
+		// REACTION: and the tick before it ends here (cg.tickOrigin)
+		tickStartTime = cg_pmove.ps->commandTime;
+		VectorCopy(cg_pmove.ps->origin, tickStartOrigin);
 
 // JBravo: unlagged
 		if (cg_optimizePrediction.integer && !cg_latentCmds.integer) {
@@ -873,10 +878,12 @@ void CG_PredictPlayerState(void)
 
 		moved = qtrue;
 
-		// REACTION: the last two ticks' origins, to draw between them (CG_CalcViewValues)
+		// REACTION: the last two ticks' origins, to draw between them (CG_CalcViewValues): where this
+		// command's move started and ended. Each frame predicts again from the snapshot, so the same tick
+		// can be the newest in several frames; the older one comes from this move, never the frame before
 		if (cg.drawBetweenTicks) {
-			cg.tickCommandTime[0] = cg.tickCommandTime[1];
-			VectorCopy(cg.tickOrigin[1], cg.tickOrigin[0]);
+			cg.tickCommandTime[0] = tickStartTime;
+			VectorCopy(tickStartOrigin, cg.tickOrigin[0]);
 			cg.tickCommandTime[1] = cg_pmove.ps->commandTime;
 			VectorCopy(cg_pmove.ps->origin, cg.tickOrigin[1]);
 			cg.tickStepUp = CG_StepUpSince(cg_pmove.ps, stepSequence);
