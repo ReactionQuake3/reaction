@@ -277,20 +277,14 @@ Group # 1 - Graphics
     ADD_HINT("hint_texfilter", "Choose texture filtering mode", "group1")
 
 
-    // Screen-space ambient occlusion //
-
-	BEGIN_OPTION("SSAO", "r_ssao", ITEM_TYPE_YESNO, 6, 1)
-		OPTION_BELOW("gr1_ctrl5")
-		action { uiScript glCustom }
-		ASSIGN_HINT("hint_ssao")
-    END_OPTION
-    ADD_HINT("hint_ssao", "Enable screen-space ambient occlusion", "group1")
+    // No SSAO option (item 6): renderergl2's screen-space ambient occlusion left flickering dark dots and stains along
+    // corners on these maps, whose lightmaps already hold their shadows. r_ssao stays a console setting.
 
 
     // Material maps //
 
 	BEGIN_OPTION("Material Maps", "ui_shaderLevel", ITEM_TYPE_YESNO, 7, 1)
-		OPTION_BELOW("gr1_ctrl6")
+		OPTION_BELOW("gr1_ctrl5")
 		action { uiScript glCustom ; uiScript update "ui_shaderLevel" }
 		ASSIGN_HINT("hint_matmaps")
     END_OPTION

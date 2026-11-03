@@ -5667,8 +5667,8 @@ static void UI_Update(const char *name)
 		// specular maps with gloss in red and metalness in green.
 		// No preset turns on screen-space ambient occlusion (r_ssao): it darkens creases and corners, so it changes the
 		// look, and renderergl2 takes three depth samples per pixel at half the width and height, which leaves dark dots
-		// and stains along corners that flicker as the view moves. The lightmaps already hold the maps' shadows. The
-		// SSAO option in Setup > System still turns it on.
+		// and stains along corners that flicker as the view moves. The lightmaps already hold the maps' shadows, so it
+		// adds little, and no menu offers it either (system.menu); r_ssao stays a console setting.
 		// REACTION: a preset changes how demanding the game is, never how it looks or how bright it is: every one keeps
 		// Normal's HDR, tone mapping and fixed exposure (the owner, 2026-11-03). Without tone mapping the HDR picture is
 		// scaled by 2^r_cameraExposure, twice as bright since ioquake3's dfb9bed2 made that default 1. Auto exposure only
