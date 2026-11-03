@@ -5665,6 +5665,9 @@ static void UI_Update(const char *name)
 		// and arms' grey specular maps as gloss and metalness, and on every other surface its default specular glows
 		// on dark sunlit walls seen against the sky (teamjungle's rock tops). It needs base colour textures and
 		// specular maps with gloss in red and metalness in green.
+		// REACTION: a preset changes how demanding the game is, never how it looks or how bright it is: every one keeps
+		// Normal's HDR, tone mapping and auto exposure (the owner, 2026-11-03). Without tone mapping the HDR picture is
+		// scaled by 2^r_cameraExposure, twice as bright since ioquake3's dfb9bed2 made that default 1.
 		case 1:	// normal quality
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
@@ -5700,9 +5703,9 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 0);
 			
 			trap_Cvar_SetValue("r_picmip", 2);
-			trap_Cvar_SetValue("r_hdr", 0);
-			trap_Cvar_SetValue("r_toneMap", 0);
-			trap_Cvar_SetValue("r_autoExposure", 0);
+			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_toneMap", 1);
+			trap_Cvar_SetValue("r_autoExposure", 1);
 			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 0);
@@ -5731,8 +5734,8 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("r_picmip", 1);
 			trap_Cvar_SetValue("r_hdr", 1);
-			trap_Cvar_SetValue("r_toneMap", 0);
-			trap_Cvar_SetValue("r_autoExposure", 0);
+			trap_Cvar_SetValue("r_toneMap", 1);
+			trap_Cvar_SetValue("r_autoExposure", 1);
 			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 0);
