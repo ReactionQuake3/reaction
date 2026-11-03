@@ -404,11 +404,13 @@ CL_DrawsBetweenTicks
 REACTION: whether the running cgame draws between movement ticks: it asked for
 the view angles (CG_RQ3_GETVIEWANGLES). Then the client draws at the display's
 rate and sends a command per com_maxfps tick (CL_CreateNewCommands); a cgame
-that never asks keeps one command per frame.
+that never asks keeps one command per frame. Only with a gamestate: a connect
+from a game keeps the old cgame until the new gamestate, and while connecting
+the client must send its packets every frame, or no gamestate ever comes.
 ====================
 */
 qboolean CL_DrawsBetweenTicks( void ) {
-	return cgameDrawsBetweenTicks;
+	return cgameDrawsBetweenTicks && clc.state >= CA_PRIMED;
 }
 
 // REACTION: frames drawn per display refresh without vsync (CL_DrawMsec)
