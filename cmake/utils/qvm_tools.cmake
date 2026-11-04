@@ -55,6 +55,17 @@ function(add_qvm MODULE_NAME)
         list(APPEND LCC_FLAGS "-D${DEFINITION}")
     endforeach()
 
+    # REACTION: q3lcc reports no dependencies, so every object depends on every header a module can include. Otherwise a
+    # changed header leaves objects compiled against the old layout, while the DLL's objects rebuild, with no warning.
+    file(GLOB QVM_HEADERS CONFIGURE_DEPENDS
+        ${SOURCE_DIR}/botlib/*.h
+        ${SOURCE_DIR}/cgame/*.h
+        ${SOURCE_DIR}/game/*.h
+        ${SOURCE_DIR}/qcommon/*.h
+        ${SOURCE_DIR}/renderercommon/*.h
+        ${SOURCE_DIR}/renderergl2/*.h
+        ${SOURCE_DIR}/ui/*.h)
+
     set(ASM_FILES "")
     foreach(SOURCE ${ARG_SOURCES})
         if(${SOURCE} MATCHES "\\.asm$")
@@ -69,7 +80,7 @@ function(add_qvm MODULE_NAME)
         add_custom_command(
             OUTPUT ${ASM_FILE}
             COMMAND ${Q3LCC} ${LCC_FLAGS} -o ${ASM_FILE} ${SOURCE}
-            DEPENDS ${SOURCE} qvm_tools ${Q3RCC} ${Q3CPP} ${Q3LCC}
+            DEPENDS ${SOURCE} ${QVM_HEADERS} qvm_tools ${Q3RCC} ${Q3CPP} ${Q3LCC}
             COMMENT "Building C object ${ASM_FILE_COMMENT}")
 
         list(APPEND ASM_FILES ${ASM_FILE})
