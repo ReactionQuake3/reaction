@@ -40,6 +40,7 @@ void Mat4Translation( vec3_t vec, mat4_t out );
 void Mat4Ortho( float left, float right, float bottom, float top, float znear, float zfar, mat4_t out );
 void Mat4View(vec3_t axes[3], vec3_t origin, mat4_t out);
 void Mat4SimpleInverse( const mat4_t in, mat4_t out);
+qboolean Mat4Inverse( const mat4_t in, mat4_t out );
 
 #define VectorCopy2(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1])
 #define VectorSet2(v,x,y)       ((v)[0]=(x),(v)[1]=(y));

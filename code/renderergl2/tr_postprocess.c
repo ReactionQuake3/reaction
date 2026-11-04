@@ -501,3 +501,152 @@ void RB_GaussianBlur(FBO_t *srcFbo, FBO_t *dstFbo, float blur)
 		FBO_Blit(tr.textureScratchFbo[0], srcBox, NULL, dstFbo, dstBox, NULL, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 	}
 }
+
+/*
+=============
+RB_TemporalAA
+
+REACTION: temporal anti-aliasing (r_temporalAA). The static world's geometry was drawn a
+fraction of a pixel off (VPF_TEMPORALJITTER); at its edges this blends the picture, in src,
+with the frames before it, moved to where this frame sees them by its depth
+(temporalaa_fp.glsl). A ledge thinner than a pixel is then averaged over many offsets instead
+of showing or vanishing with every small move. Anything else stays as with the setting off.
+=============
+*/
+
+// this frame's share of the blend on an edge, so about the last ten frames are seen
+#define TEMPORAL_BLEND 0.1f
+// a move longer than this in one frame (a teleport, a respawn) starts the blend over
+#define TEMPORAL_RESET_DISTANCE 64.0f
+// around a model's bounds, as they are its first frame's and an animated model leaves them: map units, then pixels
+#define TEMPORAL_ENTITY_MARGIN 16.0f
+#define TEMPORAL_ENTITY_MARGIN_PIXELS 2
+
+// Writes this frame into the new history over a model entity on the screen (temporalkeep_fp.glsl), with no memory of edges
+// there: what moves is not blended, so a player far away looks the same with the setting on as off, and leaves no trail.
+// Its box and depths come from its bounds, so a model hidden behind a wall touches none of the wall in front of it.
+static void RB_TemporalKeepEntity(const trRefEntity_t *ent, const mat4_t viewProjection, FBO_t *src, FBO_t *dst)
+{
+	vec3_t bounds[2];
+	vec2_t depthRange;
+	ivec4_t box;
+	float left = 1.0f, right = -1.0f, bottom = 1.0f, top = -1.0f, nearest = 1.0f, farthest = 0.0f;
+	int i, behind = 0;
+
+	// the view weapon is told by its depth (temporalaa_fp.glsl); the player's own body is not drawn through the eyes
+	if (ent->e.reType != RT_MODEL || (ent->e.renderfx & (RF_FIRST_PERSON | RF_THIRD_PERSON | RF_DEPTHHACK)))
+		return;
+
+	R_ModelBounds(ent->e.hModel, bounds[0], bounds[1]);
+
+	for (i = 0; i < 8; i++)
+	{
+		vec4_t corner, clip;
+		vec3_t local;
+		int j;
+
+		for (j = 0; j < 3; j++)
+			local[j] = (i & (1 << j)) ? bounds[1][j] + TEMPORAL_ENTITY_MARGIN : bounds[0][j] - TEMPORAL_ENTITY_MARGIN;
+
+		for (j = 0; j < 3; j++)
+			corner[j] = ent->e.origin[j] + local[0] * ent->e.axis[0][j] + local[1] * ent->e.axis[1][j] + local[2] * ent->e.axis[2][j];
+		corner[3] = 1.0f;
+
+		Mat4Transform(viewProjection, corner, clip);
+		if (clip[3] <= 0.0f)
+		{
+			behind++;
+			continue;
+		}
+
+		left = MIN(left, clip[0] / clip[3]);
+		right = MAX(right, clip[0] / clip[3]);
+		bottom = MIN(bottom, clip[1] / clip[3]);
+		top = MAX(top, clip[1] / clip[3]);
+		nearest = MIN(nearest, clip[2] / clip[3] * 0.5f + 0.5f);
+		farthest = MAX(farthest, clip[2] / clip[3] * 0.5f + 0.5f);
+	}
+
+	// wholly behind the eye it is not seen; partly, it may reach across the whole picture
+	if (behind == 8)
+		return;
+
+	if (behind)
+	{
+		left = bottom = -1.0f;
+		right = top = 1.0f;
+		nearest = 0.0f;
+	}
+
+	left = Com_Clamp(-1.0f, 1.0f, left);
+	right = Com_Clamp(-1.0f, 1.0f, right);
+	bottom = Com_Clamp(-1.0f, 1.0f, bottom);
+	top = Com_Clamp(-1.0f, 1.0f, top);
+
+	box[0] = MAX(0, (int)floor((left * 0.5f + 0.5f) * dst->width) - TEMPORAL_ENTITY_MARGIN_PIXELS);
+	box[1] = MAX(0, (int)floor((bottom * 0.5f + 0.5f) * dst->height) - TEMPORAL_ENTITY_MARGIN_PIXELS);
+	box[2] = MIN(dst->width, (int)ceil((right * 0.5f + 0.5f) * dst->width) + TEMPORAL_ENTITY_MARGIN_PIXELS) - box[0];
+	box[3] = MIN(dst->height, (int)ceil((top * 0.5f + 0.5f) * dst->height) + TEMPORAL_ENTITY_MARGIN_PIXELS) - box[1];
+
+	if (box[2] <= 0 || box[3] <= 0)
+		return;
+
+	VectorSet2(depthRange, nearest, farthest);
+	GLSL_SetUniformVec2(&tr.temporalKeepShader, UNIFORM_TEMPORALDEPTHRANGE, depthRange);
+	FBO_Blit(src, box, NULL, dst, box, &tr.temporalKeepShader, NULL, 0);
+}
+
+void RB_TemporalAA(FBO_t *src)
+{
+	// the frame before: which history image it wrote, when, from where, and its view without the offset
+	static int lastWritten;
+	static image_t *lastImage;
+	static int lastFrame;
+	static vec3_t lastOrigin;
+	static mat4_t lastViewProjection;
+	mat4_t projection, viewProjection, inverse, reprojection;
+	vec3_t moved;
+	float blend = TEMPORAL_BLEND;
+	int read = lastWritten, write = !lastWritten;
+	FBO_t *dst = tr.temporalHistoryFbo[write];
+	int i;
+
+	// both frames' views without their sub-pixel offsets: a standing camera then reads the history at the very pixel
+	// it writes, while the offsets alone move the samples that are averaged
+	R_ProjectionWithoutJitter(&backEnd.viewParms, projection);
+	Mat4Multiply(projection, backEnd.viewParms.world.modelMatrix, viewProjection);
+
+	// start over without a frame just before this one from the same images (vid_restart), after a jump, or if the
+	// view cannot be inverted
+	VectorSubtract(backEnd.viewParms.or.origin, lastOrigin, moved);
+	if (lastImage != tr.temporalHistoryImage[read] || backEnd.viewParms.frameCount != lastFrame + 1
+		|| VectorLength(moved) > TEMPORAL_RESET_DISTANCE || !Mat4Inverse(viewProjection, inverse))
+	{
+		blend = 1.0f;
+		Mat4Identity(reprojection);
+	}
+	else
+	{
+		Mat4Multiply(lastViewProjection, inverse, reprojection);
+	}
+
+	GL_BindToTMU(tr.temporalHistoryImage[read], TB_LIGHTMAP);
+	GL_BindToTMU(tr.renderDepthImage, TB_NORMALMAP);
+	GLSL_SetUniformMat4(&tr.temporalAAShader, UNIFORM_REPROJECTIONMATRIX, reprojection);
+	GLSL_SetUniformFloat(&tr.temporalAAShader, UNIFORM_TEMPORALBLEND, blend);
+	FBO_Blit(src, NULL, NULL, dst, NULL, &tr.temporalAAShader, NULL, 0);
+
+	for (i = 0; i < backEnd.refdef.num_entities; i++)
+		RB_TemporalKeepEntity(&backEnd.refdef.entities[i], viewProjection, src, dst);
+
+	// the shown picture; its alpha stays, as shaders of the 2D drawn later blend by it
+	qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+	FBO_Blit(dst, NULL, NULL, src, NULL, NULL, NULL, 0);
+	qglColorMask(!backEnd.colorMask[0], !backEnd.colorMask[1], !backEnd.colorMask[2], !backEnd.colorMask[3]);
+
+	lastWritten = write;
+	lastImage = tr.temporalHistoryImage[write];
+	lastFrame = backEnd.viewParms.frameCount;
+	VectorCopy(backEnd.viewParms.or.origin, lastOrigin);
+	Mat4Copy(viewProjection, lastViewProjection);
+}

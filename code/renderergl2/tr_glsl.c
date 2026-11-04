@@ -54,6 +54,8 @@ extern const char *fallbackShader_tonemap_vp;
 extern const char *fallbackShader_tonemap_fp;
 extern const char* fallbackShader_greyscale_vp;
 extern const char* fallbackShader_greyscale_fp;
+extern const char* fallbackShader_temporalaa_fp;
+extern const char* fallbackShader_temporalkeep_fp;
 
 typedef struct uniformInfo_s
 {
@@ -159,7 +161,12 @@ static uniformInfo_t uniformsInfo[] =
 
 	{ "u_BoneMatrix", GLSL_MAT16_BONEMATRIX },
 	{ "u_Greyscale", GLSL_FLOAT },
-	{ "u_Gamma", GLSL_FLOAT }
+	{ "u_Gamma", GLSL_FLOAT },
+
+	{ "u_ReprojectionMatrix", GLSL_MAT16 },
+	{ "u_TemporalBlend", GLSL_FLOAT },
+	{ "u_TemporalJitter", GLSL_VEC2 },
+	{ "u_TemporalDepthRange", GLSL_VEC2 }
 };
 
 typedef enum
@@ -392,6 +399,10 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLchar *extra, char *
 
 	if (r_pbr->integer)
 		Q_strcat(dest, size, "#define USE_PBR\n");
+
+	// REACTION: temporal anti-aliasing draws the static world a fraction of a pixel off; textures read as if it were not
+	if (tr.temporalHistoryImage[0])
+		Q_strcat(dest, size, "#define USE_TEMPORAL_JITTER\n");
 
 	if (r_cubeMapping->integer)
 	{
@@ -1469,6 +1480,41 @@ void GLSL_InitGPUShaders(void)
 
 	numEtcShaders++;
 
+	// REACTION: temporal anti-aliasing (RB_TemporalAA), only with its history images (R_CreateBuiltinImages)
+	if (tr.temporalHistoryImage[0])
+	{
+		attribs = ATTR_POSITION | ATTR_TEXCOORD;
+		extradefines[0] = '\0';
+		Q_strcat(extradefines, 1024, va("#define WEAPON_DEPTH %.9g\n", DEPTHHACK_RANGE));
+
+		if (!GLSL_InitGPUShader(&tr.temporalAAShader, "temporalaa", attribs, qtrue, extradefines, qtrue,
+			fallbackShader_down4x_vp, fallbackShader_temporalaa_fp))
+		{
+			ri.Error(ERR_FATAL, "Unable to load temporalaa shader");
+		}
+
+		GLSL_InitUniforms(&tr.temporalAAShader);
+		GLSL_SetUniformInt(&tr.temporalAAShader, UNIFORM_SCREENIMAGEMAP, TB_COLORMAP);
+		GLSL_SetUniformInt(&tr.temporalAAShader, UNIFORM_TEXTUREMAP, TB_LIGHTMAP);
+		GLSL_SetUniformInt(&tr.temporalAAShader, UNIFORM_SCREENDEPTHMAP, TB_NORMALMAP);
+		GLSL_FinishGPUShader(&tr.temporalAAShader);
+
+		numEtcShaders++;
+
+		if (!GLSL_InitGPUShader(&tr.temporalKeepShader, "temporalkeep", attribs, qtrue, extradefines, qtrue,
+			fallbackShader_down4x_vp, fallbackShader_temporalkeep_fp))
+		{
+			ri.Error(ERR_FATAL, "Unable to load temporalkeep shader");
+		}
+
+		GLSL_InitUniforms(&tr.temporalKeepShader);
+		GLSL_SetUniformInt(&tr.temporalKeepShader, UNIFORM_SCREENIMAGEMAP, TB_COLORMAP);
+		GLSL_SetUniformInt(&tr.temporalKeepShader, UNIFORM_SCREENDEPTHMAP, TB_NORMALMAP);
+		GLSL_FinishGPUShader(&tr.temporalKeepShader);
+
+		numEtcShaders++;
+	}
+
 	// GLSL 1.10+ or GL_OES_standard_derivatives extension are required for dFdx() and dFdy() GLSL functions
 	if (glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 10)
 	    || glRefConfig.standardDerivatives)
@@ -1594,6 +1640,8 @@ void GLSL_ShutdownGPUShaders(void)
 
 	GLSL_DeleteGPUShader(&tr.shadowmaskShader);
 	GLSL_DeleteGPUShader(&tr.ssaoShader);
+	GLSL_DeleteGPUShader(&tr.temporalAAShader);
+	GLSL_DeleteGPUShader(&tr.temporalKeepShader);
 
 	for ( i = 0; i < 4; i++)
 		GLSL_DeleteGPUShader(&tr.depthBlurShader[i]);

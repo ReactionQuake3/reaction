@@ -794,9 +794,34 @@ void R_SetupProjection(viewParms_t *dest, float zProj, float zFar, qboolean comp
 	dest->projectionMatrix[11] = -1;
 	dest->projectionMatrix[15] = 0;
 	
+	// REACTION: temporal anti-aliasing draws the main view's static world a fraction of a pixel off (RE_RenderScene)
+	if (dest->flags & VPF_TEMPORALJITTER)
+	{
+		dest->projectionMatrix[8] += dest->temporalJitter[0];
+		dest->projectionMatrix[9] += dest->temporalJitter[1];
+	}
+
 	// Now that we have all the data for the projection matrix we can also setup the view frustum.
 	if(computeFrustum)
 		R_SetupFrustum(dest, xmin, xmax, ymax, zProj, zFar, stereoSep);
+}
+
+/*
+=================
+R_ProjectionWithoutJitter
+
+REACTION: a view's projection without temporal anti-aliasing's sub-pixel offset (R_SetupProjection)
+=================
+*/
+void R_ProjectionWithoutJitter(const viewParms_t *parms, mat4_t out)
+{
+	Mat4Copy(parms->projectionMatrix, out);
+
+	if (parms->flags & VPF_TEMPORALJITTER)
+	{
+		out[8] -= parms->temporalJitter[0];
+		out[9] -= parms->temporalJitter[1];
+	}
 }
 
 /*

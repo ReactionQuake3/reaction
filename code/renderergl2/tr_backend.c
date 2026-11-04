@@ -532,6 +532,20 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
 			}
 
+			// REACTION: temporal anti-aliasing offsets only the static world; anything else keeps to the pixels it has
+			// with the setting off
+			if (backEnd.viewParms.flags & VPF_TEMPORALJITTER)
+			{
+				mat4_t projection;
+
+				if (entityNum == REFENTITYNUM_WORLD)
+					Mat4Copy(backEnd.viewParms.projectionMatrix, projection);
+				else
+					R_ProjectionWithoutJitter(&backEnd.viewParms, projection);
+
+				GL_SetProjectionMatrix(projection);
+			}
+
 			GL_SetModelviewMatrix( backEnd.or.modelMatrix );
 
 			//
@@ -563,7 +577,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					}
 
 					if(!oldDepthRange)
-						qglDepthRange (0, 0.3);
+						qglDepthRange (0, DEPTHHACK_RANGE);
 				}
 				else
 				{
@@ -597,6 +611,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		FBO_Bind(fbo);
 
 	// go back to the world modelview matrix
+
+	if (backEnd.viewParms.flags & VPF_TEMPORALJITTER)
+		GL_SetProjectionMatrix( backEnd.viewParms.projectionMatrix );
 
 	GL_SetModelviewMatrix( backEnd.viewParms.world.modelMatrix );
 
@@ -1598,6 +1615,11 @@ const void *RB_PostProcess(const void *data)
 			FBO_BlitFromTexture(tr.whiteImage, NULL, NULL, srcFbo, srcBox, NULL, color, GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
 		}
 	}
+
+	// REACTION: temporal anti-aliasing, on the picture as it is shown (after tone mapping); RE_RenderScene drew the
+	// static world a fraction of a pixel off only when this pass runs
+	if (srcFbo && (backEnd.viewParms.flags & VPF_TEMPORALJITTER))
+		RB_TemporalAA(srcFbo);
 
 	if (r_drawSunRays->integer)
 		RB_SunRays(srcFbo, srcBox, srcFbo, srcBox);
