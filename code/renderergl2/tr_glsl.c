@@ -158,7 +158,8 @@ static uniformInfo_t uniformsInfo[] =
 	{ "u_AlphaTest", GLSL_INT },
 
 	{ "u_BoneMatrix", GLSL_MAT16_BONEMATRIX },
-	{ "u_Greyscale", GLSL_FLOAT }
+	{ "u_Greyscale", GLSL_FLOAT },
+	{ "u_Gamma", GLSL_FLOAT }
 };
 
 typedef enum
@@ -384,8 +385,10 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLchar *extra, char *
 
 	fbufWidthScale = 1.0f / ((float)glConfig.vidWidth);
 	fbufHeightScale = 1.0f / ((float)glConfig.vidHeight);
+	// REACTION: nine significant digits, all a float holds. With %f, 1/1440 became 0.000694, so the pass that draws
+	// each picture to the window stopped short of a 1440-line window's last pixel row, which showed leftover garbage.
 	Q_strcat(dest, size,
-			 va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale));
+			 va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%.9g, %.9g)\n#endif\n", fbufWidthScale, fbufHeightScale));
 
 	if (r_pbr->integer)
 		Q_strcat(dest, size, "#define USE_PBR\n");
