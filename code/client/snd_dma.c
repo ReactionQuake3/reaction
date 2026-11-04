@@ -1595,9 +1595,44 @@ void S_FreeOldestSound( void ) {
 // Shutdown sound engine
 // =======================================================================
 
+/*
+===============================================================================
+
+REACTION: the device's thread mixes too (S_PaintForDevice), so every call that
+changes what the mixer reads (the channels, loop channels and raw samples, the
+sound memory, the sound time) runs with the device locked.  Moving an entity
+and stopping a looping sound change only loopSounds, which the game thread
+reads alone.
+
+A Com_Error raised inside a locked call never comes back to its unlock, and the
+device's thread, and SDL closing the device, would wait for that lock forever.
+Locked calls never nest and run only on the game thread, so the next one finds
+the lock still held, takes no second hold on it and releases it.
+
+===============================================================================
+*/
+
+static qboolean s_deviceLocked;
+
+static void S_LockDevice( void ) {
+	if ( !s_deviceLocked ) {
+		SNDDMA_BeginPainting();
+		s_deviceLocked = qtrue;
+	}
+}
+
+static void S_UnlockDevice( void ) {
+	SNDDMA_Submit();
+	s_deviceLocked = qfalse;
+}
+
 void S_Base_Shutdown( void ) {
 	if ( !s_soundStarted ) {
 		return;
+	}
+
+	if ( s_deviceLocked ) {
+		S_UnlockDevice();
 	}
 
 	SNDDMA_Shutdown();
@@ -1609,109 +1644,97 @@ void S_Base_Shutdown( void ) {
 	Cmd_RemoveCommand("s_info");
 }
 
-/*
-===============================================================================
-
-REACTION: the device's thread mixes too (S_PaintForDevice), so every call that
-changes what the mixer reads (the channels, loop channels and raw samples, the
-sound memory, the sound time) runs with the device locked.  Moving an entity
-and stopping a looping sound change only loopSounds, which the game thread
-reads alone.
-
-===============================================================================
-*/
-
 static void S_Locked_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_StartSound( origin, entityNum, entchannel, sfxHandle );
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_StartLocalSound( sfxHandle, channelNum );
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_StartBackgroundTrack( const char *intro, const char *loop ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_StartBackgroundTrack( intro, loop );
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_StopBackgroundTrack( void ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_StopBackgroundTrack();
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_RawSamples( int stream, int samples, int rate, int width, int numChannels, const byte *data, float volume, int entityNum ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_RawSamples( stream, samples, rate, width, numChannels, data, volume, entityNum );
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_StopAllSounds( void ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_StopAllSounds();
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_ClearLoopingSounds( qboolean killall ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_ClearLoopingSounds( killall );
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_AddLoopingSound( entityNum, origin, velocity, sfxHandle );
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_AddRealLoopingSound( entityNum, origin, velocity, sfxHandle );
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], int inwater ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_Respatialize( entityNum, head, axis, inwater );
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_Update( void ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_Update();
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_DisableSounds( void ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_DisableSounds();
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static void S_Locked_BeginRegistration( void ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_BeginRegistration();
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 static sfxHandle_t S_Locked_RegisterSound( const char *name, qboolean compressed ) {
 	sfxHandle_t	handle;
 
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	handle = S_Base_RegisterSound( name, compressed );
-	SNDDMA_Submit();
+	S_UnlockDevice();
 	return handle;
 }
 
 static void S_Locked_ClearSoundBuffer( void ) {
-	SNDDMA_BeginPainting();
+	S_LockDevice();
 	S_Base_ClearSoundBuffer();
-	SNDDMA_Submit();
+	S_UnlockDevice();
 }
 
 /*
