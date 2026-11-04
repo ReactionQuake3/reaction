@@ -5670,7 +5670,7 @@ static void UI_Update(const char *name)
 		// and stains along corners that flicker as the view moves. The lightmaps already hold the maps' shadows, so it
 		// adds little, and no menu offers it either (system.menu); r_ssao stays a console setting.
 		// REACTION: a preset changes how demanding the game is, never how it looks or how bright it is: every one keeps
-		// Normal's HDR, tone mapping and fixed exposure (the owner, 2026-11-03). Without tone mapping the HDR picture is
+		// Normal's HDR, tone mapping and fixed exposure. Without tone mapping the HDR picture is
 		// scaled by 2^r_cameraExposure, twice as bright since ioquake3's dfb9bed2 made that default 1. Auto exposure only
 		// darkened bright views, mostly of the sky: the tone mapper holds every darker view at the level fixed exposure
 		// shows. r_autoExposure 1 still turns it on.

@@ -277,7 +277,7 @@ Group # 1 - Graphics
     ADD_HINT("hint_texfilter", "Choose texture filtering mode", "group1")
 
 
-    // No SSAO option (item 6): renderergl2's screen-space ambient occlusion left flickering dark dots and stains along
+    // No SSAO option: renderergl2's screen-space ambient occlusion left flickering dark dots and stains along
     // corners on these maps, whose lightmaps already hold their shadows. r_ssao stays a console setting.
 
 
