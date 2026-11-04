@@ -24,6 +24,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include <setjmp.h>
+// REACTION: Com_Error leaves a VM call by longjmp. On 64-bit Windows longjmp unwinds the stack frame by frame through
+// SEH, with MinGW and with Visual Studio, which fails on the QVM's generated code (no unwind data) and on a cgame DLL
+// Com_Error has just unloaded: the process ends with STATUS_BAD_FUNCTION_TABLE instead of dropping to the menu.
+// Com_Error needs only the registers restored, and a jump buffer with no frame gets just that.
+#ifdef _WIN64
+#define Com_AbortFrameNoUnwind() ( ( (_JUMP_BUFFER *)abortframe )->Frame = 0 )
+#else
+#define Com_AbortFrameNoUnwind()
+#endif
 #ifndef _WIN32
 #include <netinet/in.h>
 #include <sys/stat.h> // umask
@@ -2671,6 +2680,7 @@ void Com_Init( char *commandLine ) {
 	if ( setjmp (abortframe) ) {
 		Sys_Error ("Error during initialization");
 	}
+	Com_AbortFrameNoUnwind();
 
 	// Clear queues
 	Com_Memset( &eventQueue[ 0 ], 0, MAX_QUEUED_EVENTS * sizeof( sysEvent_t ) );
@@ -3097,6 +3107,7 @@ void Com_Frame( void ) {
 	if ( setjmp (abortframe) ) {
 		return;			// an ERR_DROP was thrown
 	}
+	Com_AbortFrameNoUnwind();
 
 	timeBeforeFirstEvents =0;
 	timeBeforeServer =0;
