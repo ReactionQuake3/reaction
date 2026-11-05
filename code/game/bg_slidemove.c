@@ -535,6 +535,13 @@ qboolean PM_SlideMove(qboolean gravity)
 	return (bumpcount != 0);
 }
 
+// A step whose push-down hit nothing is kept only if the plain move went less than half as far. The two distances are
+// squared, so half as far is this factor.
+#define	STEP_KEEP_HEADWAY	4.0f
+// ...and only if the step ended this much higher than it started. On a flat floor, adding and taking off STEPSIZE can
+// round a float upward, and that is no climb.
+#define	STEP_KEEP_RISE		0.01f
+
 /*
 ==================
 PM_StepSlideMove
@@ -586,12 +593,15 @@ void PM_StepSlideMove(qboolean gravity)
 	up_dist = (pm->ps->origin[0] - start_o[0]) * (pm->ps->origin[0] - start_o[0]) +
 		(pm->ps->origin[1] - start_o[1]) * (pm->ps->origin[1] - start_o[1]);
 
-	// don't step onto a slope too steep to walk. A push-down that hits nothing has no plane, and its zero
-	// normal is no steep slope: walking up a slope against a wall, the plain move makes no headway, and the
-	// step slides along the wall and the ground plane and ends just above the slope, out of the push-down's
-	// reach. From the ground, keep such a step when it went farther than the plain move.
+	// don't step onto a slope too steep to walk. A push-down that hits nothing has no plane, and its zero normal
+	// is no steep slope: on a rising slope the plain move can make no headway, and at a crest or along a wall the
+	// step ends just above the ground, out of the push-down's reach. From the ground, keep such a step only when
+	// the plain move really got stuck and the step climbed. Otherwise the plain move stays: a step that merely
+	// beats it by a hair ends inside the margin the plain move keeps from a wall, and the next command would lift
+	// a player running along a ledge onto it, or catch the player on a seam in the wall.
 	if ((trace.fraction < 1.0f && trace.plane.normal[2] < MIN_WALK_NORMAL) ||
-	    (trace.fraction == 1.0f && (!pml.groundPlane || down_dist >= up_dist))) {
+	    (trace.fraction == 1.0f && (!pml.groundPlane || down_dist * STEP_KEEP_HEADWAY >= up_dist ||
+					pm->ps->origin[2] <= start_o[2] + STEP_KEEP_RISE))) {
 		VectorCopy(down_o, pm->ps->origin);
 		VectorCopy(down_v, pm->ps->velocity);
 		return;
