@@ -2431,40 +2431,10 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 	Q_strncpyz(ddsName, base, sizeof(ddsName));
 	Q_strcat(ddsName, sizeof(ddsName), ".dds");
 
-	if (r_ext_compressed_textures->integer) {
-		// Try DDS first
-		R_LoadDDS(ddsName, pic, width, height, picFormat, numMips);
-		if (*pic) return;
-
-		// Then try explicitly requested extension (if not DDS)
-		if (ext && *ext && Q_stricmp(ext, "dds")) {
-			for (i = 0; i < numImageLoaders; i++) {
-				if (!Q_stricmp(ext, imageLoaders[i].ext)) {
-					imageLoaders[i].ImageLoader(localName, pic, width, height);
-					if (*pic) return;
-					orgNameFailed = qtrue;
-					orgLoader = i;
-					break;
-				}
-			}
-			COM_StripExtension(name, localName, sizeof(localName));
-		}
-
-		// Then probe all supported formats except the failed one
-		for (i = 0; i < numImageLoaders; i++) {
-			if (i == orgLoader)
-				continue;
-			altName = va("%s.%s", localName, imageLoaders[i].ext);
-			imageLoaders[i].ImageLoader(altName, pic, width, height);
-			if (*pic) {
-				if (orgNameFailed)
-					ri.Printf(PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n", name, altName);
-				return;
-			}
-		}
-
-		return;
-	}
+	// REACTION: a DDS at an image's name comes first, whatever r_ext_compressed_textures says, so a pack can
+	// replace any image without touching the scripts and skins that name it. The original data has none.
+	R_LoadDDS(ddsName, pic, width, height, picFormat, numMips);
+	if (*pic) return;
 
 	// Explicit non-dds extension requested, so try its image loader
 	if (ext && *ext && Q_stricmp(ext, "dds")) {
@@ -2493,12 +2463,6 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 				ri.Printf(PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n", name, altName);
 			return;
 		}
-	}
-
-	// Finally, allow DDS fallback even when compressed textures are off
-	if (!*pic) {
-		R_LoadDDS(ddsName, pic, width, height, picFormat, numMips);
-		if (*pic) ri.Printf(PRINT_DEVELOPER, "WARNING: falling back to compressed texture %s when r_ext_compressed_textures=0\n", ddsName);
 	}
 }
 
