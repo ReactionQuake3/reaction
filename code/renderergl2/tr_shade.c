@@ -1327,6 +1327,13 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 			ComputeShaderColors(pStage, baseColor, vertColor, pStage->stateBits);
 
+			// REACTION: a stage that draws the map's light atlas brings it to the BSP's light (tr_bsp.c)
+			if (tr.lightAtlas && (pStage->bundle[0].image[0] == tr.lightAtlas || pStage->bundle[TB_LIGHTMAP].image[0] == tr.lightAtlas))
+			{
+				VectorScale(baseColor, tr.lightAtlasScale, baseColor);
+				VectorScale(vertColor, tr.lightAtlasScale, vertColor);
+			}
+
 			GLSL_SetUniformVec4(sp, UNIFORM_BASECOLOR, baseColor);
 			GLSL_SetUniformVec4(sp, UNIFORM_VERTCOLOR, vertColor);
 		}

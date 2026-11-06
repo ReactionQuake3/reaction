@@ -199,6 +199,8 @@ R_LoadLightmaps
 ===============
 */
 #define	DEFAULT_LIGHTMAP_SIZE	128
+// REACTION: a light atlas is baked as the BSP's light at 1.0's defaults, r_mapOverBrightBits 2 less r_overBrightBits 1
+#define	LIGHT_ATLAS_SHIFT		1
 static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 	imgFlags_t  imgFlags = IMGFLAG_NOLIGHTSCALE | IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE;
 	byte		*buf, *buf_p;
@@ -273,6 +275,30 @@ static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 
 	if (tr.worldDeluxeMapping)
 		tr.deluxemaps = ri.Hunk_Alloc( tr.numLightmaps * sizeof(image_t *), h_low );
+
+	// REACTION: a map's baked light as one compressed atlas in the fat layout, in place of the BSP's
+	// pages: the light can change with no change to the BSP, its checksum or its collision. A pure
+	// server hides a pack it does not run, and then the BSP's own light draws.
+	if (r_mergeLightmaps->integer && tr.numLightmaps == 1 && !tr.worldDeluxeMapping)
+	{
+		char atlasName[MAX_QPATH];
+		image_t *atlas;
+
+		Com_sprintf(atlasName, sizeof(atlasName), "maps/%s/lightmap.dds", s_worldData.baseName);
+		atlas = R_FindImageFile(atlasName, IMGTYPE_COLORALPHA,
+			IMGFLAG_MIPMAP | IMGFLAG_NOLIGHTSCALE | IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE);
+
+		if (atlas)
+		{
+			// The BSP's light is shifted by r_mapOverBrightBits - tr.overbrightBits (R_ColorShiftLightingBytes); the
+			// atlas holds it already shifted by LIGHT_ATLAS_SHIFT, so the stages that draw it make up the difference.
+			tr.lightAtlas = atlas;
+			tr.lightAtlasScale = (float)(1 << (r_mapOverBrightBits->integer - tr.overbrightBits)) / (1 << LIGHT_ATLAS_SHIFT);
+			tr.lightmaps[0] = atlas;
+			ri.Free(image);
+			return;
+		}
+	}
 
 	textureInternalFormat = GL_RGBA8;
 	if (r_hdr->integer && !qglesMajorVersion)

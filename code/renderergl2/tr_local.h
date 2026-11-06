@@ -1599,6 +1599,8 @@ typedef struct {
 	int						lightmapSize;
 	image_t					**lightmaps;
 	image_t					**deluxemaps;
+	image_t					*lightAtlas;		// REACTION: the map's light from a pack (tr_bsp.c), or NULL
+	float					lightAtlasScale;	// brings the atlas's light to the BSP's at this overbright setting
 
 	int						fatLightmapCols;
 	int						fatLightmapRows;
