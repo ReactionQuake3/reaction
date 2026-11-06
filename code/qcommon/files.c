@@ -206,6 +206,7 @@ static const unsigned int missionpak_checksums[] =
 //#define PRE_RELEASE_TADEMO
 
 #define MAX_ZPATH			256
+#define FS_MODERN_PACK_PREFIX	"zz-modern-"	// REACTION: pk3 names of the look fs_modernPacks switches
 #define	MAX_SEARCH_PATHS	4096
 #define MAX_FILEHASH_SIZE	1024
 
@@ -258,6 +259,7 @@ static	cvar_t		*fs_microsoftstorepath;
 static	cvar_t		*fs_basepath;
 static	cvar_t		*fs_basegame;
 static	cvar_t		*fs_gamedirvar;
+static	cvar_t		*fs_modernPacks;
 static	searchpath_t	*fs_searchpaths;
 static	int			fs_readCount;			// total bytes read
 static	int			fs_loadCount;			// total files read
@@ -341,6 +343,12 @@ FS_PakIsPure
 */
 qboolean FS_PakIsPure( pack_t *pack ) {
 	int i;
+
+	// REACTION: the Legacy look draws the game from its original data, so a pack of the modern look
+	// counts as not there. Every file read and listing asks here, so a vid_restart is enough to switch.
+	if ( !fs_modernPacks->integer && !Q_stricmpn( pack->pakBasename, FS_MODERN_PACK_PREFIX, sizeof( FS_MODERN_PACK_PREFIX ) - 1 ) ) {
+		return qfalse;
+	}
 
 	if ( fs_numServerPaks ) {
 		for ( i = 0 ; i < fs_numServerPaks ; i++ ) {
@@ -3377,6 +3385,7 @@ static void FS_Startup( const char *gameName )
 	fs_packFiles = 0;
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
+	fs_modernPacks = Cvar_Get( "fs_modernPacks", "1", CVAR_ARCHIVE );
 	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT|CVAR_PROTECTED );
 	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
 	fs_homeconfigpath = Cvar_Get ("fs_homeconfigpath", configPath, CVAR_INIT|CVAR_PROTECTED );
