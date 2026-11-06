@@ -212,10 +212,23 @@ Group # 1 - Graphics
 	*/
 
 
+	// The look: a choice of its own, which no Quality preset sets, so it does not make Quality Custom. Apply switches it. //
+
+	BEGIN_OPTION("Look", "fs_modernPacks", ITEM_TYPE_MULTI, 12, 1)
+		OPTION_BELOW("gr1_ctrl1")
+		cvarFloatList {
+			"Legacy"		0
+			"Modern"		1
+		}
+		ASSIGN_HINT("hint_look")
+	END_OPTION
+	ADD_HINT("hint_look", "Modern: sharper art, new light and sky. Legacy: the game as it first looked. Apply to switch", "group1")
+
+
 	// Resolution //
 
 	BEGIN_SIMPLE_OPTION(2, 1)
-		OPTION_BELOW("gr1_ctrl1")
+		OPTION_BELOW("gr1_ctrl12")
 		text "Resolution:"
 		ownerDraw UI_RESOLUTION
 		ASSIGN_HINT("hint_res")
