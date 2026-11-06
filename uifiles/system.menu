@@ -173,7 +173,7 @@ Group # 1 - Graphics
 		cvarFloatList {
 			"Very Low"		2
 			"Low"			3
-			"Normal"		1
+			"Medium"		1
 			"High"			4
 			"Very High"		5
 			"Custom"		0
