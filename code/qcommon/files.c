@@ -260,6 +260,7 @@ static	cvar_t		*fs_basepath;
 static	cvar_t		*fs_basegame;
 static	cvar_t		*fs_gamedirvar;
 static	cvar_t		*fs_modernPacks;
+static	cvar_t		*r_modernLookSupported;
 static	searchpath_t	*fs_searchpaths;
 static	int			fs_readCount;			// total bytes read
 static	int			fs_loadCount;			// total files read
@@ -345,8 +346,10 @@ qboolean FS_PakIsPure( pack_t *pack ) {
 	int i;
 
 	// REACTION: the Legacy look draws the game from its original data, so a pack of the modern look
-	// counts as not there. Every file read and listing asks here, so a vid_restart is enough to switch.
-	if ( !fs_modernPacks->integer && !Q_stricmpn( pack->pakBasename, FS_MODERN_PACK_PREFIX, sizeof( FS_MODERN_PACK_PREFIX ) - 1 ) ) {
+	// counts as not there. So it does when the renderer can't draw that look (r_modernLookSupported).
+	// Every file read and listing asks here, so a vid_restart is enough to switch.
+	if ( ( !fs_modernPacks->integer || !r_modernLookSupported->integer ) &&
+		!Q_stricmpn( pack->pakBasename, FS_MODERN_PACK_PREFIX, sizeof( FS_MODERN_PACK_PREFIX ) - 1 ) ) {
 		return qfalse;
 	}
 
@@ -3386,6 +3389,8 @@ static void FS_Startup( const char *gameName )
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
 	fs_modernPacks = Cvar_Get( "fs_modernPacks", "1", CVAR_ARCHIVE );
+	// REACTION: set by the renderer when it starts; a dedicated server has none and reads no art
+	r_modernLookSupported = Cvar_Get( "r_modernLookSupported", "1", CVAR_ROM );
 	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT|CVAR_PROTECTED );
 	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
 	fs_homeconfigpath = Cvar_Get ("fs_homeconfigpath", configPath, CVAR_INIT|CVAR_PROTECTED );

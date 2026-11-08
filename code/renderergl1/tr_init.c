@@ -1241,6 +1241,14 @@ void R_Init( void ) {
 
 	InitOpenGL();
 
+	// REACTION: this renderer loads no DDS, and the modern look's packs hold their art as DDS, with shader scripts
+	// that name images only those packs hold. So it draws the original look whole, and says so once: this runs on
+	// every map load, and the value is 1 only when this renderer starts after the file system or the other renderer.
+	if ( ri.Cvar_VariableIntegerValue( "r_modernLookSupported" ) ) {
+		ri.Printf( PRINT_WARNING, "WARNING: the OpenGL 1 renderer can't draw the modern look, so the game keeps its original look\n" );
+	}
+	ri.Cvar_Set( "r_modernLookSupported", "0" );
+
 	R_InitImages();
 
 	R_InitShaders();
