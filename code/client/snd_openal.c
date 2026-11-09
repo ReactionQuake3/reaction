@@ -3438,7 +3438,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 		// !!! FIXME:  so we'll just check the function pointer for now.
 		if (qalcCaptureOpenDevice == NULL)
 #else
-		if (!qalcIsExtensionPresent(NULL, "ALC_EXT_capture"))
+		if (!qalcIsExtensionPresent(NULL, "ALC_EXT_CAPTURE"))
 #endif
 		{
 			Com_Printf("No ALC_EXT_capture support, can't record audio.\n");
