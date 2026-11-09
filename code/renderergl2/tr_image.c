@@ -2958,6 +2958,23 @@ void R_CreateBuiltinImages( void ) {
 
 /*
 ===============
+R_GammaInPicture
+
+REACTION: whether the brightness (r_gamma) is drawn into the picture as it is
+shown (RB_PresentToScreen) in place of the display's gamma ramp: whenever the
+frame is drawn into a texture first, as it is with framebuffer objects
+(FBO_Init). The ramp is the whole display's, desktop included;
+SDL sets it only while the window has the focus, and Windows and drivers reset it
+(alt-tab, fullscreen, mode changes) where nothing sets it again. Without a working
+ramp, the software path keeps the brightness in the textures.
+===============
+*/
+qboolean R_GammaInPicture( void ) {
+	return glConfig.deviceSupportsGamma && FBO_PresentSource() != NULL;
+}
+
+/*
+===============
 R_SetColorMappings
 ===============
 */
@@ -2996,6 +3013,15 @@ void R_SetColorMappings( void ) {
 	}
 
 	g = r_gamma->value;
+
+	// REACTION: the picture carries the brightness where it can (R_GammaInPicture);
+	// the table the ramp and screenshots apply is even then
+	if ( R_GammaInPicture() ) {
+		tr.pictureGamma = g;
+		g = 1;
+	} else {
+		tr.pictureGamma = 1;
+	}
 
 	for ( i = 0; i < 256; i++ ) {
 		if ( g == 1 ) {

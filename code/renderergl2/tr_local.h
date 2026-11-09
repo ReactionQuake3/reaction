@@ -709,6 +709,7 @@ typedef enum
 	UNIFORM_BONEMATRIX,
 
 	UNIFORM_GREYSCALE,
+	UNIFORM_GAMMA,
 
 	UNIFORM_COUNT
 } uniform_t;
@@ -1627,6 +1628,7 @@ typedef struct {
 	float					identityLight;		// 1.0 / ( 1 << overbrightBits )
 	int						identityLightByte;	// identityLight * 255
 	int						overbrightBits;		// r_overbrightBits->integer, but set to 0 if no hw gamma
+	float					pictureGamma;		// REACTION: r_gamma drawn into the picture as it is shown, 1 when the display's ramp carries it (R_SetColorMappings)
 
 	orientationr_t			or;					// for current entity
 
@@ -1992,6 +1994,7 @@ void    	R_Init( void );
 void		R_UpdateSubImage( image_t *image, byte *pic, int x, int y, int width, int height, GLenum picFormat );
 
 void		R_SetColorMappings( void );
+qboolean	R_GammaInPicture( void );
 void		R_GammaCorrect( byte *buffer, int bufSize );
 
 void	R_ImageList_f( void );
