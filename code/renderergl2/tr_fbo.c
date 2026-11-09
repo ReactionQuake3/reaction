@@ -318,6 +318,17 @@ void FBO_Init(void)
 		R_CheckFBO(tr.screenScratchFbo);
 	}
 
+	// REACTION: temporal anti-aliasing (RB_TemporalAA) draws into one while reading the other
+	if (tr.temporalHistoryImage[0])
+	{
+		for (i = 0; i < 2; i++)
+		{
+			tr.temporalHistoryFbo[i] = FBO_Create(va("_temporalHistory%d", i), tr.temporalHistoryImage[i]->width, tr.temporalHistoryImage[i]->height);
+			FBO_AttachImage(tr.temporalHistoryFbo[i], tr.temporalHistoryImage[i], GL_COLOR_ATTACHMENT0, 0);
+			R_CheckFBO(tr.temporalHistoryFbo[i]);
+		}
+	}
+
 	if (tr.sunRaysImage)
 	{
 		tr.sunRaysFbo = FBO_Create("_sunRays", tr.renderDepthImage->width, tr.renderDepthImage->height);

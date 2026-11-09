@@ -711,6 +711,11 @@ typedef enum
 	UNIFORM_GREYSCALE,
 	UNIFORM_GAMMA,
 
+	UNIFORM_REPROJECTIONMATRIX,	// REACTION: temporal anti-aliasing, this frame's clip space to the last frame's
+	UNIFORM_TEMPORALBLEND,
+	UNIFORM_TEMPORALJITTER,		// REACTION: pixels the static world is drawn off, for textures to read as if it were not
+	UNIFORM_TEMPORALDEPTHRANGE,	// REACTION: a model's nearest and farthest depth, what temporal anti-aliasing leaves alone
+
 	UNIFORM_COUNT
 } uniform_t;
 
@@ -815,6 +820,9 @@ typedef struct {
 	float		surface[4];
 } fog_t;
 
+// REACTION: the depths the view weapon is drawn in (RF_DEPTHHACK), from 0; temporal anti-aliasing tells it by them
+#define DEPTHHACK_RANGE 0.3f
+
 typedef enum {
 	VPF_NONE            = 0x00,
 	VPF_NOVIEWMODEL     = 0x01,
@@ -824,7 +832,8 @@ typedef enum {
 	VPF_ORTHOGRAPHIC    = 0x10,
 	VPF_USESUNLIGHT     = 0x20,
 	VPF_FARPLANEFRUSTUM = 0x40,
-	VPF_NOCUBEMAPS      = 0x80
+	VPF_NOCUBEMAPS      = 0x80,
+	VPF_TEMPORALJITTER  = 0x100	// REACTION: the main view, whose static world is drawn a sub-pixel off for temporal anti-aliasing (r_temporalAA)
 } viewParmFlags_t;
 
 typedef struct {
@@ -848,6 +857,7 @@ typedef struct {
 	float		zFar;
 	float       zNear;
 	stereoFrame_t	stereoFrame;
+	float		temporalJitter[2];	// REACTION: added to projectionMatrix[8] and [9] with VPF_TEMPORALJITTER
 } viewParms_t;
 
 
@@ -1546,6 +1556,7 @@ typedef struct {
 	image_t					*renderDepthImage;
 	image_t					*pshadowMaps[MAX_DRAWN_PSHADOWS];
 	image_t					*screenScratchImage;
+	image_t					*temporalHistoryImage[2];	// REACTION: r_temporalAA's blended frames, written in turn
 	image_t					*textureScratchImage[2];
 	image_t                 *quarterImage[2];
 	image_t					*calcLevelsImage;
@@ -1565,6 +1576,7 @@ typedef struct {
 	FBO_t					*depthFbo;
 	FBO_t					*pshadowFbos[MAX_DRAWN_PSHADOWS];
 	FBO_t					*screenScratchFbo;
+	FBO_t					*temporalHistoryFbo[2];
 	FBO_t					*textureScratchFbo[2];
 	FBO_t                   *quarterFbo[2];
 	FBO_t					*calcLevelsFbo;
@@ -1619,6 +1631,8 @@ typedef struct {
 	shaderProgram_t depthBlurShader[4];
 	shaderProgram_t testcubeShader;
 	shaderProgram_t greyscaleShader;
+	shaderProgram_t temporalAAShader;
+	shaderProgram_t temporalKeepShader;
 
 
 	// -----------------------------------------
@@ -1799,6 +1813,7 @@ extern  cvar_t  *r_cameraExposure;
 
 extern  cvar_t  *r_depthPrepass;
 extern  cvar_t  *r_ssao;
+extern  cvar_t  *r_temporalAA;
 
 extern  cvar_t  *r_normalMapping;
 extern  cvar_t  *r_specularMapping;
@@ -1923,6 +1938,7 @@ int R_CullPointAndRadius( const vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( const vec3_t origin, float radius );
 
 void R_SetupProjection(viewParms_t *dest, float zProj, float zFar, qboolean computeFrustum);
+void R_ProjectionWithoutJitter(const viewParms_t *parms, mat4_t out);
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *or );
 
 /*
@@ -2094,6 +2110,7 @@ extern	shaderCommands_t	tess;
 
 void RB_BeginSurface(shader_t *shader, int fogNum, int cubemapIndex );
 void RB_EndSurface(void);
+void RB_SetTemporalJitter( shaderProgram_t *sp );
 void RB_CheckOverflow( int verts, int indexes );
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
 

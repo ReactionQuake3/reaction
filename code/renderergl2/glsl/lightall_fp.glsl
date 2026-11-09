@@ -47,6 +47,10 @@ uniform vec4      u_CubeMapInfo;
 
 uniform int       u_AlphaTest;
 
+#if defined(USE_TEMPORAL_JITTER)
+uniform vec2      u_TemporalJitter;     // REACTION: pixels the static world is drawn off (RB_SetTemporalJitter)
+#endif
+
 varying vec4      var_TexCoords;
 
 varying vec4      var_Color;
@@ -284,6 +288,12 @@ void main()
 #endif
 
 	vec2 texCoords = var_TexCoords.xy;
+
+#if defined(USE_TEMPORAL_JITTER)
+	// the texture as if the view were not offset; an alpha-tested edge is geometry and keeps the offset. Lightmaps
+	// keep it too: on a thin strip seen at a grazing angle this would read light from far beyond the strip.
+	texCoords += (dFdx(texCoords) * u_TemporalJitter.x + dFdy(texCoords) * u_TemporalJitter.y) * ((u_AlphaTest == 0) ? 1.0 : 0.0);
+#endif
 
 #if defined(USE_PARALLAXMAP)
 	vec3 offsetDir = E * tangentToWorld;

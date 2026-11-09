@@ -2892,6 +2892,14 @@ void R_CreateBuiltinImages( void ) {
 		if (r_shadowBlur->integer || r_hdr->integer)
 			tr.screenScratchImage = R_CreateImage("screenScratch", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, rgbFormat);
 
+		// REACTION: temporal anti-aliasing's blended frames (r_temporalAA), read and written in turn. Floating point
+		// also without HDR: in 8 bits, a 10 % share of a difference under 5 levels rounds away and leaves a ghost.
+		if (r_temporalAA->integer)
+		{
+			for (x = 0; x < 2; x++)
+				tr.temporalHistoryImage[x] = R_CreateImage(va("*temporalHistory%d", x), NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, glRefConfig.textureFloat ? GL_RGBA16F_ARB : GL_RGBA8);
+		}
+
 		if (r_shadowBlur->integer || r_ssao->integer)
 			tr.hdrDepthImage = R_CreateImage("*hdrDepth", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F);
 

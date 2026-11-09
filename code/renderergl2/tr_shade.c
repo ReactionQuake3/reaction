@@ -846,6 +846,7 @@ static void ForwardDlight( void ) {
 
 		GLSL_BindProgram(sp);
 
+		RB_SetTemporalJitter(sp);
 		GLSL_SetUniformMat4(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 		GLSL_SetUniformVec3(sp, UNIFORM_VIEWORIGIN, backEnd.viewParms.or.origin);
 		GLSL_SetUniformVec3(sp, UNIFORM_LOCALVIEWORIGIN, backEnd.or.viewOrigin);
@@ -1137,6 +1138,28 @@ static unsigned int RB_CalcShaderVertexAttribs( shaderCommands_t *input )
 	return vertexAttribs;
 }
 
+/*
+===================
+RB_SetTemporalJitter
+
+REACTION: how many pixels temporal anti-aliasing draws the static world off (R_SetupProjection), for the shaders to
+read its textures as if it were not: only geometry takes the offset. Mipmapping has filtered textures already, so
+averaging them over the offsets could only soften them. Zero for anything else: 2D, and entities, which are not offset.
+===================
+*/
+void RB_SetTemporalJitter( shaderProgram_t *sp )
+{
+	vec2_t shift = { 0.0f, 0.0f };
+
+	if ((backEnd.viewParms.flags & VPF_TEMPORALJITTER) && !backEnd.projection2D && backEnd.currentEntity == &tr.worldEntity)
+	{
+		shift[0] = -backEnd.viewParms.temporalJitter[0] * backEnd.viewParms.viewportWidth * 0.5f;
+		shift[1] = -backEnd.viewParms.temporalJitter[1] * backEnd.viewParms.viewportHeight * 0.5f;
+	}
+
+	GLSL_SetUniformVec2(sp, UNIFORM_TEMPORALJITTER, shift);
+}
+
 static void RB_IterateStagesGeneric( shaderCommands_t *input )
 {
 	int stage;
@@ -1254,6 +1277,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		GLSL_BindProgram(sp);
 
+		RB_SetTemporalJitter(sp);
 		GLSL_SetUniformMat4(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 		GLSL_SetUniformVec3(sp, UNIFORM_VIEWORIGIN, backEnd.viewParms.or.origin);
 		GLSL_SetUniformVec3(sp, UNIFORM_LOCALVIEWORIGIN, backEnd.or.viewOrigin);

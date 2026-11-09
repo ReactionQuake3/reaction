@@ -259,6 +259,15 @@ Group # 1 - Graphics
     ADD_HINT("hint_aa", "Use anti-aliasing to reduce jaggedness", "group1")
 
 
+    // Temporal anti-aliasing: a choice of its own, which no Quality preset sets, so it does not make Quality Custom //
+
+	BEGIN_OPTION("Temporal AA", "r_temporalAA", ITEM_TYPE_YESNO, 6, 1)
+		OPTION_BELOW("gr1_ctrl4")
+		ASSIGN_HINT("hint_taa")
+	END_OPTION
+	ADD_HINT("hint_taa", "Steady thin details that flicker as you move", "group1")
+
+
     // Texture filtering mode //
 
 	BEGIN_OPTION("Filtering Mode", "ui_filteringMode", ITEM_TYPE_MULTI, 5, 1)
@@ -270,7 +279,7 @@ Group # 1 - Graphics
 			"8x Anisotropic"		4
 			"16x Anisotropic"		5
 		}
-		OPTION_BELOW("gr1_ctrl4")
+		OPTION_BELOW("gr1_ctrl6")
 		action { uiScript glCustom ; uiScript update "ui_filteringMode" }
 		ASSIGN_HINT("hint_texfilter")
     END_OPTION

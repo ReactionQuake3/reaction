@@ -444,6 +444,28 @@ void RE_EndScene(void)
 	r_firstScenePoly = r_numpolys;
 }
 
+// REACTION: temporal anti-aliasing's offsets repeat after this many frames
+#define TEMPORAL_JITTER_STEPS 8
+
+/*
+=================
+R_Halton
+
+REACTION: the index-th number of the Halton sequence in a base, between 0 and 1;
+consecutive ones spread evenly, so few frames cover a pixel well
+=================
+*/
+static float R_Halton( int index, int base ) {
+	float result = 0.0f, fraction = 1.0f / base;
+
+	while ( index > 0 ) {
+		result += fraction * ( index % base );
+		index /= base;
+		fraction /= base;
+	}
+	return result;
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 RE_RenderScene
@@ -560,6 +582,19 @@ void RE_RenderScene( const refdef_t *fd ) {
 	if(!( fd->rdflags & RDF_NOWORLDMODEL ) && r_depthPrepass->value && ((r_forceSun->integer) || tr.sunShadows))
 	{
 		parms.flags = VPF_USESUNLIGHT;
+	}
+
+	// REACTION: temporal anti-aliasing (RB_TemporalAA, in post-processing) blends the main world view's static world with
+	// the frames before it; each frame its geometry is drawn a different fraction of a pixel off (Halton bases 2 and 3)
+	if (tr.temporalHistoryFbo[0] && r_postProcess->integer && !( fd->rdflags & RDF_NOWORLDMODEL ) && parms.stereoFrame == STEREO_CENTER
+		&& parms.viewportX == 0 && parms.viewportY == 0
+		&& parms.viewportWidth == glConfig.vidWidth && parms.viewportHeight == glConfig.vidHeight)
+	{
+		int step = tr.frameCount % TEMPORAL_JITTER_STEPS + 1;
+
+		parms.flags |= VPF_TEMPORALJITTER;
+		parms.temporalJitter[0] = ( R_Halton( step, 2 ) - 0.5f ) * 2.0f / parms.viewportWidth;
+		parms.temporalJitter[1] = ( R_Halton( step, 3 ) - 0.5f ) * 2.0f / parms.viewportHeight;
 	}
 
 	R_RenderView( &parms );

@@ -450,6 +450,7 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 		vec4_t st[2];
 
 		GLSL_BindProgram(sp);
+		RB_SetTemporalJitter(sp);
 		
 		GLSL_SetUniformMat4(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 		
