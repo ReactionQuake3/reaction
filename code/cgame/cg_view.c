@@ -984,6 +984,62 @@ static void CG_DamageBlendBlob(void)
 
 /*
 ===============
+CG_ViewBetweenTicks
+
+REACTION: while the engine draws between movement ticks (cg.drawBetweenTicks),
+turn the view by the client's angles of this frame, through the same step a
+command's angles take, and place it between the last two ticks' predicted
+origins at this frame's time. Movement is untouched: a command still goes out
+once per tick.
+===============
+*/
+static void CG_ViewBetweenTicks(void)
+{
+	playerState_t ps;
+	usercmd_t cmd;
+	vec3_t angles, step;
+	int i, span;
+	float f;
+
+	// asking also tells the engine this cgame draws between ticks
+	trap_RQ3_GetViewAngles(angles);
+
+	// only a view of the newest predicted tick (CG_PredictPlayerState); a demo, a
+	// followed player, the zcam or unpredicted play show the snapshots as they are
+	if (cg.predictedPlayerState.commandTime != cg.tickCommandTime[1]) {
+		return;
+	}
+
+	trap_GetUserCmd(trap_GetCurrentCmdNumber(), &cmd);
+	for (i = 0; i < 3; i++) {
+		cmd.angles[i] = ANGLE2SHORT(angles[i]);
+	}
+	ps = cg.predictedPlayerState;
+	PM_UpdateViewAngles(&ps, &cmd);
+	VectorCopy(ps.viewangles, cg.refdefViewAngles);
+
+	span = cg.tickCommandTime[1] - cg.tickCommandTime[0];
+	VectorSubtract(cg.tickOrigin[1], cg.tickOrigin[0], step);
+	// a step up is taken at once and smoothed by CG_StepOffset, as on a frame
+	// per tick; eased here as well, the view would first drop by the step
+	step[2] -= cg.tickStepUp;
+	if (span <= 0 || cg.hyperspace) {
+		return;
+	}
+	// this frame shows the moment one tick before its time, so the newest tick
+	// is reached as the next one is made
+	f = (float)(cg.time - cg.tickCommandTime[1]) / span;
+	if (f < 0) {
+		f = 0;
+	} else if (f > 1) {
+		f = 1;
+	}
+	// the predicted origin carries the mover offset the newest tick got
+	VectorMA(cg.predictedPlayerState.origin, f - 1, step, cg.refdef.vieworg);
+}
+
+/*
+===============
 CG_CalcViewValues
 
 Sets cg.refdef view values
@@ -1031,6 +1087,10 @@ static int CG_CalcViewValues(void)
 
 	VectorCopy(ps->origin, cg.refdef.vieworg);
 	VectorCopy(ps->viewangles, cg.refdefViewAngles);
+
+	if (cg.drawBetweenTicks) {
+		CG_ViewBetweenTicks();
+	}
 
 	if (cg_cameraOrbit.integer) {
 		if (cg.time > cg.nextOrbitTime) {

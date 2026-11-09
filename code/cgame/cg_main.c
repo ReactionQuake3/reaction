@@ -3012,6 +3012,7 @@ Will perform callbacks to make the loading info screen update.
 void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 {
 	const char *s;
+	char engineCaps[8];
 
 	// clear everything
 	memset(&cgs, 0, sizeof(cgs));
@@ -3023,6 +3024,11 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	AxisClear(cg.headAxis);
 	
 	cg.clientNum = clientNum;
+
+	// REACTION: an engine that draws between movement ticks says so (read-only
+	// cl_drawBetweenTicks); others lack trap_RQ3_GetViewAngles
+	trap_Cvar_VariableStringBuffer("cl_drawBetweenTicks", engineCaps, sizeof(engineCaps));
+	cg.drawBetweenTicks = atoi(engineCaps) != 0;
 
 	cgs.processedSnapshotNum = serverMessageNum;
 	cgs.serverCommandSequence = serverCommandSequence;

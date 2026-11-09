@@ -3077,6 +3077,40 @@ int Com_TimeVal(int minMsec)
 }
 
 /*
+================
+Com_TickMsec
+
+The time one frame at com_maxfps lasts. REACTION: also the length of a movement
+step while the client draws between them (CL_CreateNewCommands).
+================
+*/
+int Com_TickMsec( void )
+{
+	if(com_maxfps->integer > 0)
+		return 1000 / com_maxfps->integer;
+
+	return 1;
+}
+
+/*
+================
+Com_ExecuteCommands
+
+Runs the command buffer. REACTION: while the client draws between movement
+ticks, only on frames that reach one (CL_TickDue), so commands and their waits
+keep the pace of com_maxfps, as when every frame was a tick.
+================
+*/
+static void Com_ExecuteCommands( void )
+{
+#ifndef DEDICATED
+	if(!CL_TickDue())
+		return;
+#endif
+	Cbuf_Execute();
+}
+
+/*
 =================
 Com_Frame
 =================
@@ -3121,14 +3155,21 @@ void Com_Frame( void ) {
 			minMsec = SV_FrameMsec();
 		else
 		{
+			// REACTION: a client drawing between movement ticks draws at the display's rate
+#ifndef DEDICATED
+			int drawMsec = CL_DrawMsec();
+#else
+			int drawMsec = 0;
+#endif
+
 			if(com_minimized->integer && com_maxfpsMinimized->integer > 0)
 				minMsec = 1000 / com_maxfpsMinimized->integer;
 			else if(com_unfocused->integer && com_maxfpsUnfocused->integer > 0)
 				minMsec = 1000 / com_maxfpsUnfocused->integer;
-			else if(com_maxfps->integer > 0)
-				minMsec = 1000 / com_maxfps->integer;
+			else if(drawMsec > 0)
+				minMsec = drawMsec;
 			else
-				minMsec = 1;
+				minMsec = Com_TickMsec();
 			
 			timeVal = com_frameTime - lastTime;
 			bias += timeVal - minMsec;
@@ -3171,7 +3212,7 @@ void Com_Frame( void ) {
 	
 	msec = com_frameTime - lastTime;
 
-	Cbuf_Execute ();
+	Com_ExecuteCommands ();
 
 	if (com_altivec->modified)
 	{
@@ -3217,7 +3258,7 @@ void Com_Frame( void ) {
 		timeBeforeEvents = Sys_Milliseconds ();
 	}
 	Com_EventLoop();
-	Cbuf_Execute ();
+	Com_ExecuteCommands ();
 
 
 	//

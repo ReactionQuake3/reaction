@@ -560,6 +560,29 @@ static int IsUnacceptableError (playerState_t *ps, playerState_t *pps) {
 
 /*
 =================
+CG_StepUpSince
+
+REACTION: how far up the step events added to ps since eventSequence say the
+player stepped; CG_StepOffset (cg_view.c) smooths that much of the view
+=================
+*/
+static float CG_StepUpSince(const playerState_t * ps, int eventSequence)
+{
+	int i;
+	float up;
+
+	up = 0;
+	if (eventSequence < ps->eventSequence - MAX_PS_EVENTS) {
+		eventSequence = ps->eventSequence - MAX_PS_EVENTS;
+	}
+	for (i = eventSequence; i < ps->eventSequence; i++) {
+		up += CG_StepEventHeight(ps->events[i & (MAX_PS_EVENTS - 1)]);
+	}
+	return up;
+}
+
+/*
+=================
 CG_PredictPlayerState
 
 Generates cg.predictedPlayerState for the current cg.time
@@ -594,6 +617,9 @@ void CG_PredictPlayerState(void)
 // JBravo: unlagged
 	int stateIndex = 0, predictCmd = 0;
 	int numPredicted = 0, numPlayedBack = 0;
+	int stepSequence;
+	int tickStartTime;
+	vec3_t tickStartOrigin;
 
 	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
 
@@ -822,6 +848,12 @@ void CG_PredictPlayerState(void)
 		else
 			cg_pmove.predict = qfalse;
 
+		// REACTION: the events this command's move adds start here (cg.tickStepUp)
+		stepSequence = cg_pmove.ps->eventSequence;
+		// REACTION: and the tick before it ends here (cg.tickOrigin)
+		tickStartTime = cg_pmove.ps->commandTime;
+		VectorCopy(cg_pmove.ps->origin, tickStartOrigin);
+
 // JBravo: unlagged
 		if (cg_optimizePrediction.integer && !cg_latentCmds.integer) {
 			if (cmdNum >= predictCmd || (stateIndex + 1) % NUM_SAVED_STATES == cg.stateHead) {
@@ -848,6 +880,17 @@ void CG_PredictPlayerState(void)
 		}
 
 		moved = qtrue;
+
+		// REACTION: the last two ticks' origins, to draw between them (CG_CalcViewValues): where this
+		// command's move started and ended. Each frame predicts again from the snapshot, so the same tick
+		// can be the newest in several frames; the older one comes from this move, never the frame before
+		if (cg.drawBetweenTicks) {
+			cg.tickCommandTime[0] = tickStartTime;
+			VectorCopy(tickStartOrigin, cg.tickOrigin[0]);
+			cg.tickCommandTime[1] = cg_pmove.ps->commandTime;
+			VectorCopy(cg_pmove.ps->origin, cg.tickOrigin[1]);
+			cg.tickStepUp = CG_StepUpSince(cg_pmove.ps, stepSequence);
+		}
 
 		// add push trigger movement effects
 		CG_TouchTriggerPrediction();

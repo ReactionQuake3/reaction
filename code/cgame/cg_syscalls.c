@@ -537,3 +537,8 @@ void trap_RQ3_Key_KeynumToStringBuf(int keynum, char *buf, int buflen)
 {
 	syscall(CG_RQ3_KEY_KEYNUMTOSTRINGBUF, keynum, buf, buflen);
 }
+
+void trap_RQ3_GetViewAngles(vec3_t angles)
+{
+	syscall(CG_RQ3_GETVIEWANGLES, angles);
+}
