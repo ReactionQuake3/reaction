@@ -376,6 +376,9 @@ void CL_CM_LoadMap( const char *mapname ) {
 	CM_LoadMap( mapname, qtrue, &checksum );
 }
 
+// REACTION: set once the running cgame asks for the view angles (CL_DrawsBetweenTicks)
+static qboolean	cgameDrawsBetweenTicks;
+
 /*
 ====================
 CL_ShutdownCGame
@@ -385,12 +388,66 @@ CL_ShutdownCGame
 void CL_ShutdownCGame( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
 	cls.cgameStarted = qfalse;
+	cgameDrawsBetweenTicks = qfalse;
 	if ( !cgvm ) {
 		return;
 	}
 	VM_Call( cgvm, CG_SHUTDOWN );
 	VM_Free( cgvm );
 	cgvm = NULL;
+}
+
+/*
+====================
+CL_DrawsBetweenTicks
+
+REACTION: whether the running cgame draws between movement ticks: it asked for
+the view angles (CG_RQ3_GETVIEWANGLES). Then the client draws at the display's
+rate and sends a command per com_maxfps tick (CL_CreateNewCommands); a cgame
+that never asks keeps one command per frame. Only with a gamestate: a connect
+from a game keeps the old cgame until the new gamestate, and while connecting
+the client must send its packets every frame, or no gamestate ever comes.
+====================
+*/
+qboolean CL_DrawsBetweenTicks( void ) {
+	return cgameDrawsBetweenTicks && clc.state >= CA_PRIMED;
+}
+
+// REACTION: frames drawn per display refresh without vsync (CL_DrawMsec)
+#define UNSYNCED_DRAWS_PER_REFRESH	2
+
+/*
+====================
+CL_DrawMsec
+
+REACTION: the time until the next drawn frame while the cgame draws between
+movement ticks, from the refresh of the display (the renderer's displayFrequency);
+0 when the client draws once per tick, or the display's rate is unknown. With
+vsync the swap waits for the display, so one refresh in whole msecs rounded down
+draws every refresh once. Without it nothing ties a frame to a refresh, so the
+client draws two per refresh, the msecs carrying their fractions to keep that
+pace exactly: every refresh then has a fresh picture (on a 165 Hz panel, one
+picture per refresh repeated 11 % of refreshes, two repeated none). Called once
+per frame.
+====================
+*/
+int CL_DrawMsec( void ) {
+	static float	owed;	// msec fraction carried to the next frame
+	float			period;
+	int				msec;
+
+	if ( !cgameDrawsBetweenTicks || cls.glconfig.displayFrequency <= 0 ) {
+		return 0;
+	}
+	period = 1000.0f / cls.glconfig.displayFrequency;
+	if ( Cvar_VariableIntegerValue( "r_swapInterval" ) ) {
+		return (int)period;
+	}
+
+	period = period / UNSYNCED_DRAWS_PER_REFRESH + owed;
+	msec = (int)period;
+	owed = period - msec;
+	return msec;
 }
 
 /*
@@ -705,6 +762,11 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 
 	case CG_RQ3_KEY_KEYNUMTOSTRINGBUF:
 		CL_RQ3_Key_KeynumToStringBuf( args[1], VMA(2), args[3] );
+		return 0;
+
+	case CG_RQ3_GETVIEWANGLES:
+		VectorCopy( cl.viewangles, (float *)VMA(1) );
+		cgameDrawsBetweenTicks = qtrue;
 		return 0;
 
 	default:

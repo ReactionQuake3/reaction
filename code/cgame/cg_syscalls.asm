@@ -106,3 +106,4 @@ equ	testPrintFloat				-111
 equ acos						-112
 
 equ trap_RQ3_Key_KeynumToStringBuf		-514
+equ trap_RQ3_GetViewAngles				-515

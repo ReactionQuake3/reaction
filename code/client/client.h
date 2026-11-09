@@ -123,6 +123,8 @@ typedef struct {
 	usercmd_t	cmds[CMD_BACKUP];	// each mesage will send several old cmds
 	int			cmdNumber;			// incremented each frame, because multiple
 									// frames may need to be packed into a single packet
+	int			tickTime;			// REACTION: server time of the last movement tick's
+									// command, while the cgame draws between ticks
 
 	outPacket_t	outPackets[PACKET_BACKUP];	// information about each packet we have sent out
 
@@ -603,6 +605,7 @@ void CIN_CloseAllVideos(void);
 //
 void CL_InitCGame( void );
 void CL_ShutdownCGame( void );
+qboolean CL_DrawsBetweenTicks( void );
 qboolean CL_GameCommand( void );
 void CL_CGameRendering( stereoFrame_t stereo );
 void CL_SetCGameTime( void );

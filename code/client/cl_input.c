@@ -23,8 +23,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 
+// the most input time one command takes after a hitch (below 5 fps)
+#define MAX_INPUT_MSEC	200
+
 unsigned	frame_msec;
 int			old_com_frameTime;
+// REACTION: the moment (com_frameTime clock) the input being read ends at: the frame, or a movement tick within it
+static int	input_time;
 
 /*
 ===============================================================================
@@ -168,11 +173,13 @@ float CL_KeyState( kbutton_t *key ) {
 	if ( key->active ) {
 		// still down
 		if ( !key->downtime ) {
-			msec = com_frameTime;
-		} else {
-			msec += com_frameTime - key->downtime;
+			msec = input_time;
+			key->downtime = input_time;
+		} else if ( input_time > key->downtime ) {
+			// a key pressed after this tick's moment counts from the next one
+			msec += input_time - key->downtime;
+			key->downtime = input_time;
 		}
-		key->downtime = com_frameTime;
 	}
 
 #if 0
@@ -386,21 +393,30 @@ void CL_JoystickEvent( int axis, int value, int time ) {
 
 /*
 =================
-CL_JoystickMove
+CL_JoystickAxes
 =================
 */
-void CL_JoystickMove( usercmd_t *cmd ) {
+static void CL_JoystickAxes( float *yaw, float *right, float *forward, float *pitch, float *up ) {
+	*yaw     = j_yaw->value     * cl.joystickAxis[j_yaw_axis->integer];
+	*right   = j_side->value    * cl.joystickAxis[j_side_axis->integer];
+	*forward = j_forward->value * cl.joystickAxis[j_forward_axis->integer];
+	*pitch   = j_pitch->value   * cl.joystickAxis[j_pitch_axis->integer];
+	*up      = j_up->value      * cl.joystickAxis[j_up_axis->integer];
+}
+
+/*
+=================
+CL_JoystickTurn
+
+REACTION: the joystick's turning, apart from its movement (CL_JoystickMove), so
+the view can turn in every drawn frame while movement goes into each command
+=================
+*/
+void CL_JoystickTurn( void ) {
 	float	anglespeed;
+	float	yaw, right, forward, pitch, up;
 
-	float yaw     = j_yaw->value     * cl.joystickAxis[j_yaw_axis->integer];
-	float right   = j_side->value    * cl.joystickAxis[j_side_axis->integer];
-	float forward = j_forward->value * cl.joystickAxis[j_forward_axis->integer];
-	float pitch   = j_pitch->value   * cl.joystickAxis[j_pitch_axis->integer];
-	float up      = j_up->value      * cl.joystickAxis[j_up_axis->integer];
-
-	if ( !(in_speed.active ^ cl_run->integer) ) {
-		cmd->buttons |= BUTTON_WALKING;
-	}
+	CL_JoystickAxes( &yaw, &right, &forward, &pitch, &up );
 
 	if ( in_speed.active ) {
 		anglespeed = 0.001 * cls.frametime * cl_anglespeedkey->value;
@@ -410,17 +426,40 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 
 	if ( !in_strafe.active ) {
 		cl.viewangles[YAW] += anglespeed * yaw;
-		cmd->rightmove = ClampChar( cmd->rightmove + (int)right );
 	} else {
 		cl.viewangles[YAW] += anglespeed * right;
-		cmd->rightmove = ClampChar( cmd->rightmove + (int)yaw );
 	}
 
 	if ( in_mlooking ) {
 		cl.viewangles[PITCH] += anglespeed * forward;
-		cmd->forwardmove = ClampChar( cmd->forwardmove + (int)pitch );
 	} else {
 		cl.viewangles[PITCH] += anglespeed * pitch;
+	}
+}
+
+/*
+=================
+CL_JoystickMove
+=================
+*/
+void CL_JoystickMove( usercmd_t *cmd ) {
+	float	yaw, right, forward, pitch, up;
+
+	CL_JoystickAxes( &yaw, &right, &forward, &pitch, &up );
+
+	if ( !(in_speed.active ^ cl_run->integer) ) {
+		cmd->buttons |= BUTTON_WALKING;
+	}
+
+	if ( !in_strafe.active ) {
+		cmd->rightmove = ClampChar( cmd->rightmove + (int)right );
+	} else {
+		cmd->rightmove = ClampChar( cmd->rightmove + (int)yaw );
+	}
+
+	if ( in_mlooking ) {
+		cmd->forwardmove = ClampChar( cmd->forwardmove + (int)pitch );
+	} else {
 		cmd->forwardmove = ClampChar( cmd->forwardmove + (int)forward );
 	}
 
@@ -572,6 +611,32 @@ void CL_FinishMove( usercmd_t *cmd ) {
 
 /*
 =================
+CL_CheckTurn
+
+After the view turned from oldAngles
+=================
+*/
+static void CL_CheckTurn( const vec3_t oldAngles ) {
+	// check to make sure the angles haven't wrapped
+	if ( cl.viewangles[PITCH] - oldAngles[PITCH] > 90 ) {
+		cl.viewangles[PITCH] = oldAngles[PITCH] + 90;
+	} else if ( oldAngles[PITCH] - cl.viewangles[PITCH] > 90 ) {
+		cl.viewangles[PITCH] = oldAngles[PITCH] - 90;
+	}
+
+	// draw debug graphs of turning for mouse testing
+	if ( cl_debugMove->integer ) {
+		if ( cl_debugMove->integer == 1 ) {
+			SCR_DebugGraph( fabs(cl.viewangles[YAW] - oldAngles[YAW]) );
+		}
+		if ( cl_debugMove->integer == 2 ) {
+			SCR_DebugGraph( fabs(cl.viewangles[PITCH] - oldAngles[PITCH]) );
+		}
+	}
+}
+
+/*
+=================
 CL_CreateCmd
 =================
 */
@@ -583,7 +648,7 @@ usercmd_t CL_CreateCmd( void ) {
 
 	// keyboard angle adjustment
 	CL_AdjustAngles ();
-	
+
 	Com_Memset( &cmd, 0, sizeof( cmd ) );
 
 	CL_CmdButtons( &cmd );
@@ -595,27 +660,66 @@ usercmd_t CL_CreateCmd( void ) {
 	CL_MouseMove( &cmd );
 
 	// get basic movement from joystick
+	CL_JoystickTurn();
 	CL_JoystickMove( &cmd );
 
-	// check to make sure the angles haven't wrapped
-	if ( cl.viewangles[PITCH] - oldAngles[PITCH] > 90 ) {
-		cl.viewangles[PITCH] = oldAngles[PITCH] + 90;
-	} else if ( oldAngles[PITCH] - cl.viewangles[PITCH] > 90 ) {
-		cl.viewangles[PITCH] = oldAngles[PITCH] - 90;
-	} 
+	CL_CheckTurn( oldAngles );
 
 	// store out the final values
 	CL_FinishMove( &cmd );
 
-	// draw debug graphs of turning for mouse testing
-	if ( cl_debugMove->integer ) {
-		if ( cl_debugMove->integer == 1 ) {
-			SCR_DebugGraph( fabs(cl.viewangles[YAW] - oldAngles[YAW]) );
-		}
-		if ( cl_debugMove->integer == 2 ) {
-			SCR_DebugGraph( fabs(cl.viewangles[PITCH] - oldAngles[PITCH]) );
-		}
-	}
+	return cmd;
+}
+
+// REACTION: movement the mouse makes (+strafe, or without free look) between
+// movement ticks, for the next tick's command
+static usercmd_t	pendingMouseMove;
+// REACTION: when the next movement tick is due, on the com_frameTime clock
+static int			nextTickFrameTime;
+
+/*
+=================
+CL_TurnView
+
+REACTION: turns the view by this drawn frame's keys, mouse and joystick, while
+commands go out at movement ticks (CL_CreateNewCommands)
+=================
+*/
+static void CL_TurnView( void ) {
+	vec3_t		oldAngles;
+
+	VectorCopy( cl.viewangles, oldAngles );
+	CL_AdjustAngles();
+	CL_MouseMove( &pendingMouseMove );
+	CL_JoystickTurn();
+	CL_CheckTurn( oldAngles );
+}
+
+/*
+=================
+CL_CreateTickCmd
+
+REACTION: the command for one movement tick, ending at serverTime, with the view
+angles the drawn frames turned to
+=================
+*/
+static usercmd_t CL_CreateTickCmd( int serverTime ) {
+	usercmd_t	cmd;
+
+	Com_Memset( &cmd, 0, sizeof( cmd ) );
+
+	CL_CmdButtons( &cmd );
+	CL_KeyMove( &cmd );
+
+	cmd.forwardmove = ClampChar( cmd.forwardmove + pendingMouseMove.forwardmove );
+	cmd.rightmove = ClampChar( cmd.rightmove + pendingMouseMove.rightmove );
+	Com_Memset( &pendingMouseMove, 0, sizeof( pendingMouseMove ) );
+
+	CL_JoystickMove( &cmd );
+
+	CL_FinishMove( &cmd );
+	// the tick's own time, so every command spans exactly one tick
+	cmd.serverTime = serverTime;
 
 	return cmd;
 }
@@ -625,15 +729,20 @@ usercmd_t CL_CreateCmd( void ) {
 =================
 CL_CreateNewCommands
 
-Create a new usercmd_t structure for this frame
+Create a new usercmd_t structure for this frame. REACTION: or, while the cgame
+draws between movement ticks, one for each com_maxfps tick of server time, so
+movement steps exactly as at that frame rate whatever the drawing rate. Returns
+whether it made a command.
 =================
 */
-void CL_CreateNewCommands( void ) {
+qboolean CL_CreateNewCommands( void ) {
 	int			cmdNum;
+	int			tick;
+	qboolean	created;
 
 	// no need to create usercmds until we have a gamestate
 	if ( clc.state < CA_PRIMED ) {
-		return;
+		return qfalse;
 	}
 
 	frame_msec = com_frameTime - old_com_frameTime;
@@ -646,16 +755,66 @@ void CL_CreateNewCommands( void ) {
 
 	// if running less than 5fps, truncate the extra time to prevent
 	// unexpected moves after a hitch
-	if ( frame_msec > 200 ) {
-		frame_msec = 200;
+	if ( frame_msec > MAX_INPUT_MSEC ) {
+		frame_msec = MAX_INPUT_MSEC;
 	}
 	old_com_frameTime = com_frameTime;
+	input_time = com_frameTime;
 
+	if ( !CL_DrawsBetweenTicks() ) {
+		// generate a command for this frame
+		cl.cmdNumber++;
+		cmdNum = cl.cmdNumber & CMD_MASK;
+		cl.cmds[cmdNum] = CL_CreateCmd ();
+		return qtrue;
+	}
 
-	// generate a command for this frame
-	cl.cmdNumber++;
-	cmdNum = cl.cmdNumber & CMD_MASK;
-	cl.cmds[cmdNum] = CL_CreateCmd ();
+	CL_TurnView();
+
+	// start with one tick, and after a hitch restart with one: the time skipped
+	// goes into that command, as it went into a hitch's frame; a backlog never
+	// outgrows what one packet carries
+	tick = Com_TickMsec();
+	// above 1000 fps a frame is under a msec; a command spans whole msecs
+	if ( tick < 1 ) {
+		tick = 1;
+	}
+	if ( !cl.tickTime ) {
+		Com_Memset( &pendingMouseMove, 0, sizeof( pendingMouseMove ) );
+		cl.tickTime = cl.serverTime - tick;
+	} else if ( cl.serverTime - cl.tickTime > MAX_INPUT_MSEC
+		|| ( cl.serverTime - cl.tickTime ) / tick > MAX_PACKET_USERCMDS ) {
+		cl.tickTime = cl.serverTime - tick;
+	}
+
+	created = qfalse;
+	while ( cl.tickTime + tick <= cl.serverTime ) {
+		cl.tickTime += tick;
+		// the tick's moment on the com_frameTime clock, for the keys
+		input_time = com_frameTime - ( cl.serverTime - cl.tickTime );
+		frame_msec = tick;
+
+		cl.cmdNumber++;
+		cmdNum = cl.cmdNumber & CMD_MASK;
+		cl.cmds[cmdNum] = CL_CreateTickCmd( cl.tickTime );
+		created = qtrue;
+	}
+	// the moment the next tick is due, on the com_frameTime clock (CL_TickDue)
+	nextTickFrameTime = com_frameTime + ( cl.tickTime + tick - cl.serverTime );
+	return created;
+}
+
+/*
+=================
+CL_TickDue
+
+REACTION: whether this frame reaches a movement tick. While the cgame draws
+between ticks, Com_Frame runs the command buffer only then, so commands and
+their waits keep the pace of com_maxfps, as when every frame was a tick.
+=================
+*/
+qboolean CL_TickDue( void ) {
+	return !CL_DrawsBetweenTicks() || com_frameTime >= nextTickFrameTime;
 }
 
 /*
@@ -913,7 +1072,11 @@ void CL_SendCmd( void ) {
 	}
 
 	// we create commands even if a demo is playing,
-	CL_CreateNewCommands();
+	// REACTION: and while the cgame draws between movement ticks, a frame
+	// without a new command has nothing to send
+	if ( !CL_CreateNewCommands() && CL_DrawsBetweenTicks() ) {
+		return;
+	}
 
 	// don't send a packet if the last packet was sent too recently
 	if ( !CL_ReadyToSendPacket() ) {

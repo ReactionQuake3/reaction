@@ -133,7 +133,8 @@ void S_TransferStereo16 (unsigned long *pbuf, int endtime)
 		snd_p += snd_linear_count;
 		ls_paintedtime += (snd_linear_count>>1); // snd_linear_count / dma.channels
 
-		if( CL_VideoRecording( ) )
+		// REACTION: a video gets only the game thread's mix, timed by its frames
+		if( CL_VideoRecording( ) && !s_mixForDevice )
 			CL_WriteAVIAudioFrame( (byte *)snd_out, snd_linear_count << 1 ); // snd_linear_count * (dma.samplebits/8)
 	}
 }

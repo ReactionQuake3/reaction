@@ -885,24 +885,91 @@ static float CG_DrawScore(float y)
 	return y + SMALLCHAR_HEIGHT + 4;
 }
 
+// REACTION: the stretch Show FPS counts pictures and movement steps over (CG_FramesPerSecond, CG_TicksPerSecond)
+#define	METER_SPAN_MSEC	1000
+
+/*
+==================
+CG_FramesPerSecond
+
+REACTION: the pictures drawn per second, counted over a second of frames (an
+average of eight frames' whole milliseconds read 320 to 347 for 330); 0 until
+a second is counted. Called once per drawn frame; a gap restarts the count.
+==================
+*/
+static int CG_FramesPerSecond(void)
+{
+	static int start, frames, fps;
+	int t;
+
+	// don't use serverTime, because that will be drifting to
+	// correct for internet lag changes, timescales, timedemos, etc
+	t = trap_Milliseconds();
+	if (!start || t < start || t - start > 2 * METER_SPAN_MSEC) {
+		start = t;
+		frames = 0;
+		return fps;
+	}
+	frames++;
+	if (t - start >= METER_SPAN_MSEC) {
+		fps = (frames * 1000 + (t - start) / 2) / (t - start);
+		start = t;
+		frames = 0;
+	}
+	return fps;
+}
+
+/*
+==================
+CG_TicksPerSecond
+
+REACTION: the movement steps the client sent per second, from the times of its
+newest commands. While the engine draws between movement ticks the pictures and
+the steps (com_maxfps) come at different rates; a 1.0 engine sends one per frame.
+==================
+*/
+static int CG_TicksPerSecond(void)
+{
+	static int lastCmdNum, ticks;
+	usercmd_t newest, older;
+	int current, n, age, span;
+
+	current = trap_GetCurrentCmdNumber();
+	if (current == lastCmdNum || !trap_GetUserCmd(current, &newest)) {
+		return ticks;
+	}
+	lastCmdNum = current;
+
+	// the oldest command within the stretch, n - 1 steps before the newest
+	span = 0;
+	for (n = 1; n < CMD_BACKUP && trap_GetUserCmd(current - n, &older); n++) {
+		age = newest.serverTime - older.serverTime;
+		// older than the stretch, or from before a map_restart
+		if (age > METER_SPAN_MSEC || age < 0) {
+			break;
+		}
+		span = age;
+	}
+	if (span > 0) {
+		ticks = ((n - 1) * 1000 + span / 2) / span;
+	}
+	return ticks;
+}
+
 /*
 ==================
 CG_DrawFPSandPing
 ==================
 */
-#define	FPS_FRAMES	8			// NiceAss: Increased from 4 for a smoother average.
 #define PING_SNAPS 16
 
 static float CG_DrawFPSandPing(float y)
 {
 	char *sfps = NULL, *sping = NULL;
 	int w;
-	static int previousTimes[FPS_FRAMES];
-	static int index;
-	int i, total, l;
+	int i, l;
 	int fps;
-	static int previous;
-	int t, frameTime, x = 0, num = 0;
+	int x = 0, num = 0;
 	float Color[4];
 	
 	const int expand = 4;
@@ -915,15 +982,7 @@ static float CG_DrawFPSandPing(float y)
 	int avgping = 0;
 
 
-	// don't use serverTime, because that will be drifting to
-	// correct for internet lag changes, timescales, timedemos, etc
-	t = trap_Milliseconds();
-	frameTime = t - previous;
-	previous = t;
-
 	y += 4;
-
-	previousTimes[index % FPS_FRAMES] = frameTime;
 
 	/*if (cg.latestSnapshotNum != currentSnapshotNum && cg.snap) {
 		Pings[index2 % PING_SNAPS] = cg.snap->ping;
@@ -931,29 +990,22 @@ static float CG_DrawFPSandPing(float y)
 		index2++;
 	}*/
 
-	index++;
-
-	if (index > FPS_FRAMES) {
-		// average multiple frames together to smooth changes out a bit
-		total = 0;
-		for (i = 0; i < FPS_FRAMES; i++) {
-			total += previousTimes[i];
-		}
-		if (!total) {
-			total = 1;
-		}
-		fps = 1000 * FPS_FRAMES / total;
-
-		if (cg_drawFPS.integer) {
+	// REACTION: the pictures drawn and the movement steps sent per second, each over the last second; the steps
+	// are what com_maxfps sets, and a demo sends none
+	fps = CG_FramesPerSecond();
+	if (cg_drawFPS.integer && fps > 0) {
+		if (cg.demoPlayback) {
 			sfps = va("%ifps", fps);
-			w = CG_DrawStrlen(sfps) * SMALLCHAR_WIDTH;
-			x = w;
-
-			CG_DrawFuzzyShadow(cgs.screenXMax - x - 12 - expand, y - 1 - expand, w + 6 + expand + expand, SMALLCHAR_HEIGHT + 6 + expand + expand, 12, shadowAlpha);
-			CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, sfps, 1.0F);
-
-			x += 9;
+		} else {
+			sfps = va("%ifps %itick", fps, CG_TicksPerSecond());
 		}
+		w = CG_DrawStrlen(sfps) * SMALLCHAR_WIDTH;
+		x = w;
+
+		CG_DrawFuzzyShadow(cgs.screenXMax - x - 12 - expand, y - 1 - expand, w + 6 + expand + expand, SMALLCHAR_HEIGHT + 6 + expand + expand, 12, shadowAlpha);
+		CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, sfps, 1.0F);
+
+		x += 9;
 	}
 
 	// Draw ping here:

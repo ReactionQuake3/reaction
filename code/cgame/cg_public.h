@@ -184,6 +184,9 @@ typedef enum {
 
 	CG_RQ3_BASE = 512,
 	CG_RQ3_KEY_KEYNUMTOSTRINGBUF,
+	// the client's view angles now; asking for them tells the client this cgame
+	// draws between movement ticks (an engine with cl_drawBetweenTicks 1 has it)
+	CG_RQ3_GETVIEWANGLES,
 } cgameImport_t;
 
 /*

@@ -99,5 +99,12 @@ cp ${TMPDIR}/SDL2-${SDL_VERSION}/lib/x64/SDL2main.lib ${CODE}/libs/win64/
 cp ${TMPDIR}/SDL2-${SDL_VERSION}/x86_64-w64-mingw32/lib/libSDL2.dll.a ${CODE}/libs/win64/
 cp ${TMPDIR}/SDL2-${SDL_VERSION}/x86_64-w64-mingw32/lib/libSDL2main.a ${CODE}/libs/win64/
 
+curl -sL "https://github.com/kcat/openal-soft/releases/download/${OPENAL_VERSION}/openal-soft-${OPENAL_VERSION}-bin.zip" \
+    -o temp.zip && unzip -o temp.zip && rm temp.zip
+
+cp ${TMPDIR}/openal-soft-${OPENAL_VERSION}-bin/bin/Win32/soft_oal.dll ${CODE}/libs/win32/OpenAL32.dll
+cp ${TMPDIR}/openal-soft-${OPENAL_VERSION}-bin/bin/Win64/soft_oal.dll ${CODE}/libs/win64/OpenAL64.dll
+cp ${TMPDIR}/openal-soft-${OPENAL_VERSION}-bin/COPYING ${CODE}/libs/OpenAL-COPYING.txt
+
 cd
 rm -r ${TMPDIR}

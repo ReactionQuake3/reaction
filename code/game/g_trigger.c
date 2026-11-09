@@ -351,11 +351,14 @@ void AimAtTarget(gentity_t * self)
 
 	height = ent->s.origin[2] - origin[2];
 	gravity = g_gravity.value;
-	time = sqrt(height / (.5 * gravity));
-	if (!time) {
+	// With the target at or below this entity, or without gravity, no leap reaches the target: the square root below
+	// would make the push velocity NaN, and a client that sees a player touch the trigger would be sent it.
+	if (height <= 0 || gravity <= 0) {
+		G_Printf("Removing %s at %s: no leap reaches its target %s\n", self->classname, vtos(origin), self->target);
 		G_FreeEntity(self);
 		return;
 	}
+	time = sqrt(height / (.5 * gravity));
 	// set s.origin2 to the push velocity
 	VectorSubtract(ent->s.origin, origin, self->s.origin2);
 	self->s.origin2[2] = 0;

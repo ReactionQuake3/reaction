@@ -195,6 +195,7 @@ extern	channel_t   loop_channels[MAX_CHANNELS];
 extern	int		numLoopChannels;
 
 extern	int		s_paintedtime;
+extern	qboolean	s_mixForDevice;		// REACTION: the device's thread is mixing (S_PaintForDevice)
 extern	vec3_t	listener_forward;
 extern	vec3_t	listener_right;
 extern	vec3_t	listener_up;
@@ -220,6 +221,9 @@ void		SND_setup( void );
 void		SND_shutdown(void);
 
 void S_PaintChannels(int endtime);
+
+// REACTION: the device's thread mixes what it takes when the game thread has not
+void S_PaintForDevice( int samples );
 
 void S_memoryLoad(sfx_t *sfx);
 

@@ -826,6 +826,7 @@ void 		Com_Quit_f( void ) Q_NO_RETURN;
 void		Com_GameRestart(int checksumFeed, qboolean disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
+int			Com_TickMsec( void );		// one frame, or movement step, at com_maxfps
 unsigned	Com_BlockChecksum( const void *buffer, int length );
 char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
 int			Com_Filter(char *filter, char *name, int casesensitive);
@@ -982,6 +983,10 @@ void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu );
 void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit);
 void CL_Frame( int msec );
+// REACTION: msec between drawn frames while the cgame draws between movement ticks, else 0
+int CL_DrawMsec( void );
+// REACTION: whether this frame reaches a movement tick (always, unless drawing between ticks)
+qboolean CL_TickDue( void );
 qboolean CL_GameCommand( void );
 void CL_KeyEvent (int key, qboolean down, unsigned time);
 

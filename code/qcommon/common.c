@@ -24,6 +24,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include <setjmp.h>
+// REACTION: Com_Error leaves a VM call by longjmp. On 64-bit Windows longjmp unwinds the stack frame by frame through
+// SEH, with MinGW and with Visual Studio, which fails on the QVM's generated code (no unwind data) and on a cgame DLL
+// Com_Error has just unloaded: the process ends with STATUS_BAD_FUNCTION_TABLE instead of dropping to the menu.
+// Com_Error needs only the registers restored, and a jump buffer with no frame gets just that.
+#ifdef _WIN64
+#define Com_AbortFrameNoUnwind() ( ( (_JUMP_BUFFER *)abortframe )->Frame = 0 )
+#else
+#define Com_AbortFrameNoUnwind()
+#endif
 #ifndef _WIN32
 #include <netinet/in.h>
 #include <sys/stat.h> // umask
@@ -2671,6 +2680,7 @@ void Com_Init( char *commandLine ) {
 	if ( setjmp (abortframe) ) {
 		Sys_Error ("Error during initialization");
 	}
+	Com_AbortFrameNoUnwind();
 
 	// Clear queues
 	Com_Memset( &eventQueue[ 0 ], 0, MAX_QUEUED_EVENTS * sizeof( sysEvent_t ) );
@@ -3077,6 +3087,40 @@ int Com_TimeVal(int minMsec)
 }
 
 /*
+================
+Com_TickMsec
+
+The time one frame at com_maxfps lasts. REACTION: also the length of a movement
+step while the client draws between them (CL_CreateNewCommands).
+================
+*/
+int Com_TickMsec( void )
+{
+	if(com_maxfps->integer > 0)
+		return 1000 / com_maxfps->integer;
+
+	return 1;
+}
+
+/*
+================
+Com_ExecuteCommands
+
+Runs the command buffer. REACTION: while the client draws between movement
+ticks, only on frames that reach one (CL_TickDue), so commands and their waits
+keep the pace of com_maxfps, as when every frame was a tick.
+================
+*/
+static void Com_ExecuteCommands( void )
+{
+#ifndef DEDICATED
+	if(!CL_TickDue())
+		return;
+#endif
+	Cbuf_Execute();
+}
+
+/*
 =================
 Com_Frame
 =================
@@ -3097,6 +3141,7 @@ void Com_Frame( void ) {
 	if ( setjmp (abortframe) ) {
 		return;			// an ERR_DROP was thrown
 	}
+	Com_AbortFrameNoUnwind();
 
 	timeBeforeFirstEvents =0;
 	timeBeforeServer =0;
@@ -3121,14 +3166,21 @@ void Com_Frame( void ) {
 			minMsec = SV_FrameMsec();
 		else
 		{
+			// REACTION: a client drawing between movement ticks draws at the display's rate
+#ifndef DEDICATED
+			int drawMsec = CL_DrawMsec();
+#else
+			int drawMsec = 0;
+#endif
+
 			if(com_minimized->integer && com_maxfpsMinimized->integer > 0)
 				minMsec = 1000 / com_maxfpsMinimized->integer;
 			else if(com_unfocused->integer && com_maxfpsUnfocused->integer > 0)
 				minMsec = 1000 / com_maxfpsUnfocused->integer;
-			else if(com_maxfps->integer > 0)
-				minMsec = 1000 / com_maxfps->integer;
+			else if(drawMsec > 0)
+				minMsec = drawMsec;
 			else
-				minMsec = 1;
+				minMsec = Com_TickMsec();
 			
 			timeVal = com_frameTime - lastTime;
 			bias += timeVal - minMsec;
@@ -3171,7 +3223,7 @@ void Com_Frame( void ) {
 	
 	msec = com_frameTime - lastTime;
 
-	Cbuf_Execute ();
+	Com_ExecuteCommands ();
 
 	if (com_altivec->modified)
 	{
@@ -3217,7 +3269,7 @@ void Com_Frame( void ) {
 		timeBeforeEvents = Sys_Milliseconds ();
 	}
 	Com_EventLoop();
-	Cbuf_Execute ();
+	Com_ExecuteCommands ();
 
 
 	//
