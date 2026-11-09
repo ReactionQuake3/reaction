@@ -326,9 +326,10 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 		}
 		Q_strncpyz( string, s, sizeof( string ) );
 
-		// get rid of 0x80+ and '%' chars, because old clients don't like them
+		// get rid of '%' chars, because old clients don't like them
+		// REACTION: bytes above 127 pass, so Latin-1 letters in names and chat arrive
 		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 || string[i] == '%' ) {
+			if ( string[i] == '%' ) {
 				string[i] = '.';
 			}
 		}
@@ -352,9 +353,10 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 		}
 		Q_strncpyz( string, s, sizeof( string ) );
 
-		// get rid of 0x80+ and '%' chars, because old clients don't like them
+		// get rid of '%' chars, because old clients don't like them
+		// REACTION: bytes above 127 pass, so Latin-1 letters in names and chat arrive
 		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 || string[i] == '%' ) {
+			if ( string[i] == '%' ) {
 				string[i] = '.';
 			}
 		}
@@ -458,10 +460,7 @@ char *MSG_ReadString( msg_t *msg ) {
 		if ( c == '%' ) {
 			c = '.';
 		}
-		// don't allow higher ascii values
-		if ( c > 127 ) {
-			c = '.';
-		}
+		// REACTION: bytes above 127 pass, so Latin-1 letters in names and chat arrive
 		// break only after reading all expected data from bitstream
 		if ( l >= sizeof(string)-1 ) {
 			break;
@@ -488,10 +487,7 @@ char *MSG_ReadBigString( msg_t *msg ) {
 		if ( c == '%' ) {
 			c = '.';
 		}
-		// don't allow higher ascii values
-		if ( c > 127 ) {
-			c = '.';
-		}
+		// REACTION: bytes above 127 pass, so Latin-1 letters in names and chat arrive
 		// break only after reading all expected data from bitstream
 		if ( l >= sizeof(string)-1 ) {
 			break;
@@ -518,10 +514,7 @@ char *MSG_ReadStringLine( msg_t *msg ) {
 		if ( c == '%' ) {
 			c = '.';
 		}
-		// don't allow higher ascii values
-		if ( c > 127 ) {
-			c = '.';
-		}
+		// REACTION: bytes above 127 pass, so Latin-1 letters in names and chat arrive
 		// break only after reading all expected data from bitstream
 		if ( l >= sizeof(string)-1 ) {
 			break;
