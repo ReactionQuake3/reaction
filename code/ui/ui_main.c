@@ -5661,6 +5661,19 @@ static void UI_Update(const char *name)
 		// them at the spawn points and reflect them on every wall and weapon, also in shadow. Reflections (water,
 		// glass, metal) need each map to place its own probes first, as misc_cubemap entities or in
 		// cubemaps/<map>/env.json, and specular maps or shader gloss on the surfaces meant to shine.
+		// No preset turns on physically based rendering (r_pbr) either: no texture is made for it. It reads the knife's
+		// and arms' grey specular maps as gloss and metalness, and on every other surface its default specular glows
+		// on dark sunlit walls seen against the sky (teamjungle's rock tops). It needs base colour textures and
+		// specular maps with gloss in red and metalness in green.
+		// No preset turns on screen-space ambient occlusion (r_ssao): it darkens creases and corners, so it changes the
+		// look, and renderergl2 takes three depth samples per pixel at half the width and height, which leaves dark dots
+		// and stains along corners that flicker as the view moves. The lightmaps already hold the maps' shadows, so it
+		// adds little, and no menu offers it either (system.menu); r_ssao stays a console setting.
+		// REACTION: a preset changes how demanding the game is, never how it looks or how bright it is: every one keeps
+		// Normal's HDR, tone mapping and fixed exposure. Without tone mapping the HDR picture is
+		// scaled by 2^r_cameraExposure, twice as bright since ioquake3's dfb9bed2 made that default 1. Auto exposure only
+		// darkened bright views, mostly of the sky: the tone mapper holds every darker view at the level fixed exposure
+		// shows. r_autoExposure 1 still turns it on.
 		case 1:	// normal quality
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
@@ -5668,9 +5681,9 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
-			trap_Cvar_SetValue("r_autoExposure", 1);
+			trap_Cvar_SetValue("r_autoExposure", 0);
 			trap_Cvar_SetValue("r_ssao", 0);
-			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
@@ -5696,8 +5709,8 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 0);
 			
 			trap_Cvar_SetValue("r_picmip", 2);
-			trap_Cvar_SetValue("r_hdr", 0);
-			trap_Cvar_SetValue("r_toneMap", 0);
+			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_toneMap", 1);
 			trap_Cvar_SetValue("r_autoExposure", 0);
 			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
@@ -5727,7 +5740,7 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("r_picmip", 1);
 			trap_Cvar_SetValue("r_hdr", 1);
-			trap_Cvar_SetValue("r_toneMap", 0);
+			trap_Cvar_SetValue("r_toneMap", 1);
 			trap_Cvar_SetValue("r_autoExposure", 0);
 			trap_Cvar_SetValue("r_ssao", 0);
 			trap_Cvar_SetValue("r_pbr", 0);
@@ -5758,9 +5771,9 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
-			trap_Cvar_SetValue("r_autoExposure", 1);
-			trap_Cvar_SetValue("r_ssao", 1);
-			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_autoExposure", 0);
+			trap_Cvar_SetValue("r_ssao", 0);
+			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
@@ -5788,9 +5801,9 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_picmip", 0);
 			trap_Cvar_SetValue("r_hdr", 1);
 			trap_Cvar_SetValue("r_toneMap", 1);
-			trap_Cvar_SetValue("r_autoExposure", 1);
-			trap_Cvar_SetValue("r_ssao", 1);
-			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_autoExposure", 0);
+			trap_Cvar_SetValue("r_ssao", 0);
+			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
@@ -5848,7 +5861,7 @@ static void UI_Update(const char *name)
 		}
 	} else if (Q_stricmp(name, "ui_shaderLevel") == 0) {
 		switch (val) {
-		// physically-based rendering
+		// material maps: normal, specular and deluxe mapping
 		case 0:	// disabled
 			trap_Cvar_SetValue("r_pbr", 0);
 			trap_Cvar_SetValue("r_deluxeMapping", 0);
@@ -5857,7 +5870,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_cubeMapping", 0);
 			break;
 		case 1: // enabled
-			trap_Cvar_SetValue("r_pbr", 1);
+			trap_Cvar_SetValue("r_pbr", 0);	// no PBR materials in the data, see the presets
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
@@ -5870,7 +5883,9 @@ static void UI_Update(const char *name)
 		case 0:	// disabled
 			trap_Cvar_SetValue("r_sunShadows", 0);
 			trap_Cvar_SetValue("r_shadowFilter", 0);
-			trap_Cvar_SetValue("r_shadowMapSize", 0);
+			// renderergl2 makes the sun shadow maps at this size whenever r_sunlightMode is on, also with
+			// r_sunShadows off, and fails its restart on a size of 0; keep the smallest size the menu offers
+			trap_Cvar_SetValue("r_shadowMapSize", 512);
 			trap_Cvar_SetValue("r_shadowBlur", 0);
 			break;
 		case 1: // low
