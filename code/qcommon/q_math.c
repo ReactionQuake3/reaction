@@ -558,10 +558,22 @@ AngleSubtract
 Always returns a value from -180 to 180
 =================
 */
+// REACTION: 1048576.0f as bits. Real angle differences stay far below it: the player lean in CG_PlayerAngles would need a
+// speed of 20 million to reach it.
+#define ANGLE_SUBTRACT_LIMIT_BITS	0x49800000
+
 float	AngleSubtract( float a1, float a2 ) {
 	float	a;
+	floatint_t	fi;
 
 	a = a1 - a2;
+	// REACTION: a server can send a NaN or huge angle, and the loops below would never end. Subtracting 360 does not change
+	// a huge float, and the QVM's compiled "less than" counts NaN as less than everything. Comparing the bits works the
+	// same in compiled and interpreted QVMs and in DLLs, and also catches infinity.
+	fi.f = a;
+	if ( ( fi.ui & 0x7fffffff ) >= ANGLE_SUBTRACT_LIMIT_BITS ) {
+		return 0;
+	}
 	while ( a > 180 ) {
 		a -= 360;
 	}
