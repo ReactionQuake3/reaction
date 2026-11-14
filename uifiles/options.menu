@@ -313,11 +313,21 @@ Group # 1 - Gameplay
     ADD_HINT("hint_impactfx", "Enable visual projectile impact effects", "group1")
 
 
+    // Gun smoke //
+
+	BEGIN_OPTION("Gun Smoke", "cg_RQ3_gunSmoke", ITEM_TYPE_YESNO, 17, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl14")
+		ASSIGN_HINT("hint_gunsmoke")
+	END_OPTION
+    ADD_HINT("hint_gunsmoke", "Draw smoke from guns and where bullets hit walls", "group1")
+
+
     // Blood //
 
  	BEGIN_OPTION("Blood Effects", "com_blood", ITEM_TYPE_YESNO, 15, 1)
 		kind YESNO_ICON_RIGHT
-		OPTION_BELOW("gr1_ctrl14")
+		OPTION_BELOW("gr1_ctrl17")
 		ASSIGN_HINT("hint_bloodfx")
 	END_OPTION
     ADD_HINT("hint_bloodfx", "Enable blood effects", "group1")

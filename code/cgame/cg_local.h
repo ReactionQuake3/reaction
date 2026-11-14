@@ -1956,6 +1956,7 @@ extern vmCvar_t cg_RQ3_ssgCrosshair;
 
 //Elder: smoke puffs, sparks, etc.
 extern vmCvar_t cg_RQ3_impactEffects;
+extern vmCvar_t cg_RQ3_gunSmoke;
 
 //Elder: toggle client-side laser drawing
 extern vmCvar_t cg_RQ3_laserAssist;
@@ -2297,6 +2298,7 @@ void CG_ReloadWeapon(centity_t * cent, int reloadStage);	//Elder: added
 void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int weapModification);	//Elder: added weapMod
 void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum);
 void CG_ShotgunFire(entityState_t * es, qboolean ism3);
+qhandle_t CG_GunSmokeShader(void);
 void CG_Bullet(vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum,
 	       impactSound_t soundType);
 
