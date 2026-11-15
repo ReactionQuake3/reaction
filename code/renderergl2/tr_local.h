@@ -1599,6 +1599,8 @@ typedef struct {
 	int						lightmapSize;
 	image_t					**lightmaps;
 	image_t					**deluxemaps;
+	image_t					*lightAtlas;		// REACTION: the map's light from a pack (tr_bsp.c), or NULL
+	float					lightAtlasScale;	// brings the atlas's light to the BSP's at this overbright setting
 
 	int						fatLightmapCols;
 	int						fatLightmapRows;
@@ -1752,6 +1754,7 @@ extern cvar_t	*r_displayRefresh;		// optional display refresh option
 extern  cvar_t  *r_ext_framebuffer_object;
 extern  cvar_t  *r_ext_texture_float;
 extern  cvar_t  *r_ext_framebuffer_multisample;
+extern  cvar_t  *r_ext_texture_compression_bptc;
 extern  cvar_t  *r_arb_seamless_cube_map;
 extern  cvar_t  *r_arb_vertex_array_object;
 extern  cvar_t  *r_ext_direct_state_access;
