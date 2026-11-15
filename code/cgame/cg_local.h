@@ -987,6 +987,18 @@ typedef struct {
 	int tickCommandTime[2];
 	vec3_t tickOrigin[2];
 	float tickStepUp;	// how far the newer tick stepped up: CG_StepOffset smooths that, not the view between ticks
+	// the bob, the lean and the gun's sway are drawn at the same moment: each tick's bob cycle and
+	// velocity, and the velocity at the moment this frame shows (CG_SetViewBob)
+	int tickBobCycle[2];
+	vec3_t tickVelocity[2];
+	vec3_t viewVelocity;
+	// the drawn bob carries on through a short moment off the ground (CG_CarryViewBob): the tick it
+	// last looked at, how fast the cycle last ran and when, what the drawn cycle is ahead of the
+	// player state's by now, and how much of that the newest tick added
+	int bobCarryTick;
+	float bobRate;
+	int bobAdvanceTime;
+	float bobCarry, bobCarryStep;
 
 	int eventSequence;
 	int predictableEvents[MAX_PREDICTED_EVENTS];
