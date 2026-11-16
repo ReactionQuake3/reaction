@@ -40,7 +40,7 @@
 
 	// Timer //
 
-    timedItems 40
+    timedItems 45
     timerInterval 4500
 	timerMaxDisplay 1
     onFinishTimer { uiScript "restoreMusicVolume" ; uiScript "quit" }
@@ -1300,12 +1300,228 @@
 
 
 
-    // REACTION TITLE SCORE //
+    // MAP TEXTURES //
 
 	itemDef {
 	name "timer18"
 	group timer
 	subgroup t18_paper
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor .95 .95 1 1
+	rect 120 64 320 420
+	anglevectors 3 -87
+	visible 1
+	decoration
+    }
+
+	itemdef {
+	renderpoint
+	name "timer18"
+	group timer
+	subgroup "t18_title"
+	text "MAP TEXTURES\n\n"
+	     "Randy 'ydnar' Reddig (ShaderLab)\n"
+	     "Remedy Entertainment (Max Payne)\n"
+	     "Yves 'evil lair' Allaire\n"
+	     "Iikka 'Fingers' Keranen\n"
+	     "Paul Bourke\n"
+	     "Beardmonkey\n"
+	     "Berneyboy\n"
+	     "Jeremy Engleman\n"
+	     "unDuLe\n"
+	     "Pete 'Meat' Parisi\n"
+	     "Kevin 'Rorshach' Johnstone"
+	forecolor 0 0 .1 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_CENTER
+	textscale .5
+	textalignx 120
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignrect t18_paper ITEM_ALIGN_CENTER -20 48 240 36
+	visible 1
+	autowrapped
+	decoration
+    }
+
+
+
+    // MORE MAP TEXTURES //
+
+	itemDef {
+	name "timer19"
+	group timer
+	subgroup t19_paper
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor 1 1 .95 1
+	rect 144 64 320 420
+	anglevectors -4 -94
+	visible 1
+	decoration
+    }
+
+	itemdef {
+	renderpoint
+	name "timer19"
+	group timer
+	subgroup "t19_title"
+	text "MAP TEXTURES\n\n"
+	     "Texturelab\n"
+	     "Than\n"
+	     "Todd 'Mr.CleaN' Rose\n"
+	     "Schwenz\n"
+	     "Slack Studios\n"
+	     "Mackey 'Avatar' McCandlish\n"
+	     "Lloyd Morris\n"
+	     "Biohazard\n"
+	     "T. Ahlen\n"
+	     "TextureTown\n"
+	     "V1rta and PowerG1rl"
+	forecolor 0 0 .1 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_CENTER
+	textscale .5
+	textalignx 120
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignrect t19_paper ITEM_ALIGN_CENTER -20 48 240 36
+	visible 1
+	autowrapped
+	decoration
+    }
+
+
+
+    // MAP MODELS AND SKIES //
+
+	itemDef {
+	name "timer20"
+	group timer
+	subgroup t20_paper
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor .96 1 .96 1
+	rect 112 112 320 260
+	anglevectors 5 -85
+	visible 1
+	decoration
+    }
+
+	itemdef {
+	renderpoint
+	name "timer20"
+	group timer
+	subgroup "t20_title"
+	text "MAP MODELS AND SKIES\n\n"
+	     "Todd Gantzler\n"
+	     "Natestah\n"
+	     "Grim Reaper\n"
+	     "QkennyQ\n"
+	     "Mighty Pete\n"
+	     "P3zMan"
+	forecolor 0 0 .1 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_CENTER
+	textscale .5
+	textalignx 120
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignrect t20_paper ITEM_ALIGN_CENTER -20 48 240 36
+	visible 1
+	autowrapped
+	decoration
+    }
+
+
+
+    // THE ACTION QUAKE 2 MAPS //
+
+	itemDef {
+	name "timer21"
+	group timer
+	subgroup t21_paper
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor 1 1 1 1
+	rect 148 108 280 220
+	anglevectors -6 -96
+	visible 1
+	decoration
+    }
+
+	itemdef {
+	renderpoint
+	name "timer21"
+	group timer
+	subgroup "t21_title"
+	text "ACTION QUAKE 2 MAPS\n"
+	     "REMADE HERE\n\n"
+	     "Team Jungle: Timm Stokke\n"
+	     "Urban: Gerbil"
+	forecolor 0 0 .1 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_CENTER
+	textscale .5
+	textalignx 120
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignrect t21_paper ITEM_ALIGN_CENTER -20 48 240 36
+	visible 1
+	autowrapped
+	decoration
+    }
+
+
+
+    // WEAPON AND ITEM REPLACEMENTS //
+
+	itemDef {
+	name "timer22"
+	group timer
+	subgroup t22_paper
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor .95 .95 .95 1
+	rect 56 112 320 260
+	anglevectors 7 -83
+	visible 1
+	decoration
+    }
+
+	itemdef {
+	renderpoint
+	name "timer22"
+	group timer
+	subgroup "t22_title"
+	text "WEAPON AND ITEM\n"
+	     "REPLACEMENTS\n\n"
+	     "Wiuwe\n"
+	     "Hugo the Clown\n"
+	     "Load-X\n"
+	     "Robstercraws"
+	forecolor 0 0 .1 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_CENTER
+	textscale .5
+	textalignx 120
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignrect t22_paper ITEM_ALIGN_CENTER -20 48 240 36
+	visible 1
+	autowrapped
+	decoration
+    }
+
+
+
+    // REACTION TITLE SCORE //
+
+	itemDef {
+	name "timer23"
+	group timer
+	subgroup t23_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor .95 1 .95 1
@@ -1317,9 +1533,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer18"
+	name "timer23"
 	group timer	
-	subgroup "t18_title"
+	subgroup "t23_title"
 	text "REACTION\n"
 	     "TITLE SCORE\n"
 	     "\n"
@@ -1332,7 +1548,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect t18_paper ITEM_ALIGN_CENTER -12 40 240 36 
+	alignrect t23_paper ITEM_ALIGN_CENTER -12 40 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1343,9 +1559,9 @@
     // BOOMSTICK STUDIOS THANKS //
 
 	itemDef {
-	name "timer19"
+	name "timer24"
 	group timer
-	subgroup t19_paper
+	subgroup t24_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/post_it"
 	forecolor .94 .94 .82 1
@@ -1357,9 +1573,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer19"
+	name "timer24"
 	group timer	
-	subgroup "t19_title"
+	subgroup "t24_title"
 	text "Boomstick Studios\n"
 	     "thanks..."
 	forecolor 0 0 .1 1
@@ -1369,7 +1585,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect t19_paper ITEM_ALIGN_CENTER -4 36 240 36 
+	alignrect t24_paper ITEM_ALIGN_CENTER -4 36 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1380,9 +1596,9 @@
     // INDIVIDUALS //
 
 	itemDef {
-	name "timer20"
+	name "timer25"
 	group timer
-	subgroup t20_paper
+	subgroup t25_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor 1 1 1 1
@@ -1394,9 +1610,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer20"
+	name "timer25"
 	group timer	
-	subgroup "t20_title"
+	subgroup "t25_title"
 	text "INDIVIDUALS"
 	forecolor 0 0 .1 1
 	style WINDOW_STYLE_EMPTY
@@ -1405,16 +1621,16 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect t20_paper ITEM_ALIGN_CENTER -40 48 240 36 
+	alignrect t25_paper ITEM_ALIGN_CENTER -40 48 240 36 
 	visible 1
 	autowrapped
 	decoration
     }
 
     itemDef {
-	name "timer20"
+	name "timer25"
 	group timer	
-	alignrect "t20_title" ITEM_ALIGN_LEFT 0 56 240 36
+	alignrect "t25_title" ITEM_ALIGN_LEFT 0 56 240 36
 	style WINDOW_STYLE_EMPTY
 	textalign ITEM_ALIGN_RIGHT
 	textscale .3
@@ -1433,9 +1649,9 @@
     }
 
     itemDef {
-	name "timer20"
+	name "timer25"
 	group timer	
-	alignrect "t20_title" ITEM_ALIGN_LEFT 0 56 240 36
+	alignrect "t25_title" ITEM_ALIGN_LEFT 0 56 240 36
 	style WINDOW_STYLE_EMPTY
 	textalign ITEM_ALIGN_LEFT
 	textscale .3
@@ -1460,9 +1676,9 @@
     // CODING RESOURCES //
 
 	itemDef {
-	name "timer21"
+	name "timer26"
 	group timer
-	subgroup t21_paper
+	subgroup t26_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor .95 .95 1 1
@@ -1474,9 +1690,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer21"
+	name "timer26"
 	group timer	
-	subgroup "t21_title"
+	subgroup "t26_title"
 	text "CODING RESOURCES\n\n"
 	     "Code3Arena\n"
 	     "Iain McGinnis\n"
@@ -1493,7 +1709,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect t21_paper ITEM_ALIGN_CENTER -20 64 240 36 
+	alignrect t26_paper ITEM_ALIGN_CENTER -20 64 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1504,9 +1720,9 @@
     // ART RESOURCES //
 
 	itemDef {
-	name "timer22"
+	name "timer27"
 	group timer
-	subgroup t22_paper
+	subgroup t27_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor 1 1 .95 1
@@ -1518,9 +1734,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer22"
+	name "timer27"
 	group timer	
-	subgroup "t22_title"
+	subgroup "t27_title"
 	text "ART RESOURCES\n\n"
 	     "CG Textures\n"
 	     "Mastaba Solutions\n"
@@ -1534,7 +1750,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect "t22_paper" ITEM_ALIGN_CENTER -12 48 240 36 
+	alignrect "t27_paper" ITEM_ALIGN_CENTER -12 48 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1545,9 +1761,9 @@
     // MAPPING RESOURCES //
 
 	itemDef {
-	name "timer23"
+	name "timer28"
 	group timer
-	subgroup t23_paper
+	subgroup t28_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor .96 1 .96 1
@@ -1559,9 +1775,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer23"
+	name "timer28"
 	group timer	
-	subgroup "t23_title"
+	subgroup "t28_title"
 	text "MAPPING RESOURCES\n\n"
 	     "Gamedesign.net\n"
 	     "QERadiant.com\n"
@@ -1573,7 +1789,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect "t23_paper" ITEM_ALIGN_CENTER -12 48 240 36 
+	alignrect "t28_paper" ITEM_ALIGN_CENTER -12 48 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1584,9 +1800,9 @@
     // PRE-RELEASE MESSAGEBOARD GOD //
 
 	itemDef {
-	name "timer24"
+	name "timer29"
 	group timer
-	subgroup t24_paper
+	subgroup t29_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor 1 1 1 1
@@ -1598,9 +1814,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer24"
+	name "timer29"
 	group timer	
-	subgroup "t24_title"
+	subgroup "t29_title"
 	text "PRE-RELEASE\n"
 	     "MESSAGEBOARD GOD\n\n"
 		 "The great Fex"
@@ -1611,7 +1827,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect t24_paper ITEM_ALIGN_CENTER -12 44 240 36 
+	alignrect t29_paper ITEM_ALIGN_CENTER -12 44 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1622,9 +1838,9 @@
     // GROUPS //
 
 	itemDef {
-	name "timer25"
+	name "timer30"
 	group timer
-	subgroup t25_paper
+	subgroup t30_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor .95 .95 1 1
@@ -1636,9 +1852,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer25"
+	name "timer30"
 	group timer	
-	subgroup "t25_title"
+	subgroup "t30_title"
 	text "GROUPS\n\n"
 	     "Above Intelligence\n"
 	     "All the little people\n"
@@ -1658,7 +1874,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect t25_paper ITEM_ALIGN_CENTER -20 48 240 36 
+	alignrect t30_paper ITEM_ALIGN_CENTER -20 48 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1668,9 +1884,9 @@
     // COMMODITIES //
 
 	itemDef {
-	name "timer26"
+	name "timer31"
 	group timer
-	subgroup t26_paper
+	subgroup t31_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor 1 1 1 1
@@ -1682,9 +1898,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer26"
+	name "timer31"
 	group timer	
-	subgroup "t26_title"
+	subgroup "t31_title"
 	text "COMMODITIES\n\n"
 	     "Caffeine\n"
 	     "Chex Mix\n"
@@ -1703,7 +1919,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect t26_paper ITEM_ALIGN_CENTER -20 48 240 36 
+	alignrect t31_paper ITEM_ALIGN_CENTER -20 48 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1714,9 +1930,9 @@
     // WEB HOSTS //
 
 	itemDef {
-	name "timer27"
+	name "timer32"
 	group timer
-	subgroup t27_paper
+	subgroup t32_paper
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor .96 1 .96 1
@@ -1728,9 +1944,9 @@
 
 	itemdef {
 	renderpoint
-	name "timer27"
+	name "timer32"
 	group timer	
-	subgroup "t27_title"
+	subgroup "t32_title"
 	text "WEB HOSTS\n\n"
 	     "All mirrors (too many to list)\n"
 	     "Simnet (Landssiminn)"
@@ -1741,7 +1957,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect "t27_paper" ITEM_ALIGN_CENTER -12 52 240 36 
+	alignrect "t32_paper" ITEM_ALIGN_CENTER -12 52 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1751,7 +1967,7 @@
 	// Black background //
 
 	itemDef {
-	name "timer28"
+	name "timer33"
 	group timer	
 	rect UI_MINX UI_MINY UI_WIDTH UI_HEIGHT
 	style WINDOW_STYLE_EMPTY
@@ -1783,7 +1999,7 @@
     // id SOFTWARE //
 
     itemDef {
-	name "timer29"
+	name "timer34"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
@@ -1803,7 +2019,7 @@
     // PROGRAMMING //
 
     itemDef {
-	name "timer30"
+	name "timer35"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
@@ -1824,7 +2040,7 @@
     // ART //
 
     itemDef {
-	name "timer31"
+	name "timer36"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
@@ -1847,7 +2063,7 @@
     // GAME DESIGNER //
 
     itemDef {
-	name "timer32"
+	name "timer37"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
@@ -1866,7 +2082,7 @@
     // LEVEL DESIGN //
 
     itemDef {
-	name "timer33"
+	name "timer38"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
@@ -1887,7 +2103,7 @@
     // CEO //
 
     itemDef {
-	name "timer34"
+	name "timer39"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
@@ -1906,7 +2122,7 @@
     // DIRECTOR OF BUSINESS DEVELOPMENT //
 
     itemDef {
-	name "timer35"
+	name "timer40"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
@@ -1925,7 +2141,7 @@
     // BIZ ASSIST AND ID MOM //
 
     itemDef {
-	name "timer36"
+	name "timer41"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
@@ -1944,7 +2160,7 @@
     // DEVELOPMENT ASSISTANCE //
 
     itemDef {
-	name "timer37"
+	name "timer42"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
@@ -1964,7 +2180,7 @@
     // THE END //
 
     itemDef {
-	name "timer39"
+	name "timer44"
 	group timer	
 	rect 100 100 440 280
 	style WINDOW_STYLE_EMPTY
@@ -1987,7 +2203,7 @@
     }
 
     itemDef {
-	name "timer40"
+	name "timer45"
 	group timer	
 	rect 200 100 240 280
 	style WINDOW_STYLE_EMPTY
