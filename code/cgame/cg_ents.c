@@ -1094,6 +1094,12 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 	if (cent != &cg.predictedPlayerEntity) {
 		CG_AdjustPositionForMover(cent->lerpOrigin, cent->currentState.groundEntityNum,
 					  cg.snap->serverTime, cg.time, cent->lerpOrigin, cent->lerpAngles);
+	} else {
+		// REACTION: the view shows the moment between the last two ticks (CG_ViewBetweenTicks), and the
+		// player's own body stands at that moment too. Left at the newest tick it ran up to a tick ahead
+		// of the eye and fell back every tick (2 units at a run): its shadow under the eye, its model in
+		// third person and in a mirror shook by that much
+		VectorAdd(cent->lerpOrigin, cg.viewTickOffset, cent->lerpOrigin);
 	}
 }
 

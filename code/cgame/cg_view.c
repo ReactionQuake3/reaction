@@ -534,7 +534,7 @@ static void CG_OffsetFirstPersonView(void)
 #endif
 
 	// add angles based on velocity
-	VectorCopy(cg.predictedPlayerState.velocity, predictedVelocity);
+	VectorCopy(cg.viewVelocity, predictedVelocity);
 
 	delta = DotProduct(predictedVelocity, cg.refdef.viewaxis[0]);
 	angles[PITCH] += delta * cg_runpitch.value;
@@ -984,6 +984,110 @@ static void CG_DamageBlendBlob(void)
 
 /*
 ===============
+CG_SetViewBob
+
+What the view's bob, its lean and the gun's sway are drawn from: a player
+state's bob cycle and velocity, or a moment between two ticks' (bobCycle then
+has a fraction and may run past the cycle's eight bits).
+===============
+*/
+#define BOB_CYCLE_MASK	255	// a bob cycle is eight bits (bg_pmove.c PM_Footsteps):
+#define BOB_FOOT_BIT	128	// the top one is the foot,
+#define BOB_PHASE_MASK	127	// the rest how far its step has come
+
+static void CG_SetViewBob(float bobCycle, const vec3_t velocity)
+{
+	int whole;
+	float phase;
+
+	whole = (int) bobCycle;
+	cg.bobcycle = (whole & BOB_FOOT_BIT) != 0;
+	// a step ends at 127 and the next starts at 0, both level; between them it stays level
+	phase = (whole & BOB_PHASE_MASK) + (bobCycle - whole);
+	if (phase > BOB_PHASE_MASK) {
+		phase = BOB_PHASE_MASK;
+	}
+	cg.bobfracsin = fabs(sin(phase / (float) BOB_PHASE_MASK * M_PI));
+	cg.xyspeed = sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1]);
+	VectorCopy(velocity, cg.viewVelocity);
+}
+
+/*
+===============
+CG_BobStep
+
+How far the bob cycle came from the older tick to the newer, or -1 when it
+started again between them: on a landing or when the player stopped. Movement
+sets it to 0 and may advance it again in the same tick (a landing at a run
+ends at 3), so the value alone does not tell. A cycle only runs forward, at
+most BOB_MAX_RATE a msec, so a longer step is a start again: 141 to 3 reads as
+118 forward, where a tick of 8 msec advances 3.
+===============
+*/
+#define BOB_MAX_RATE	0.5f	// the fastest PM_Footsteps advances the cycle, ducked (bobmove)
+
+static int CG_BobStep(void)
+{
+	int step, span;
+
+	span = cg.tickCommandTime[1] - cg.tickCommandTime[0];
+	step = (cg.tickBobCycle[1] - cg.tickBobCycle[0]) & BOB_CYCLE_MASK;
+	// one more than the rate allows, for the cycle's rounding to whole steps
+	if (cg.tickBobCycle[1] == 0 || step > BOB_MAX_RATE * span + 1) {
+		return -1;
+	}
+	return step;
+}
+
+/*
+===============
+CG_CarryViewBob
+
+Movement advances the bob cycle only on the ground (PM_Footsteps). Sliding across
+a tilted street the player is off it for a tick or two at a time, so the cycle
+ran on one tick in three and the gun's sway moved in bursts (recorded play on
+urban's streets). The drawn cycle carries on at the rate it last ran through an
+airborne moment of up to BOB_GRACE_TIME; a jump is longer and holds the bob as
+before. Drawing only: the player state's cycle and its footsteps are untouched.
+===============
+*/
+#define BOB_GRACE_TIME	32	// msec: four ticks at com_maxfps 125; the recorded gaps were two
+
+static void CG_CarryViewBob(void)
+{
+	int span, step;
+
+	if (cg.tickCommandTime[1] == cg.bobCarryTick) {
+		return;
+	}
+	cg.bobCarryTick = cg.tickCommandTime[1];
+	cg.bobCarryStep = 0;
+	span = cg.tickCommandTime[1] - cg.tickCommandTime[0];
+	if (span <= 0) {
+		return;
+	}
+	step = CG_BobStep();
+	if (step < 0) {
+		// the cycle started again, and the drawn one with it; nothing carries on from before it
+		cg.bobCarry = 0;
+		cg.bobAdvanceTime = cg.tickCommandTime[1] - BOB_GRACE_TIME - 1;
+		return;
+	}
+	if (step) {
+		cg.bobRate = (float) step / span;
+		cg.bobAdvanceTime = cg.tickCommandTime[1];
+	} else if (cg.predictedPlayerState.groundEntityNum == ENTITYNUM_NONE
+		   && cg.tickCommandTime[1] - cg.bobAdvanceTime <= BOB_GRACE_TIME) {
+		cg.bobCarryStep = cg.bobRate * span;
+		cg.bobCarry += cg.bobCarryStep;
+		if (cg.bobCarry > BOB_CYCLE_MASK) {
+			cg.bobCarry -= BOB_CYCLE_MASK + 1;
+		}
+	}
+}
+
+/*
+===============
 CG_ViewBetweenTicks
 
 REACTION: while the engine draws between movement ticks (cg.drawBetweenTicks),
@@ -997,9 +1101,9 @@ static void CG_ViewBetweenTicks(void)
 {
 	playerState_t ps;
 	usercmd_t cmd;
-	vec3_t angles, step;
+	vec3_t angles, step, velocity;
 	int i, span;
-	float f;
+	float f, bobCycle;
 
 	// asking also tells the engine this cgame draws between ticks
 	trap_RQ3_GetViewAngles(angles);
@@ -1035,7 +1139,21 @@ static void CG_ViewBetweenTicks(void)
 		f = 1;
 	}
 	// the predicted origin carries the mover offset the newest tick got
-	VectorMA(cg.predictedPlayerState.origin, f - 1, step, cg.refdef.vieworg);
+	VectorScale(step, f - 1, cg.viewTickOffset);
+	VectorAdd(cg.predictedPlayerState.origin, cg.viewTickOffset, cg.refdef.vieworg);
+
+	// the bob, the lean and the gun's sway show that moment too: read from the newest tick alone
+	// they moved once a tick while the eye moved every frame. A cycle that started again is shown
+	// as it is (CG_BobStep): that is no step on from the older tick's
+	CG_CarryViewBob();
+	bobCycle = cg.tickBobCycle[1];
+	if (CG_BobStep() >= 0) {
+		bobCycle = cg.tickBobCycle[0] + cg.bobCarry - cg.bobCarryStep + f * (CG_BobStep() + cg.bobCarryStep);
+	}
+	for (i = 0; i < 3; i++) {
+		velocity[i] = cg.tickVelocity[0][i] + f * (cg.tickVelocity[1][i] - cg.tickVelocity[0][i]);
+	}
+	CG_SetViewBob(bobCycle, velocity);
 }
 
 /*
@@ -1050,6 +1168,9 @@ static int CG_CalcViewValues(void)
 	playerState_t *ps;
 
 	memset(&cg.refdef, 0, sizeof(cg.refdef));
+
+	// set again by CG_ViewBetweenTicks when this frame shows a moment between two ticks
+	VectorClear(cg.viewTickOffset);
 
 	// strings for in game rendering
 	// Q_strncpyz( cg.refdef.text[0], "Park Ranger", sizeof(cg.refdef.text[0]) );
@@ -1081,9 +1202,7 @@ static int CG_CalcViewValues(void)
 		return CG_CalcFov();
 	}
 
-	cg.bobcycle = (ps->bobCycle & 128) >> 7;
-	cg.bobfracsin = fabs(sin((ps->bobCycle & 127) / 127.0 * M_PI));
-	cg.xyspeed = sqrt(ps->velocity[0] * ps->velocity[0] + ps->velocity[1] * ps->velocity[1]);
+	CG_SetViewBob(ps->bobCycle, ps->velocity);
 
 	VectorCopy(ps->origin, cg.refdef.vieworg);
 	VectorCopy(ps->viewangles, cg.refdefViewAngles);
