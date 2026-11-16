@@ -431,12 +431,32 @@ Group # 1 - Graphics
 	textaligny 14
 	forecolor 0 0 0 1
 	action { uiScript applysystemSettings ; }
-	ASSIGN_HINT("hint_apply")
+	// ASSIGN_HINT, and the note below goes when the pointer leaves the button
+	onFocus { show "hint_apply" ; timeFade "hint_apply" forecolor 5 5 5 1 0 HINT_FADE_TIME }
+	leaveFocus { timeFade "hint_apply" forecolor 5 5 5 0 0 HINT_FADE_TIME ; setcvar ui_RQ3_applyNote 0 }
 	anglevectors 4 -83
 	visible 1
 	}
 
-	ADD_HINT("hint_apply", "Apply graphics changes and return to main menu", "group1")
+	ADD_HINT("hint_apply", "Apply graphics changes. The picture restarts only if a change needs it", "group1")
+
+	// Apply restarts the renderer only for a change that needs it (ui_main.c, UI_ApplySystemSettings). After an Apply
+	// that needed none, this says so under the button: without it the click would seem to do nothing.
+	itemdef {
+	text "Applied. No restart was needed"
+	name "apply_note,allgroups,group1,fade_alpha"
+	forecolor HINT_COLOR 1
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 224
+	textaligny 12
+	textscale .2
+	alignrect "btn_apply" ITEM_ALIGN_LEFT -160 VSPACE 240 VSIZE
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	decoration
+	cvarTest "ui_RQ3_applyNote"
+	showCvar { "1" }
+	}
 
 /*
 ==========================================================
