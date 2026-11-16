@@ -6001,9 +6001,62 @@ static void UI_GetSupportedModes(void)
 	UI_SelectCurrentResolution();
 }
 
+// REACTION: the System menu's settings that only a renderer restart shows: the cvars the renderer reads as it starts
+// (CVAR_LATCH in the engine), and the look's packs, which the file system reads as each image loads. A ui module
+// can't ask the engine for a cvar's flags, and its sets go past the latch, so the names are kept here: a menu row or
+// preset that sets another latched cvar adds its name, or Apply will not restart for it. All hold whole numbers. The
+// video mode (r_mode, r_customwidth, r_customheight, r_fullscreen) has its own road in UI_ApplySystemSettings.
+static const char *uiRestartCvars[] = {
+	"fs_modernPacks",
+	"r_picmip", "r_subdivisions", "r_imageUpsample",
+	"r_hdr", "r_ssao", "r_pbr", "r_temporalAA",
+	"r_deluxeMapping", "r_normalMapping", "r_specularMapping", "r_cubeMapping",
+	"r_ext_compressed_textures", "r_ext_framebuffer_multisample",
+	"r_ext_texture_filter_anisotropic", "r_ext_max_anisotropy",
+	"r_sunShadows", "r_shadowFilter", "r_shadowMapSize", "r_shadowBlur"
+};
+
+// Their values now, as one string.
+static void UI_RestartCvarValues(char *values, int size)
+{
+	int i;
+
+	values[0] = 0;
+	for (i = 0; i < ARRAY_LEN(uiRestartCvars); i++) {
+		Q_strcat(values, size, va("%i ", (int) trap_Cvar_VariableValue(uiRestartCvars[i])));
+	}
+}
+
+// ui_RQ3_restartBase holds their values at the last renderer restart this module knows of: the game's start and
+// every Apply that restarted. It is a cvar because the module's memory is new at every start of the ui, and a map
+// load starts the ui too, with a renderer that has not read all of these again (its extensions keep the values of
+// its last full start). A vid_restart from the console is not seen; the next Apply after one may restart once
+// more than it had to.
+static void UI_RememberRestartCvars(qboolean restarting)
+{
+	char values[MAX_CVAR_VALUE_STRING];
+
+	if (!restarting && ui_RQ3_restartBase.string[0]) {
+		return;
+	}
+	UI_RestartCvarValues(values, sizeof(values));
+	trap_Cvar_Set("ui_RQ3_restartBase", values);
+}
+
+static qboolean UI_RestartCvarsChanged(void)
+{
+	char values[MAX_CVAR_VALUE_STRING];
+	char base[MAX_CVAR_VALUE_STRING];
+
+	UI_RestartCvarValues(values, sizeof(values));
+	trap_Cvar_VariableStringBuffer("ui_RQ3_restartBase", base, sizeof(base));
+	return strcmp(values, base) != 0;
+}
+
 static void UI_InitSystemSettings(void)
 {
 	UI_SelectCurrentResolution();
+	trap_Cvar_Set("ui_RQ3_applyNote", "0");
 }
 
 static qboolean UI_ChangeVideoCvarAndBackup(const char* name, const char* backup, int value)
@@ -6052,7 +6105,19 @@ static void UI_ApplySystemSettings(void)
 		trap_Cvar_Set("ui_RQ3_videoChanges", "1");
 	}
 
-	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
+	// REACTION: restart the renderer only for a change that needs it: the video mode above, or a setting the
+	// renderer reads only as it starts. Every other setting is in effect already, and a restart in a game loads
+	// the whole map again. The menu says which it was (ui_RQ3_applyNote, system.menu).
+	if (changed || UI_RestartCvarsChanged())
+	{
+		UI_RememberRestartCvars(qtrue);
+		trap_Cvar_Set("ui_RQ3_applyNote", "0");
+		trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
+	}
+	else
+	{
+		trap_Cvar_Set("ui_RQ3_applyNote", "1");
+	}
 }
 
 static void UI_RevertVideoSettings(void)
@@ -8705,6 +8770,7 @@ void _UI_Init(qboolean inGameLoad)
 	trap_GetGlconfig(&uiInfo.uiDC.glconfig);
 	UI_GetSupportedModes();
 	UI_BackupVideoCvar("r_fullscreen", "ui_RQ3_fullScreen");
+	UI_RememberRestartCvars(qfalse);
 
 	UI_MakeExtensionsList();
 
@@ -9619,6 +9685,8 @@ vmCvar_t ui_RQ3_old_r_customWidth;
 vmCvar_t ui_RQ3_old_r_customHeight;
 vmCvar_t ui_RQ3_old_r_fullScreen;
 vmCvar_t ui_RQ3_videoChanges;
+vmCvar_t ui_RQ3_applyNote;
+vmCvar_t ui_RQ3_restartBase;
 vmCvar_t ui_RQ3_fullScreen;
 
 
@@ -9827,6 +9895,10 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_old_r_customHeight,	"ui_RQ3_old_r_customHeight", "480", CVAR_ROM},
 	{&ui_RQ3_old_r_fullScreen,		"ui_RQ3_old_r_fullScreen", "1", CVAR_ROM},
 	{&ui_RQ3_videoChanges,			"ui_RQ3_videoChanges", "0", CVAR_ROM},
+	// REACTION: 1 after an Apply in the System menu that needed no restart; the menu shows its note by it
+	{&ui_RQ3_applyNote,				"ui_RQ3_applyNote", "0", CVAR_ROM},
+	// REACTION: the restart-needing settings at the last restart the ui knows of (UI_RememberRestartCvars)
+	{&ui_RQ3_restartBase,			"ui_RQ3_restartBase", "", CVAR_ROM},
 	{&ui_RQ3_fullScreen,			"ui_RQ3_fullScreen", "1", CVAR_ROM},
 };
 
