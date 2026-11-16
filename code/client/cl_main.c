@@ -3601,7 +3601,9 @@ void CL_Init( void ) {
 	cl_packetdup = Cvar_Get ("cl_packetdup", "1", CVAR_ARCHIVE );
 
 	cl_run = Cvar_Get ("cl_run", "1", CVAR_ARCHIVE);
-	cl_sensitivity = Cvar_Get ("sensitivity", "5", CVAR_ARCHIVE);
+	// REACTION: 2.5 where ioquake3 has 5. The turn per mouse count is unchanged (m_yaw times this), but a mouse sends
+	// two to four times the counts it did when 5 was chosen: at 800 DPI 2.5 is a full turn in 21 cm, as 5 was at 400
+	cl_sensitivity = Cvar_Get ("sensitivity", "2.5", CVAR_ARCHIVE);
 	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", CVAR_ARCHIVE);
 	cl_freelook = Cvar_Get( "cl_freelook", "1", CVAR_ARCHIVE );
 
