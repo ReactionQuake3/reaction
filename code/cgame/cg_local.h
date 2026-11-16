@@ -987,6 +987,9 @@ typedef struct {
 	int tickCommandTime[2];
 	vec3_t tickOrigin[2];
 	float tickStepUp;	// how far the newer tick stepped up: CG_StepOffset smooths that, not the view between ticks
+	// from the newest tick's origin to the moment this frame shows (CG_ViewBetweenTicks); none when the
+	// frame shows the newest tick itself. The player's own body is drawn there too (CG_CalcEntityLerpPositions)
+	vec3_t viewTickOffset;
 	// the bob, the lean and the gun's sway are drawn at the same moment: each tick's bob cycle and
 	// velocity, and the velocity at the moment this frame shows (CG_SetViewBob)
 	int tickBobCycle[2];

@@ -1139,7 +1139,8 @@ static void CG_ViewBetweenTicks(void)
 		f = 1;
 	}
 	// the predicted origin carries the mover offset the newest tick got
-	VectorMA(cg.predictedPlayerState.origin, f - 1, step, cg.refdef.vieworg);
+	VectorScale(step, f - 1, cg.viewTickOffset);
+	VectorAdd(cg.predictedPlayerState.origin, cg.viewTickOffset, cg.refdef.vieworg);
 
 	// the bob, the lean and the gun's sway show that moment too: read from the newest tick alone
 	// they moved once a tick while the eye moved every frame. A cycle that started again is shown
@@ -1167,6 +1168,9 @@ static int CG_CalcViewValues(void)
 	playerState_t *ps;
 
 	memset(&cg.refdef, 0, sizeof(cg.refdef));
+
+	// set again by CG_ViewBetweenTicks when this frame shows a moment between two ticks
+	VectorClear(cg.viewTickOffset);
 
 	// strings for in game rendering
 	// Q_strncpyz( cg.refdef.text[0], "Park Ranger", sizeof(cg.refdef.text[0]) );
