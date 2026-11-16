@@ -447,6 +447,11 @@ qboolean PM_SlideMove(qboolean gravity)
 		}
 		VectorCopy(trace.plane.normal, planes[numplanes]);
 		numplanes++;
+		if (trace.plane.normal[2] >= MIN_WALK_NORMAL) {
+			// the clipping below turns the move along ground the player can stand on: a landing made by
+			// this move has its turn, and PM_GroundTrace need not give it one
+			pml.turnedOnGround = qtrue;
+		}
 
 		//
 		// modify velocity so it parallels all of the clip planes
@@ -530,6 +535,8 @@ qboolean PM_SlideMove(qboolean gravity)
 	// don't change velocity if in a timer (FIXME: is this correct?)
 	if (pm->ps->pm_time) {
 		VectorCopy(primal_velocity, pm->ps->velocity);
+		// any turn along the ground went with it
+		pml.turnedOnGround = qfalse;
 	}
 
 	return (bumpcount != 0);

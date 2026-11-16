@@ -60,6 +60,7 @@ typedef struct {
 	qboolean opendoor;
 
 	float impactSpeed;
+	qboolean turnedOnGround;	// PM_SlideMove turned this command's move along ground the player can stand on
 
 	vec3_t previous_origin;
 	vec3_t previous_velocity;

@@ -1155,7 +1155,7 @@ Check for hard landings that generate sound events
 */
 static void PM_CrashLand(void)
 {
-	float delta;
+	float delta, change, fall;
 
 	//float         dist;
 	//float         vel, acc;
@@ -1227,8 +1227,17 @@ static void PM_CrashLand(void)
 		// JBravo: new multiple itemcode
 	} else if (!(pm->ps->stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS))) {
 		// Elder: don't spam sound events going up -- more like Q2 ladders as well
-		//Makro - ladder footsteps are handled in PM_LadderMove, chaging || to &&
-		if (!pml.ladder && pm->ps->velocity[2] < 0)
+		//Makro - ladder footsteps are handled in PM_LadderMove
+		// Off a ladder a landing always makes its step, as up to 3.2. From 2005 this line also asked for speed
+		// downward, which a landing on level or rising ground never leaves, so only landings on a downward slope
+		// made one.
+		// The step is the sound of the fall: it takes the downward speed this landing took away to make one.
+		// delta also counts the upward speed that rising ground gives a run, which alone made a step each time a
+		// hop of a few commands ended on a ramp, a stair or a root: a second step right after a landing's own.
+		// So the fall's share of delta has to reach the step's threshold by itself.
+		change = pm->ps->velocity[2] - pml.previous_velocity[2];
+		fall = MIN(pm->ps->velocity[2], 0) - MIN(pml.previous_velocity[2], 0);
+		if (!pml.ladder && delta * fall * fall >= change * change)
 			PM_AddEvent(PM_FootstepForSurface(pml.groundTrace.surfaceFlags));
 		//Elder: added? useful?
 		pm->ps->stats[STAT_FALLDAMAGE] = 0;
@@ -1401,6 +1410,19 @@ static void PM_GroundTrace(void)
 		// just hit the ground
 		if (pm->debugLevel) {
 			Com_Printf("%i:Land\n", c_pmove);
+		}
+
+		// No move of this command turned the fall along the ground. The move ended above the ground, inside
+		// this trace's reach, without touching it; or PM_SlideMove stopped early, or gave a timer its old
+		// velocity back; or the player came up onto the ground by a step. The fall still has all its speed, so
+		// PM_CrashLand would read no landing (no step, no thud, no falling damage) and the next jump would
+		// start from the fall's speed. Give the fall the vertical speed the ground leaves of it, the part of
+		// a landing's turn that PM_StepSlideMove keeps.
+		if (!pml.turnedOnGround && DotProduct(pm->ps->velocity, trace.plane.normal) < 0) {
+			vec3_t turned;
+
+			PM_ClipVelocity(pm->ps->velocity, trace.plane.normal, turned, OVERCLIP);
+			pm->ps->velocity[2] = turned[2];
 		}
 
 		PM_CrashLand();
