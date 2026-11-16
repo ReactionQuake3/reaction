@@ -1958,6 +1958,7 @@ extern vmCvar_t cg_RQ3_ssgCrosshair;
 extern vmCvar_t cg_RQ3_impactEffects;
 extern vmCvar_t cg_RQ3_gunSmoke;
 extern vmCvar_t cg_RQ3_gunHeight;
+extern vmCvar_t cg_RQ3_viewPreview;
 
 //Elder: toggle client-side laser drawing
 extern vmCvar_t cg_RQ3_laserAssist;

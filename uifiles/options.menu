@@ -553,7 +553,8 @@ menuDef {
 	style WINDOW_STYLE_EMPTY
 	drawAlone
 
-	onOpen { play "sound/ui/whoosh3.wav" }
+	onOpen { play "sound/ui/whoosh3.wav" ; setcvar cg_RQ3_viewPreview 1 }
+	onClose { setcvar cg_RQ3_viewPreview 0 }
 	onEsc { close _self ; open _prev }
 
 	itemDef {
