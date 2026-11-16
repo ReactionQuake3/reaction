@@ -1807,7 +1807,9 @@ static void Cmd_Tell_f(gentity_t * ent)
 	}
 
 	//Slicer : no TELL FOR TP
-	if (g_gametype.integer >= GT_TEAM)
+	// A bot's private messages pass: the bot code answers a team mate's order with one and gives its own
+	// orders with them. G_SayTo still keeps the dead from talking to the living during a teamplay round.
+	if (g_gametype.integer >= GT_TEAM && !(ent->r.svFlags & SVF_BOT))
 		return;
 
 	trap_Argv(1, arg, sizeof(arg));
