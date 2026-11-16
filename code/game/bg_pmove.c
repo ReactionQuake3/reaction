@@ -1227,8 +1227,11 @@ static void PM_CrashLand(void)
 		// JBravo: new multiple itemcode
 	} else if (!(pm->ps->stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS))) {
 		// Elder: don't spam sound events going up -- more like Q2 ladders as well
-		//Makro - ladder footsteps are handled in PM_LadderMove, chaging || to &&
-		if (!pml.ladder && pm->ps->velocity[2] < 0)
+		//Makro - ladder footsteps are handled in PM_LadderMove
+		// Off a ladder a landing always makes its step, as up to 3.2. From 2005 this line also asked for speed
+		// downward, which a landing on level or rising ground never leaves, so only landings on a downward slope
+		// made one.
+		if (!pml.ladder)
 			PM_AddEvent(PM_FootstepForSurface(pml.groundTrace.surfaceFlags));
 		//Elder: added? useful?
 		pm->ps->stats[STAT_FALLDAMAGE] = 0;
