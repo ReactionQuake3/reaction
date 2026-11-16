@@ -150,7 +150,7 @@
 	ASSIGN_HINT("hint_tab4")
 	alignrect "tab3" ITEM_ALIGN_RIGHT -36 0 36 TAB_HEIGHT
     }
-    ADD_HINT("hint_tab4", "Gun height, which you see change behind the screen in a game", "group1,group2,group3")
+    ADD_HINT("hint_tab4", "Gun height and view zoom, which you see change behind the screen in a game", "group1,group2,group3")
 
 /*
 ==========================================================
@@ -609,6 +609,37 @@ menuDef {
 	textscale .225
 	forecolor 1 1 1 1
 	visible 1
+	}
+
+	// View zoom: 0, Reaction's view, up to 100, zoomed in as Reaction Quake 3 looked on a wide screen
+
+	itemDef {
+	name "viewZoom"
+	type ITEM_TYPE_SLIDER
+	text "View zoom:"
+	cvarfloat "cg_RQ3_viewZoom" 0 0 100
+	showNumber
+	rect 80 52 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	}
+
+	itemDef {
+	name "viewZoomHint"
+	text "Left: Reaction's view. Right: zoomed in as Reaction Quake 3 looked on a wide screen, scope included. Never wider than the left end."
+	rect 256 50 376 24
+	autowrapped
+	textalign ITEM_ALIGN_LEFT
+	textaligny 9
+	textscale .18
+	forecolor .8 .8 .8 1
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	decoration
 	}
 
 	itemDef {

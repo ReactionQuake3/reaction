@@ -709,6 +709,10 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 */
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
+// REACTION: the most the player's view zoom (cg_RQ3_viewZoom) magnifies the picture: the 2004 mod's picture on a
+// 16:9 screen, 90 degrees across where this one is 106.26 (the mod keeps 90 across at any shape, this one the 4:3
+// picture's height), so tan(53.13) / tan(45)
+#define VIEW_ZOOM_MOST	(4.f / 3.f)
 
 static int CG_CalcFov(void)
 {
@@ -719,6 +723,8 @@ static int CG_CalcFov(void)
 	float zoomFov;		//Desired zoom
 	float f;
 	int inwater;
+	int zoom;
+	float magnification;
 
 	if (cg.predictedPlayerState.pm_type == PM_INTERMISSION) {
 		fov_x = 90;
@@ -874,6 +880,17 @@ static int CG_CalcFov(void)
 
 	fov_y = atan2(tan(fov_x / 360 * M_PI), 4.f / 3.f) * 360 / M_PI;
 	fov_x = 360.f / M_PI * atan2(tan(fov_y * M_PI / 360.f) * cg.refdef.width, cg.refdef.height);
+
+	// REACTION: the player's view zoom magnifies the finished picture, the scope's steps too, as the mod looked on a
+	// 16:9 screen; 0 or less leaves it untouched, so the view is never wider than without it
+	zoom = cg_RQ3_viewZoom.integer;
+	if (zoom > 0) {
+		if (zoom > 100)
+			zoom = 100;
+		magnification = 1.f + (VIEW_ZOOM_MOST - 1.f) * zoom / 100.f;
+		fov_y = atan2(tan(fov_y * M_PI / 360.f), magnification) * 360.f / M_PI;
+		fov_x = 360.f / M_PI * atan2(tan(fov_y * M_PI / 360.f) * cg.refdef.width, cg.refdef.height);
+	}
 
 	// warp if underwater
 	contents = CG_PointContents(cg.refdef.vieworg, -1);
