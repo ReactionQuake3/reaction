@@ -611,6 +611,8 @@ vmCvar_t cg_RQ3_autoAction;
 vmCvar_t cg_RQ3_impactEffects;
 // the animated smoke from a gun and where its bullets hit a wall; off, the plain puff
 vmCvar_t cg_RQ3_gunSmoke;
+// how high the player's own gun is drawn: 100 where it always was, lower down to 1, and no gun at 0
+vmCvar_t cg_RQ3_gunHeight;
 
 //Elder: toggle client-side laser drawing
 vmCvar_t cg_RQ3_laserAssist;
@@ -914,6 +916,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_dynamicRadio, "cg_RQ3_dynamicRadio", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_gunSmoke, "cg_RQ3_gunSmoke", "1", CVAR_ARCHIVE},
+	{&cg_RQ3_gunHeight, "cg_RQ3_gunHeight", "100", CVAR_ARCHIVE},
 	{&cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_anouncer, "cg_RQ3_announcer", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_bloodStyle, "cg_RQ3_bloodStyle", "0", CVAR_ARCHIVE},

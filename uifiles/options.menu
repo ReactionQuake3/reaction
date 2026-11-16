@@ -136,6 +136,22 @@
 	)
     ADD_HINT("hint_tab3", "Change the shape, size and color of the sniper rifle crosshair", "group1,group2")
 
+//---------------------------------------------------------
+
+	// View: not a tab of this page but the View screen (view_menu, below), so it shows on every tab
+
+    itemdef {
+	text "^_V^_iew."
+	name "alltabs,tab4,fade_alpha,allgroups,group1,group2,group3"
+	shortcutKey "V"
+	shortcutKey "4"
+	ACTIVE_TAB_PROPS
+	action { openSpecial view_menu }
+	ASSIGN_HINT("hint_tab4")
+	alignrect "tab3" ITEM_ALIGN_RIGHT -36 0 36 TAB_HEIGHT
+    }
+    ADD_HINT("hint_tab4", "Gun height, which you see change behind the screen in a game", "group1,group2,group3")
+
 /*
 ==========================================================
 
@@ -519,6 +535,107 @@ Group # 3 - SSG Crosshair
 	ADD_HINT("hint_ssgnext", "Select the next SSG crosshair", "group3")
 
 */
+}
+/*
+==========================================================
+
+The View screen: a panel across the top and nothing else of the menus (drawAlone), so in a game the gun and the
+picture are seen change while a bar moves
+
+==========================================================
+*/
+
+menuDef {
+	name "view_menu"
+	visible MENU_FALSE
+	focusColor RQ3_MAIN_FOCUSCOLOR
+	rect 0 0 640 96
+	style WINDOW_STYLE_EMPTY
+	drawAlone
+
+	onOpen { play "sound/ui/whoosh3.wav" }
+	onEsc { close _self ; open _prev }
+
+	itemDef {
+	name "panel"
+	rect 0 0 640 96
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0 .6
+	visible 1
+	decoration
+	}
+
+	itemDef {
+	name "title"
+	text "View"
+	rect 16 4 200 20
+	textalign ITEM_ALIGN_LEFT
+	textaligny 16
+	textscale .3
+	forecolor 1 1 1 1
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	decoration
+	}
+
+	itemDef {
+	name "back"
+	text "> ^_B^_ack"
+	shortcutKey "B"
+	rect 560 4 64 20
+	type ITEM_TYPE_BUTTON
+	textalign ITEM_ALIGN_LEFT
+	textaligny 16
+	textscale .25
+	forecolor 1 1 1 1
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	action { close _self ; open _prev }
+	}
+
+	// Gun height: 100 where the gun always was, lower to 1, where only its tip shows, and no gun at 0
+
+	itemDef {
+	name "gunHeight"
+	type ITEM_TYPE_SLIDER
+	text "Gun height:"
+	cvarfloat "cg_RQ3_gunHeight" 100 0 100
+	showNumber
+	rect 80 28 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	}
+
+	itemDef {
+	name "gunHeightHint"
+	text "Left: no gun. Right: where it always was. Lower it so it covers less of the screen, as cg_fov above 90 and cg_drawGun 0 did in Reaction Quake 3."
+	rect 256 26 376 24
+	autowrapped
+	textalign ITEM_ALIGN_LEFT
+	textaligny 9
+	textscale .18
+	forecolor .8 .8 .8 1
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	decoration
+	}
+
+	itemDef {
+	name "live"
+	text "In a game, each change shows behind this panel as you drag."
+	rect 16 76 608 16
+	textalign ITEM_ALIGN_LEFT
+	textaligny 12
+	textscale .18
+	forecolor .8 .8 .8 1
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	decoration
+	}
 }
 }
 

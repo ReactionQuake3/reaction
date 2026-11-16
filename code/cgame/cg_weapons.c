@@ -1446,7 +1446,8 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 		return;
 
 	// JBravo: Adding a fix from NiceAss (cg_drawgun affecting other player models)
-	if ( !cg_drawGun.integer && ps )
+	// REACTION: a gun height of 0 is no gun too
+	if ( (!cg_drawGun.integer || cg_RQ3_gunHeight.integer <= 0) && ps )
 		return;
 
 	trap_R_AddRefEntityToScene( &gun1 );
@@ -1730,6 +1731,29 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 }
 
 /*
+The player's gun height (cg_RQ3_gunHeight): at 100 the gun is where it always was, from 99 down to 1 it is lowered
+in equal steps along the view's up axis, and 0 is no gun (CG_AddPlayerWeapon). Each gun goes down by its own depth,
+so at 1 every gun shows only its tip and 0 takes no more than that away: the deepest whole-unit lowering at which at
+least 100 pixels of it show at 640x360 at the default view (at most 3 % of its area at 100), measured with cg_gunZ on
+urban at 16:9, which 4:3 matches since the picture keeps its height. A tip any smaller comes and goes with the gun's
+idle drift. One depth for every gun, the grenade's 14, left the long guns three quarters in sight at 1 and then gone
+at once.
+*/
+#define GUN_HEIGHT_NORMAL	100
+static const float gunHeightLowest[WP_NUM_WEAPONS] = {
+	0,	// WP_NONE
+	24,	// WP_PISTOL
+	41,	// WP_M3
+	27,	// WP_MP5
+	24,	// WP_HANDCANNON
+	65,	// WP_SSG3000
+	27,	// WP_M4
+	25,	// WP_AKIMBO
+	26,	// WP_KNIFE
+	13	// WP_GRENADE
+};
+
+/*
 ==============
 CG_AddViewWeapon
 
@@ -1741,6 +1765,8 @@ void CG_AddViewWeapon(playerState_t * ps)
 	refEntity_t hand;
 //	centity_t *cent;
 	float fovOffset;
+	float heightOffset;
+	int height;
 	vec3_t angles;
 	weaponInfo_t *weapon;
 
@@ -1782,6 +1808,15 @@ void CG_AddViewWeapon(playerState_t * ps)
 		fovOffset = 0;
 	}
 
+	height = cg_RQ3_gunHeight.integer;
+	if (height > GUN_HEIGHT_NORMAL)
+		height = GUN_HEIGHT_NORMAL;
+	else if (height < 1)
+		height = 1;
+	heightOffset = 0;
+	if (ps->weapon > WP_NONE && ps->weapon < WP_NUM_WEAPONS)
+		heightOffset = -gunHeightLowest[ps->weapon] * (GUN_HEIGHT_NORMAL - height) / (GUN_HEIGHT_NORMAL - 1);
+
 //	cent = &cg.predictedPlayerEntity;	// &cg_entities[cg.snap->ps.clientNum];
 	CG_RegisterWeapon(ps->weapon);
 	weapon = &cg_weapons[ps->weapon];
@@ -1795,7 +1830,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 //Elder: reused so Cloud can adjust the models manually
 	VectorMA(hand.origin, cg_gun_x.value, cg.refdef.viewaxis[0], hand.origin);
 	VectorMA(hand.origin, cg_gun_y.value, cg.refdef.viewaxis[1], hand.origin);
-	VectorMA(hand.origin, (cg_gun_z.value + fovOffset), cg.refdef.viewaxis[2], hand.origin);
+	VectorMA(hand.origin, (cg_gun_z.value + fovOffset + heightOffset), cg.refdef.viewaxis[2], hand.origin);
 
 	AnglesToAxis(angles, hand.axis);
 
