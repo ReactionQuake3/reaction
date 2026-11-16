@@ -8978,9 +8978,17 @@ void _UI_MouseEvent(int dx, int dy)
 		uiInfo.uiDC.cursory = (int) (SCREEN_HEIGHT / 2.0f +
 			(float) dy * SCREEN_HEIGHT / uiInfo.uiDC.glconfig.vidHeight);
 	} else {
-		// update mouse screen position
-		uiInfo.uiDC.cursorx += dx;
-		uiInfo.uiDC.cursory += dy;
+		// one mouse count moves the pointer one screen pixel, as on the desktop, at any resolution: a count used to
+		// be one unit of the 640x480 menu grid, three screen pixels at 1440 rows. The grid is coarser than the
+		// screen, so what a move leaves over is kept for the next one
+		static float rest[2];
+
+		rest[0] += dx / uiInfo.uiDC.xscale;
+		rest[1] += dy / uiInfo.uiDC.yscale;
+		uiInfo.uiDC.cursorx += (int) rest[0];
+		uiInfo.uiDC.cursory += (int) rest[1];
+		rest[0] -= (int) rest[0];
+		rest[1] -= (int) rest[1];
 	}
 
 	if (uiInfo.uiDC.cursorx < MIN_X)
