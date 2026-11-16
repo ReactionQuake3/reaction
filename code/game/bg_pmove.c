@@ -1155,7 +1155,7 @@ Check for hard landings that generate sound events
 */
 static void PM_CrashLand(void)
 {
-	float delta;
+	float delta, change, fall;
 
 	//float         dist;
 	//float         vel, acc;
@@ -1231,7 +1231,13 @@ static void PM_CrashLand(void)
 		// Off a ladder a landing always makes its step, as up to 3.2. From 2005 this line also asked for speed
 		// downward, which a landing on level or rising ground never leaves, so only landings on a downward slope
 		// made one.
-		if (!pml.ladder)
+		// The step is the sound of the fall: it takes the downward speed this landing took away to make one.
+		// delta also counts the upward speed that rising ground gives a run, which alone made a step each time a
+		// hop of a few commands ended on a ramp, a stair or a root: a second step right after a landing's own.
+		// So the fall's share of delta has to reach the step's threshold by itself.
+		change = pm->ps->velocity[2] - pml.previous_velocity[2];
+		fall = MIN(pm->ps->velocity[2], 0) - MIN(pml.previous_velocity[2], 0);
+		if (!pml.ladder && delta * fall * fall >= change * change)
 			PM_AddEvent(PM_FootstepForSurface(pml.groundTrace.surfaceFlags));
 		//Elder: added? useful?
 		pm->ps->stats[STAT_FALLDAMAGE] = 0;
