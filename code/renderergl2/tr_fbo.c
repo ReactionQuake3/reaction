@@ -417,6 +417,20 @@ void FBO_Init(void)
 		R_CheckFBO(tr.screenSsaoFbo);
 	}
 
+	if (tr.depthSmallImage)
+	{
+		tr.depthSmallFbo = FBO_Create("_depthSmall", tr.depthSmallImage->width, tr.depthSmallImage->height);
+		FBO_AttachImage(tr.depthSmallFbo, tr.depthSmallImage, GL_COLOR_ATTACHMENT0, 0);
+		R_CheckFBO(tr.depthSmallFbo);
+	}
+
+	if (tr.reflectImage)
+	{
+		tr.reflectFbo = FBO_Create("_reflect", tr.reflectImage->width, tr.reflectImage->height);
+		FBO_AttachImage(tr.reflectFbo, tr.reflectImage, GL_COLOR_ATTACHMENT0, 0);
+		R_CheckFBO(tr.reflectFbo);
+	}
+
 	if (tr.renderCubeImage)
 	{
 		tr.renderCubeFbo = FBO_Create("_renderCubeFbo", tr.renderCubeImage->width, tr.renderCubeImage->height);

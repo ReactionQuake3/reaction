@@ -47,6 +47,27 @@ uniform vec4      u_CubeMapInfo;
 
 uniform int       u_AlphaTest;
 
+#if defined(USE_SCREEN_REFLECTIONS) && defined(USE_LIGHTMAP)
+// REACTION: the screen's reflections of the frame before (RB_ScreenReflections), and this place in that frame
+uniform sampler2D u_ReflectMap;
+varying vec4      var_ReflectPos;
+#endif
+
+#if defined(USE_ULTRA_LIGHT) && defined(USE_PRIMARY_LIGHT)
+// REACTION: the share of the sun a thin surface (a leaf) lets through to the side the sun is not on; 0 for anything else
+uniform float     u_ThinSurface;
+#endif
+
+#if defined(USE_ULTRA_LIGHT) && defined(USE_LIGHT_VECTOR) && !defined(USE_FAST_LIGHT)
+// REACTION: the light that arrives at a model from each of six sides (trRefEntity_t's lightFrom, tr_light.c)
+uniform vec3      u_LightFromPX;
+uniform vec3      u_LightFromNX;
+uniform vec3      u_LightFromPY;
+uniform vec3      u_LightFromNY;
+uniform vec3      u_LightFromPZ;
+uniform vec3      u_LightFromNZ;
+#endif
+
 #if defined(USE_TEMPORAL_JITTER)
 uniform vec2      u_TemporalJitter;     // REACTION: pixels the static world is drawn off (RB_SetTemporalJitter)
 #endif
@@ -58,14 +79,25 @@ varying vec4      var_Color;
 varying vec4      var_ColorAmbient;
 #endif
 
+// REACTION: with anti-aliasing a pixel on a surface's edge is shaded at its centre, which can lie outside the
+// surface, and there the normal and the view direction are run on past the edge. A reflection read with them pointed
+// somewhere bright, and the edge of the gun showed a row of white pixels that moved with it. Centroid keeps the
+// point these are taken at inside the surface. Texture coordinates stay as they are: their rate of change across
+// the screen picks the mip level, and centroid makes it uneven at edges. (The same line is in lightall_vp.glsl.)
+#if defined(USE_ULTRA_LIGHT)
+#define LIGHTVARYING centroid varying
+#else
+#define LIGHTVARYING varying
+#endif
+
 #if (defined(USE_LIGHT) && !defined(USE_FAST_LIGHT))
-varying vec4   var_Normal;
-varying vec4   var_Tangent;
-varying vec4   var_Bitangent;
+LIGHTVARYING vec4   var_Normal;
+LIGHTVARYING vec4   var_Tangent;
+LIGHTVARYING vec4   var_Bitangent;
 #endif
 
 #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
-varying vec4      var_LightDir;
+LIGHTVARYING vec4      var_LightDir;
 #endif
 
 #if defined(USE_PRIMARY_LIGHT) || defined(USE_SHADOWMAP)
@@ -289,7 +321,7 @@ void main()
 
 	vec2 texCoords = var_TexCoords.xy;
 
-#if defined(USE_TEMPORAL_JITTER)
+#if defined(USE_TEMPORAL_JITTER) && !defined(TEMPORAL_WHOLE_PICTURE)
 	// the texture as if the view were not offset; an alpha-tested edge is geometry and keeps the offset. Lightmaps
 	// keep it too: on a thin strip seen at a grazing angle this would read light from far beyond the strip.
 	texCoords += (dFdx(texCoords) * u_TemporalJitter.x + dFdy(texCoords) * u_TemporalJitter.y) * ((u_AlphaTest == 0) ? 1.0 : 0.0);
@@ -326,6 +358,14 @@ void main()
 	L = var_LightDir.xyz;
   #if defined(USE_DELUXEMAP)
 	L += (texture2D(u_DeluxeMap, var_TexCoords.zw).xyz - vec3(0.5)) * u_EnableTextures.y;
+  #elif defined(USE_ULTRA_LIGHT) && defined(USE_LIGHTMAP) && !defined(USE_LIGHT_VECTOR)
+	// REACTION: with a real-time sun the lightmap holds only what the sky, the lamps and other surfaces give, and
+	// that light has no single direction; the map's own guess (the light grid's direction at each corner of the
+	// surface) still pointed at the sun, or anywhere, and changed across a wall. Most of that light comes from the
+	// open side of the surface and from above, so a wall's relief is lit from in front and above, a floor's from
+	// above and a ceiling's from below: bumps and mortar lines keep their shape in shade.
+	#define SKY_LIFT 0.8
+	L = surfNormal + vec3(0.0, 0.0, SKY_LIFT);
   #endif
 	float sqrLightDist = dot(L, L);
 	L /= sqrt(sqrLightDist);
@@ -337,10 +377,19 @@ void main()
   #endif
 
   #if defined(USE_NORMALMAP)
-    #if defined(SWIZZLE_NORMALMAP)
-	N.xy = texture2D(u_NormalMap, texCoords).ag - vec2(0.5);
+    #if defined(USE_ULTRA_LIGHT)
+	// REACTION: the relief is read one mip level coarser than the colour. Light is not a straight function of
+	// the normal, so relief as fine as a pixel does not average out as colour does: under the sun each mortar line
+	// and grain a pixel wide flashed as the view moved. A level coarser, no bump is thinner than two pixels; a
+	// surface seen close, where one texel covers several pixels, keeps every texel of its relief.
+	#define NORMALMAP_LOD_BIAS 1.0
     #else
-	N.xy = texture2D(u_NormalMap, texCoords).rg - vec2(0.5);
+	#define NORMALMAP_LOD_BIAS 0.0
+    #endif
+    #if defined(SWIZZLE_NORMALMAP)
+	N.xy = texture2D(u_NormalMap, texCoords, NORMALMAP_LOD_BIAS).ag - vec2(0.5);
+    #else
+	N.xy = texture2D(u_NormalMap, texCoords, NORMALMAP_LOD_BIAS).rg - vec2(0.5);
     #endif
 	N.xy *= u_NormalScale.xy;
 	N.z = sqrt(clamp((0.25 - N.x * N.x) - N.y * N.y, 0.0, 1.0));
@@ -355,8 +404,23 @@ void main()
 	vec2 shadowTex = gl_FragCoord.xy * r_FBufScale;
 	float shadowValue = texture2D(u_ShadowMap, shadowTex).r;
 
+    #if defined(USE_PRIMARY_LIGHT) && defined(USE_ULTRA_LIGHT)
+	// REACTION: the sun's own term below already falls off with the angle between the normal and the light (NL2).
+	// The stock line also took it here, so the sun fell off with its square: a sunlit wall came out darker than in
+	// the bake this light replaces, and every bump in a normal map showed with twice the contrast, which made
+	// sunlit gravel and brick sparkle as the view moved. Here only the face's own side counts: a face turned from
+	// the light is shadowed, whatever its normal map says (its bumps caught the sun and drew white specks).
+	// A thin leaf (u_ThinSurface) seen from the side the sun is not on is not in shade either: the sun on its other
+	// side comes through it, and the sun's term below gives it that share.
+	{
+		float sunSide = dot(surfNormal, var_PrimaryLightDir.xyz) * 6.0;
+
+		shadowValue *= max(clamp(sunSide, 0.0, 1.0), sign(u_ThinSurface) * clamp(-sunSide, 0.0, 1.0));
+	}
+    #else
 	// surfaces not facing the light are always shadowed
 	shadowValue *= clamp(dot(N, var_PrimaryLightDir.xyz), 0.0, 1.0);
+    #endif
 
     #if defined(SHADOWMAP_MODULATE)
 	lightColor *= shadowValue * (1.0 - u_PrimaryLightAmbient.r) + u_PrimaryLightAmbient.r;
@@ -384,6 +448,19 @@ void main()
 	// Recover any unused light as ambient, in case attenuation is over 4x or
 	// light is below the surface
 	ambientColor = max(ambientColor - lightColor * surfNL, vec3(0.0));
+  #elif defined(USE_ULTRA_LIGHT)
+	// REACTION: a model's light with no single direction comes from six sides, and each point of it takes the
+	// sides its normal faces, by the squares of the normal's parts (which add up to one): its top is lit as the
+	// floor under it is, its flank as the wall beside it, its underside by what the ground throws back. One colour
+	// for the whole model left it flat and of the same brightness all round. var_ColorAmbient holds the surface's
+	// own colour times u_AmbientLight, which is 1 for a model lit this way and 0 in a dynamic light's pass.
+	{
+		vec3 share = N * N;
+
+		ambientColor = var_ColorAmbient.rgb * (share.x * (N.x > 0.0 ? u_LightFromPX : u_LightFromNX)
+			+ share.y * (N.y > 0.0 ? u_LightFromPY : u_LightFromNY)
+			+ share.z * (N.z > 0.0 ? u_LightFromPZ : u_LightFromNZ));
+	}
   #else
 	ambientColor = var_ColorAmbient.rgb;
   #endif
@@ -433,6 +510,22 @@ void main()
 	float roughness = pow(2.0 / (8190.0 * gloss + 2.0), 0.25);
   #endif
 
+  #if defined(USE_ULTRA_LIGHT)
+	// REACTION: where the normal turns within one pixel (the rim of a rounded edge, relief finer than a pixel) a
+	// shine or reflection is thinner than the pixel and shows as bright dots that move with the view: the gun's far
+	// edge had a dotted white rim. The surface is taken as rougher there by how much the normal varies across the
+	// pixel, which spreads the shine over what the pixel really covers (Kaplanyan and Hill 2016, Tokuyoshi and
+	// Kaplanyan 2019: variance 0.25 of the squared change, added twice to the squared width, at most 0.18).
+	{
+		vec3 turnX = dFdx(N);
+		vec3 turnY = dFdy(N);
+		float wider = min(0.5 * (dot(turnX, turnX) + dot(turnY, turnY)), 0.18);
+		float width = roughness * roughness;
+
+		roughness = pow(clamp(width * width + wider, 0.0, 1.0), 0.25);
+	}
+  #endif
+
 	reflectance  = CalcDiffuse(diffuse.rgb, NH, EH, roughness);
 
   #if defined(r_deluxeSpecular)
@@ -473,6 +566,72 @@ void main()
 	// multiply cubemap values by lighting
 	// not technically correct, but helps make reflections look less unnatural
 	//cubeLightColor *= lightColor * (attenuation * NL) + ambientColor;
+
+    #if defined(USE_ULTRA_LIGHT)
+	// REACTION: a probe holds its own spot's surroundings in that spot's light, and the nearest one may stand in
+	// the sun while this surface stands in an alley: a gun carried into shade gleamed as if the sun were on it. So
+	// the reflection is weighed by the light that reaches this surface against the light the probe was made in. The
+	// probe's blurriest level is its surroundings' average look, and where a probe stands in the same light as the
+	// surface that is PROBE_ALBEDO of the light on the surface (measured on urban: the pistol on a sunlit roof 1/6.7,
+	// in an alley whose probe stands in the same shade 1/7.5). Never more than PROBE_MOST, so a dark probe cannot
+	// blow a reflection up.
+	#define PROBE_ALBEDO 0.14
+	#define PROBE_MOST 1.25
+      #if defined(USE_LIGHTMAP)
+	// The sky's probe (a radius of none, tr_shade.c) is the one every surface of the map with a lightmap shows: the
+	// sky and the skyline as seen from over the roofs. It is what a surface under the open sky reflects, in the picture's
+	// own values, so it needs no weighing by light; what it needs is how much of the sky this spot sees, or a
+	// floor indoors would gleam with a sky no ray from it can reach. The pack's light atlas holds that in its
+	// alpha: the sky's light on this spot as a share of its light on open flat ground. A wall under an open sky
+	// gets half of that, a slope something between (half of one plus the normal's height), so the share is taken
+	// against what this surface's tilt could get at most. A face turned down gets next to nothing either way:
+	// SKY_SHARE_LEAST keeps the division from blowing its little up. That share counts the sky straight in front
+	// of the surface most, and in a street that is where the house across stands (urban's walls: half of them
+	// under 0.07, the most open 0.5), while a reflection goes where the eye's line leaves the surface, mostly
+	// along the street, where the sky is open. Which way that is the atlas cannot say, so the square root stands
+	// between the two: a wall that sees a fifth of its sky shows the probe at under half, one that sees none
+	// shows none.
+	#define SKY_SHARE_LEAST 0.25
+	if (u_CubeMapInfo.w == 0.0)
+	{
+		cubeLightColor *= sqrt(clamp(lightmapColor.a / max(0.5 + 0.5 * surfNormal.z, SKY_SHARE_LEAST), 0.0, 1.0));
+	}
+	else
+      #endif
+	{
+		const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
+		vec3 arriving = ambientColor + lightColor * (attenuation * NL);
+      #if defined(USE_PRIMARY_LIGHT)
+		float sunFacing = clamp(dot(N, var_PrimaryLightDir.xyz), 0.0, 1.0);
+        #if defined(USE_SHADOWMAP)
+		sunFacing *= shadowValue;
+        #endif
+		arriving += u_PrimaryLightColor * sunFacing;
+      #endif
+		vec3 surroundings = textureCubeLod(u_CubeMap, N, ROUGHNESS_MIPS).rgb;
+
+		cubeLightColor *= min(dot(arriving, LUMA) * PROBE_ALBEDO / max(dot(surroundings, LUMA), 0.004), PROBE_MOST);
+	}
+    #endif
+
+    #if defined(USE_SCREEN_REFLECTIONS) && defined(USE_LIGHTMAP)
+	// REACTION: what the sky's probe cannot show is what stands in the street: the house across, a lamp, a player.
+	// The frame before left, for every pixel, what its surface mirrored of the picture itself and how sure that
+	// is (RB_ScreenReflections, ssao_fp.glsl). It lies over the probe's reflection by that sureness: where the
+	// mirrored line met something in the picture, that shows; where it met nothing, the sky's probe stays. A rough
+	// surface reads a small copy of it, which is a blurred one. It is read where this place stood in that frame.
+	if (var_ReflectPos.w > 0.0)
+	{
+		vec2 was = var_ReflectPos.xy / var_ReflectPos.w * 0.5 + 0.5;
+
+		if (was.x > 0.0 && was.x < 1.0 && was.y > 0.0 && was.y < 1.0)
+		{
+			vec4 seen = texture2DLod(u_ReflectMap, was, roughness * REFLECT_MIPS);
+
+			cubeLightColor = cubeLightColor * (1.0 - seen.a) + seen.rgb;
+		}
+	}
+    #endif
 
 	gl_FragColor.rgb += cubeLightColor * reflectance;
   #endif
@@ -515,6 +674,11 @@ void main()
   #endif
 
 	gl_FragColor.rgb += lightColor * reflectance * NL2;
+    #if defined(USE_PRIMARY_LIGHT) && defined(USE_ULTRA_LIGHT) && !defined(SHADOWMAP_MODULATE)
+	// REACTION: what the sun on a thin leaf's other side sends through it, in the leaf's own colour and without a
+	// highlight. u_ThinSurface is 0 for everything that is not a leaf.
+	gl_FragColor.rgb += lightColor * CalcDiffuse(diffuse.rgb, NH2, EH2, roughness) * (u_ThinSurface * clamp(-dot(N, L2), 0.0, 1.0));
+    #endif
   #endif
 
   #if defined(USE_PBR)

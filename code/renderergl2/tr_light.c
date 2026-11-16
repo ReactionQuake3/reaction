@@ -280,6 +280,97 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, world_t *world ) {
 
 
 /*
+=================
+R_SetupEntityLightingCube
+
+REACTION: the light on a model from the map's light cube (R_LoadLightCube): the light arriving from each of six
+sides, between the eight points round the model's place, as the grid's is. A point inside a wall holds no light and
+counts for nothing, so a model beside a wall takes the points on its own side. Returns qfalse where none of the
+eight is in the open, and the model keeps the grid's light.
+=================
+*/
+static qboolean R_SetupEntityLightingCube( trRefEntity_t *ent, const world_t *world, const vec3_t lightOrigin ) {
+	int			pos[3], step[3];
+	int			i, j, k;
+	float		frac[3];
+	float		sides[LIGHT_SIDES * 3];
+	float		total = 0.0f;
+	const float	*base;
+
+	for ( i = 0 ; i < 3 ; i++ ) {
+		float	v = ( lightOrigin[i] - world->lightCubeOrigin[i] ) * world->lightCubeInverseSize[i];
+
+		pos[i] = floor( v );
+		frac[i] = v - pos[i];
+		// outside the grid a model takes its nearest face
+		if ( pos[i] < 0 ) {
+			pos[i] = 0;
+			frac[i] = 0.0f;
+		} else if ( pos[i] > world->lightCubeBounds[i] - 1 ) {
+			pos[i] = world->lightCubeBounds[i] - 1;
+			frac[i] = 0.0f;
+		}
+	}
+
+	step[0] = LIGHT_SIDES * 3;
+	step[1] = step[0] * world->lightCubeBounds[0];
+	step[2] = step[1] * world->lightCubeBounds[1];
+	base = world->lightCube + pos[0] * step[0] + pos[1] * step[1] + pos[2] * step[2];
+
+	Com_Memset( sides, 0, sizeof( sides ) );
+	for ( i = 0 ; i < 8 ; i++ ) {
+		float		factor = 1.0f;
+		float		light = 0.0f;
+		const float	*data = base;
+
+		for ( j = 0 ; j < 3 ; j++ ) {
+			if ( i & ( 1 << j ) ) {
+				if ( pos[j] + 1 > world->lightCubeBounds[j] - 1 ) {
+					break;	// past the grid's last point
+				}
+				factor *= frac[j];
+				data += step[j];
+			} else {
+				factor *= 1.0f - frac[j];
+			}
+		}
+		if ( j != 3 ) {
+			continue;
+		}
+
+		for ( k = 0 ; k < LIGHT_SIDES * 3 ; k++ ) {
+			light += data[k];
+		}
+		if ( light <= 0.0f ) {
+			continue;	// inside a wall
+		}
+
+		total += factor;
+		for ( k = 0 ; k < LIGHT_SIDES * 3 ; k++ ) {
+			sides[k] += factor * data[k];
+		}
+	}
+
+	if ( total <= 0.0f ) {
+		return qfalse;
+	}
+
+	// r_ambientScale (0.6) is the grid's tuning and has no part here: a side holds what a wall facing that way holds
+	VectorClear( ent->ambientLight );
+	for ( i = 0 ; i < LIGHT_SIDES ; i++ ) {
+		VectorScale( &sides[i * 3], 1.0f / total, ent->lightFrom[i] );
+		// a shader stage that lights the model with one colour (the generic program's) gets the six sides' mean
+		VectorMA( ent->ambientLight, 1.0f / LIGHT_SIDES, ent->lightFrom[i], ent->ambientLight );
+	}
+	// all of it comes from all round: no part of it has one direction
+	VectorClear( ent->directedLight );
+	VectorClear( ent->lightDir );
+
+	return qtrue;
+}
+
+
+/*
 ===============
 LogLight
 ===============
@@ -324,6 +415,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	float			d;
 	vec3_t			lightDir;
 	vec3_t			lightOrigin;
+	qboolean		cubeLit;
 
 	// lighting calculations 
 	if ( ent->lightingCalculated ) {
@@ -355,8 +447,15 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 		VectorCopy( tr.sunDirection, ent->lightDir );
 	}
 
+	// REACTION: where the map has a light cube, a model is lit by it: the light the walls round it are lit by
+	cubeLit = !( refdef->rdflags & RDF_NOWORLDMODEL ) && tr.world->lightCube
+		&& R_SetupEntityLightingCube( ent, tr.world, lightOrigin );
+
 	// bonus items and view weapons have a fixed minimum add
-	if ( 1 /* ent->e.renderfx & RF_MINLIGHT */ ) {
+	// REACTION: not under the cube. The add is a third again of the light in urban's middling shade (16 of 255
+	// against the atlas's 0.18) and nearly as much again as the light of its dark corners, on every model and on no wall: a model in
+	// shade stood out from the wall behind it
+	if ( !cubeLit /* ent->e.renderfx & RF_MINLIGHT */ ) {
 		// give everything a minimum light add
 		ent->ambientLight[0] += tr.identityLight * 32;
 		ent->ambientLight[1] += tr.identityLight * 32;
@@ -430,8 +529,19 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	((byte *)&ent->ambientLightInt)[2] = ri.ftol(ent->ambientLight[2]);
 	((byte *)&ent->ambientLightInt)[3] = 0xff;
 	
+	// REACTION: a model without the cube has its one colour of ambient light on every side
+	if ( !cubeLit ) {
+		for ( i = 0 ; i < LIGHT_SIDES ; i++ ) {
+			VectorCopy( ent->ambientLight, ent->lightFrom[i] );
+		}
+	}
+
 	// transform the direction to local space
-	VectorNormalize( lightDir );
+	// REACTION: light with no direction (the cube's, with no dynamic light near) still needs one that has a
+	// length, since the shaders divide by it; nothing is lit from it
+	if ( VectorNormalize( lightDir ) == 0.0f ) {
+		VectorSet( lightDir, 0.0f, 0.0f, 1.0f );
+	}
 	ent->modelLightDir[0] = DotProduct( lightDir, ent->e.axis[0] );
 	ent->modelLightDir[1] = DotProduct( lightDir, ent->e.axis[1] );
 	ent->modelLightDir[2] = DotProduct( lightDir, ent->e.axis[2] );
@@ -495,6 +605,10 @@ int R_CubemapForPoint( vec3_t point )
 		{
 			vec3_t diff;
 			vec_t length;
+
+			// REACTION: the sky's probe stands for no place (tr_bsp.c), so it is never the nearest
+			if (i + 1 == tr.skyCubemap)
+				continue;
 
 			VectorSubtract(point, tr.cubemaps[i].origin, diff);
 			length = DotProduct(diff, diff);

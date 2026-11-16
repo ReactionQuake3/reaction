@@ -2899,6 +2899,31 @@ void R_CreateBuiltinImages( void ) {
 		if (r_ssao->integer)
 		{
 			tr.screenSsaoImage = R_CreateImage("*screenSsao", NULL, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
+
+			// REACTION: the depth at half size and in ever smaller copies, for the ambient occlusion's samples
+			// (RB_DrawSurfs, ssao_fp.glsl): a sample far from its pixel reads a small copy, so the samples of
+			// neighbouring pixels come from the same few texels and not from all over the full-size depth. Made
+			// without IMGFLAG_MIPMAP, which would round its size to a power of two; the copies are made each frame.
+			if (tr.hdrDepthImage)
+			{
+				tr.depthSmallImage = R_CreateImage("*depthSmall", NULL, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F);
+				qglTextureParameterfEXT(tr.depthSmallImage->texnum, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+				qglTextureParameterfEXT(tr.depthSmallImage->texnum, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				qglTextureParameterfEXT(tr.depthSmallImage->texnum, GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, DEPTH_SMALL_COPIES);
+				qglGenerateTextureMipmapEXT(tr.depthSmallImage->texnum, GL_TEXTURE_2D);
+			}
+		}
+
+		// REACTION: what each pixel reflects of the picture (RB_ScreenReflections), at half its size. Its smaller
+		// copies are made after each frame's pass: a rough surface reads a small one, which is a blurred one. It
+		// is made without IMGFLAG_MIPMAP, which would first round its size to a power of two and so reads the
+		// pixels it was not given; the filter that reads between the copies is set here.
+		if (r_screenReflections->integer && r_ultraShadows->integer && r_hdr->integer && glRefConfig.textureFloat)
+		{
+			tr.reflectImage = R_CreateImage("*reflect", NULL, width / 2, height / 2, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA16F_ARB);
+			qglTextureParameterfEXT(tr.reflectImage->texnum, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			qglTextureParameterfEXT(tr.reflectImage->texnum, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			qglGenerateTextureMipmapEXT(tr.reflectImage->texnum, GL_TEXTURE_2D);
 		}
 
 		for( x = 0; x < MAX_DRAWN_PSHADOWS; x++)
@@ -2915,6 +2940,16 @@ void R_CreateBuiltinImages( void ) {
 				tr.sunShadowDepthImage[x] = R_CreateImage(va("*sunshadowdepth%i", x), NULL, r_shadowMapSize->integer, r_shadowMapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24);
 				qglTextureParameterfEXT(tr.sunShadowDepthImage[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 				qglTextureParameterfEXT(tr.sunShadowDepthImage[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+
+				// REACTION: a depth image is made with nearest filtering, so each compare was a hard yes or no for
+				// one texel and a soft shadow edge came out as a staircase of sixteen levels, which beat against the
+				// screen's pixels and crawled with every move. Linear filtering makes each read the compare blended
+				// over four texels, which the filter in shadowmask_fp.glsl is built on.
+				if (r_ultraShadows->integer)
+				{
+					qglTextureParameterfEXT(tr.sunShadowDepthImage[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					qglTextureParameterfEXT(tr.sunShadowDepthImage[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				}
 			}
 
 			tr.screenShadowImage = R_CreateImage("*screenShadow", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);

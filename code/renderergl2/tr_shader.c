@@ -1805,7 +1805,9 @@ static qboolean ParseShader( char **text )
 			float	a, b;
 			qboolean isGL2Sun = qfalse;
 
-			if (!Q_stricmp( token, "q3gl2_sun" ) && r_sunShadows->integer )
+			// REACTION: a real-time sun only where this map's light is loaded without the sun's own (tr.ultraSun);
+			// anywhere else the map's light has the sun baked in, and a second one would light it twice
+			if (!Q_stricmp( token, "q3gl2_sun" ) && r_sunShadows->integer && tr.ultraSun )
 			{
 				isGL2Sun = qtrue;
 				tr.sunShadows = qtrue;
@@ -2523,6 +2525,22 @@ static int CollapseStagesToGLSL(void)
 			vertexlit = qfalse;
 			if (diffuse->rgbGen == CGEN_VERTEX_LIT || diffuse->rgbGen == CGEN_EXACT_VERTEX_LIT)
 			{
+				vertexlit = qtrue;
+			}
+			// REACTION: a world surface with no lightmap (a map's plants and other built-in models) has its light in
+			// its corners' colours, whatever its script calls them: "rgbGen vertex" drew those colours as a tint, which
+			// the sun and its shadows never touched, and a $lightmap stage with no lightmap to show drew the picture
+			// unlit. Both are lit by their corners here, so the real-time sun and its shadow fall on them as on a wall.
+			// Only a solid or alpha-tested stage: a blended one (a beam of light, glass) is not a lit surface.
+			else if ( tr.ultraSun && shader.lightmapIndex == LIGHTMAP_BY_VERTEX
+				&& !( diffuse->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
+				&& ( diffuse->rgbGen == CGEN_VERTEX || diffuse->rgbGen == CGEN_EXACT_VERTEX || lightmap ) )
+			{
+				if ( lightmap )
+				{
+					diffuse->rgbGen = CGEN_EXACT_VERTEX_LIT;
+					lightmap = NULL;
+				}
 				vertexlit = qtrue;
 			}
 
@@ -3967,6 +3985,16 @@ static void CreateInternalShaders( void ) {
 	Q_strncpyz( shader.name, "<stencil shadow>", sizeof( shader.name ) );
 	shader.sort = SS_STENCIL_SHADOW;
 	tr.shadowShader = FinishShader();
+
+	// REACTION: the map's solid blocks, in the sun's shadow maps only (R_LoadSunBlockers). A shadow map draws a
+	// surface from its other side (RB_StageIteratorGeneric), which for the drawn world is the side turned from the
+	// sun; the blocks must go in where they face the sun, so their shader is back-sided: turned round, front.
+	InitShader( "<sun blocker>", LIGHTMAP_NONE );
+	stages[0].bundle[0].image[0] = tr.whiteImage;
+	stages[0].active = qtrue;
+	stages[0].stateBits = GLS_DEFAULT;
+	shader.cullType = CT_BACK_SIDED;
+	tr.sunBlockerShader = FinishShader();
 }
 
 static void CreateExternalShaders( void ) {

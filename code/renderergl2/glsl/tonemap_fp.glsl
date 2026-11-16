@@ -50,6 +50,17 @@ void main()
 	color.rgb = sqrt(color.rgb);
 #endif
 
+#if defined(r_grade)
+	// REACTION: light lifted and shade left alone, and a little more colour. x + a x^2 (1 - x) starts with slope 1,
+	// so dark values keep their level (an S-curve took a quarter off them, and the alleys went black); it adds most
+	// at two thirds and nothing at white.
+	{
+		vec3 graded = color.rgb + (0.6 * r_grade) * color.rgb * color.rgb * (vec3(1.0) - color.rgb);
+		graded = mix(vec3(dot(graded, LUMINANCE_VECTOR)), graded, 1.0 + 0.10 * r_grade);   // at 0.25 a lamp-lit alley went orange
+		color.rgb = clamp(graded, 0.0, 1.0);
+	}
+#endif
+
 	// add a bit of dither to reduce banding
 	color.rgb += vec3(1.0/510.0 * mod(gl_FragCoord.x + gl_FragCoord.y, 2.0) - 1.0/1020.0);
 

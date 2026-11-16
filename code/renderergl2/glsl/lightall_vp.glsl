@@ -80,18 +80,32 @@ varying vec4   var_Color;
 varying vec4   var_ColorAmbient;
 #endif
 
-#if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
-varying vec4   var_Normal;
-varying vec4   var_Tangent;
-varying vec4   var_Bitangent;
+// REACTION: taken inside the surface at its edges; see lightall_fp.glsl
+#if defined(USE_ULTRA_LIGHT)
+#define LIGHTVARYING centroid varying
+#else
+#define LIGHTVARYING varying
 #endif
 
 #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
-varying vec4   var_LightDir;
+LIGHTVARYING vec4   var_Normal;
+LIGHTVARYING vec4   var_Tangent;
+LIGHTVARYING vec4   var_Bitangent;
+#endif
+
+#if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
+LIGHTVARYING vec4   var_LightDir;
 #endif
 
 #if defined(USE_PRIMARY_LIGHT) || defined(USE_SHADOWMAP)
 varying vec4   var_PrimaryLightDir;
+#endif
+
+#if defined(USE_SCREEN_REFLECTIONS) && defined(USE_LIGHTMAP)
+// REACTION: where this place stood in the picture of the frame before, whose reflections the surface reads
+// (lightall_fp.glsl). u_ReflectMatrix is all zero while there is no such frame.
+uniform mat4   u_ReflectMatrix;
+varying vec4   var_ReflectPos;
 #endif
 
 #if defined(USE_TCGEN)
@@ -224,6 +238,10 @@ void main()
 
 #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
 	vec3 bitangent = cross(normal, tangent) * attr_Tangent.w;
+#endif
+
+#if defined(USE_SCREEN_REFLECTIONS) && defined(USE_LIGHTMAP)
+	var_ReflectPos = u_ReflectMatrix * vec4(position, 1.0);
 #endif
 
 #if defined(USE_LIGHT_VECTOR)

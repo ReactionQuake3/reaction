@@ -2580,6 +2580,13 @@ void CG_Player(centity_t * cent)
 			}
 		}
 	}
+	// REACTION: under a real-time sun no other player casts a shadow. It would come round a corner before its
+	// player does, and only those with that look on would see it. A player's own body casts one where he wants it
+	// (cg_RQ3_ownSunShadow): it shows nothing about anyone else. The shadow under every player's feet
+	// (cg_shadows) is as it was at every setting. The gun in the hand takes the body's flags.
+	if (cent->currentState.number != cg.snap->ps.clientNum || !cg_RQ3_ownSunShadow.integer) {
+		renderfx |= RF_NO_SUN_SHADOW;
+	}
 
 	// NiceAss: Render players through walls (for testing): renderfx |= RF_DEPTHHACK;
 	// NiceAss: Check for visibility here

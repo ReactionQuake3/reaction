@@ -351,6 +351,14 @@ void RB_BeginDrawingView (void) {
 			FBO_AttachImage(fbo, cubemap->image, GL_COLOR_ATTACHMENT0_EXT, backEnd.viewParms.targetFboLayer);
 		}
 
+		// REACTION: a view drawn into tr.renderFbo after the frame's picture left it (RB_PostProcess) is drawn over
+		// that picture: a model on the HUD, a second view of the world. So the picture goes back there first.
+		if (fbo == tr.renderFbo && backEnd.pictureFbo)
+		{
+			FBO_FastBlit(backEnd.pictureFbo, NULL, tr.renderFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			backEnd.pictureFbo = NULL;
+		}
+
 		FBO_Bind(fbo);
 	}
 
@@ -468,6 +476,19 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		oldSort = (int)drawSurf->sort;
 		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed );
 		cubemapIndex = drawSurf->cubemapIndex;
+
+		// REACTION: the depth-first pass draws every plain solid surface alike, whatever its material, light or
+		// reflection (R_ShaderIsPlainSolid), so there a new shader of that kind goes on in the batch that is open. The
+		// pass was one small batch a material, and cost nearly as much as drawing the picture itself.
+		if ( backEnd.depthFill && r_ultraShadows->integer && oldShader != NULL && shader != NULL && shader != oldShader
+			&& entityNum == oldEntityNum && shader->cullType == oldShader->cullType
+			&& R_ShaderIsPlainSolid( shader ) && R_ShaderIsPlainSolid( oldShader ) ) {
+			shader = oldShader;
+			fogNum = oldFogNum;
+			dlighted = oldDlighted;
+			pshadowed = oldPshadowed;
+			cubemapIndex = oldCubemapIndex;
+		}
 
 		//
 		// change the tess parameters if needed
@@ -631,6 +652,24 @@ RENDER BACK END FUNCTIONS
 
 /*
 ================
+RB_PictureFbo
+
+REACTION: the buffer that holds the frame's picture, which the HUD and everything else flat is drawn onto and
+RB_PresentToScreen shows. It is tr.renderFbo, except with the Ultra look on once RB_PostProcess has worked on a
+view that fills the picture: its passes read one buffer and write another, and the last one written is then the
+picture. Without that look the picture is copied back into tr.renderFbo for the HUD, with multisampling into all
+the samples of every pixel, and resolved from them a second time to be shown. Those two passes change nothing in
+the world's part of the picture, but in the samples the HUD's and the menus' edges that fall between two pixels
+are smoothed, and without multisampling the HUD is blended in the render buffer's finer steps: so every other
+preset keeps them, and its picture is the one it always was.
+================
+*/
+static FBO_t *RB_PictureFbo( void ) {
+	return backEnd.pictureFbo ? backEnd.pictureFbo : tr.renderFbo;
+}
+
+/*
+================
 RB_SetGL2D
 
 ================
@@ -728,7 +767,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 
 	if (glRefConfig.framebufferObject)
 	{
-		FBO_Bind(tr.renderFbo);
+		FBO_Bind(RB_PictureFbo());
 	}
 
 	RB_SetGL2D();
@@ -834,7 +873,7 @@ const void *RB_StretchPic ( const void *data ) {
 	cmd = (const stretchPicCommand_t *)data;
 
 	if (glRefConfig.framebufferObject)
-		FBO_Bind(tr.renderFbo);
+		FBO_Bind(RB_PictureFbo());
 
 	RB_SetGL2D();
 
@@ -905,6 +944,49 @@ const void *RB_StretchPic ( const void *data ) {
 
 
 /*
+=================
+RB_DrawSunCasters
+
+REACTION: the world's plain solid surfaces and its solid blocks into a near shadow map, from their mesh on the
+card (R_BuildSunCasters): one call for each side culled, with the program, the matrix and the state a batch of
+such surfaces is drawn with in a depth-only pass (RB_StageIteratorGeneric), so the map holds the same depths.
+=================
+*/
+static void RB_DrawSunCasters( void ) {
+	world_t *world = tr.world;
+	shaderProgram_t *sp = &tr.depthOnlyShader;
+	int cull, order;
+
+	if ( !world || !world->sunCasterVao ) {
+		return;
+	}
+
+	GL_SetModelviewMatrix( backEnd.viewParms.world.modelMatrix );
+
+	R_BindVao( world->sunCasterVao );
+	GLSL_BindProgram( sp );
+	GLSL_SetUniformMat4( sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection );
+	GL_State( GLS_DEFAULT );
+
+	// The back-sided run first: it holds the solid blocks' sunny sides, which hide from the sun nearly all of the
+	// front-sided run (the drawn world's sides turned from the sun), so those are thrown out before they fill
+	// (urban, three maps of 4096: 0.63 msec of the card's time to 0.60).
+	for ( order = 0; order <= CT_TWO_SIDED; order++ ) {
+		static const int byOrder[CT_TWO_SIDED + 1] = { CT_BACK_SIDED, CT_TWO_SIDED, CT_FRONT_SIDED };
+
+		cull = byOrder[order];
+		if ( !world->sunCasterNumIndexes[cull] ) {
+			continue;
+		}
+		// a shadow map draws a surface from its other side
+		GL_Cull( cull == CT_TWO_SIDED ? CT_TWO_SIDED : ( cull == CT_FRONT_SIDED ? CT_BACK_SIDED : CT_FRONT_SIDED ) );
+		qglDrawElements( GL_TRIANGLES, world->sunCasterNumIndexes[cull], GL_UNSIGNED_INT,
+			BUFFER_OFFSET( world->sunCasterFirstIndex[cull] * sizeof( GLuint ) ) );
+		backEnd.pc.c_staticVaoDraws++;
+	}
+}
+
+/*
 =============
 RB_DrawSurfs
 
@@ -943,6 +1025,8 @@ const void	*RB_DrawSurfs( const void *data ) {
 
 		backEnd.depthFill = qtrue;
 		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		if (backEnd.viewParms.flags & VPF_SUNCASTERS)
+			RB_DrawSunCasters();
 		RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
 		qglColorMask(!backEnd.colorMask[0], !backEnd.colorMask[1], !backEnd.colorMask[2], !backEnd.colorMask[3]);
 		backEnd.depthFill = qfalse;
@@ -1088,9 +1172,19 @@ const void	*RB_DrawSurfs( const void *data ) {
 				vec4_t quadVerts[4];
 				vec2_t texCoords[4];
 
-				viewInfo[2] = 1.0f / ((float)(tr.quarterImage[0]->width)  * tan(backEnd.viewParms.fovX * M_PI / 360.0f) * 2.0f);
-				viewInfo[3] = 1.0f / ((float)(tr.quarterImage[0]->height) * tan(backEnd.viewParms.fovY * M_PI / 360.0f) * 2.0f);
-				viewInfo[3] *= (float)backEnd.viewParms.viewportHeight / (float)backEnd.viewParms.viewportWidth;
+				// REACTION: what turns a length in game units at a depth into screen units (ssao_fp.glsl)
+				viewInfo[2] = 0.5f / tan(backEnd.viewParms.fovX * M_PI / 360.0f);
+				viewInfo[3] = 0.5f / tan(backEnd.viewParms.fovY * M_PI / 360.0f);
+
+				// REACTION: the depth at half size and its smaller copies, which the samples read (tr_image.c)
+				if (tr.depthSmallFbo)
+				{
+					vec4_t whole;
+
+					VectorSet4(whole, 0.0f, 0.0f, 1.0f, 1.0f);
+					FBO_BlitFromTexture(tr.hdrDepthImage, whole, NULL, tr.depthSmallFbo, NULL, NULL, NULL, 0);
+					qglGenerateTextureMipmapEXT(tr.depthSmallImage->texnum, GL_TEXTURE_2D);
+				}
 
 				FBO_Bind(tr.quarterFbo[0]);
 
@@ -1112,6 +1206,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 				GLSL_BindProgram(&tr.ssaoShader);
 
 				GL_BindToTMU(tr.hdrDepthImage, TB_COLORMAP);
+				GL_BindToTMU(tr.depthSmallImage, TB_LIGHTMAP);
 
 				GLSL_SetUniformVec4(&tr.ssaoShader, UNIFORM_VIEWINFO, viewInfo);
 
@@ -1429,7 +1524,12 @@ static void RB_PresentToScreen(void)
 	// REACTION: with framebuffer objects every frame is drawn into a texture (FBO_Init)
 	const FBO_t *src = FBO_PresentSource();
 
-	if (src == tr.msaaResolveFbo)
+	// REACTION: the picture RB_PostProcess left in a buffer of its own is shown from there; it needs no resolving
+	if (backEnd.pictureFbo)
+	{
+		src = backEnd.pictureFbo;
+	}
+	else if (src == tr.msaaResolveFbo)
 	{
 		FBO_FastBlit(tr.renderFbo, NULL, tr.msaaResolveFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
@@ -1437,6 +1537,9 @@ static void RB_PresentToScreen(void)
 	// REACTION: always through the shader, which also draws the brightness into the picture (R_SetColorMappings).
 	// A blit from the RGBA8 render texture (no HDR) to the window made a fifth of the frames 3 to 4 ms slower (NVIDIA)
 	RB_DrawPresent(src);
+
+	// the next frame starts in tr.renderFbo again
+	backEnd.pictureFbo = NULL;
 }
 
 
@@ -1533,6 +1636,113 @@ const void *RB_CapShadowMap(const void *data)
 
 /*
 =============
+RB_Haze
+
+REACTION: air (r_haze, ssao_fp.glsl USE_HAZE). One blended quad over the picture before it is tone mapped. The
+colour is urban's sky near the horizon; the amount is set so that the far end of the map, about 3000 units away,
+takes on a fifth of it at r_haze 1: enough to part far from near, too little to hide a player.
+=============
+*/
+#define HAZE_RED     0.60f
+#define HAZE_GREEN   0.70f
+#define HAZE_BLUE    0.85f
+#define HAZE_PER_UNIT 0.000075f   // 1 - exp(-3000 * this) is 0.2
+
+static void RB_Haze(FBO_t *dst)
+{
+	vec4_t quadVerts[4];
+	vec2_t texCoords[4];
+	vec4_t viewInfo, colour;
+
+	if (!tr.hazeShader.program || !tr.hdrDepthImage)
+		return;
+
+	FBO_Bind(dst);
+	qglViewport(0, 0, dst->width, dst->height);
+	qglScissor(0, 0, dst->width, dst->height);
+
+	VectorSet4(quadVerts[0], -1,  1, 0, 1);
+	VectorSet4(quadVerts[1],  1,  1, 0, 1);
+	VectorSet4(quadVerts[2],  1, -1, 0, 1);
+	VectorSet4(quadVerts[3], -1, -1, 0, 1);
+
+	texCoords[0][0] = 0; texCoords[0][1] = 1;
+	texCoords[1][0] = 1; texCoords[1][1] = 1;
+	texCoords[2][0] = 1; texCoords[2][1] = 0;
+	texCoords[3][0] = 0; texCoords[3][1] = 0;
+
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+	GLSL_BindProgram(&tr.hazeShader);
+	GL_BindToTMU(tr.hdrDepthImage, TB_COLORMAP);
+
+	VectorSet4(viewInfo, backEnd.viewParms.zFar / r_znear->value, backEnd.viewParms.zFar, 0.0f, 0.0f);
+	GLSL_SetUniformVec4(&tr.hazeShader, UNIFORM_VIEWINFO, viewInfo);
+	VectorSet4(colour, HAZE_RED, HAZE_GREEN, HAZE_BLUE, HAZE_PER_UNIT * r_haze->value);
+	GLSL_SetUniformVec4(&tr.hazeShader, UNIFORM_COLOR, colour);
+
+	RB_InstantQuad2(quadVerts, texCoords);
+}
+
+/*
+=============
+RB_ScreenReflections
+
+REACTION: the screen's reflections (r_screenReflections; ssao_fp.glsl, USE_REFLECT). Run on the finished picture
+of the world before air, glow and tone mapping are laid on it, so a reflection holds what the surface it shows
+holds. The next frame's surfaces read the result (lightall_fp.glsl) through the view this frame was drawn with,
+kept here without its sub-pixel offset.
+=============
+*/
+static void RB_ScreenReflections(void)
+{
+	vec4_t quadVerts[4];
+	vec2_t texCoords[4];
+	vec4_t viewInfo;
+	mat4_t projection;
+
+	if (!tr.reflectFbo || !tr.reflectShader.program || !tr.hdrDepthImage || (backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+		|| backEnd.viewParms.isPortal)
+		return;
+
+	FBO_Bind(tr.reflectFbo);
+	qglViewport(0, 0, tr.reflectFbo->width, tr.reflectFbo->height);
+	qglScissor(0, 0, tr.reflectFbo->width, tr.reflectFbo->height);
+
+	VectorSet4(quadVerts[0], -1,  1, 0, 1);
+	VectorSet4(quadVerts[1],  1,  1, 0, 1);
+	VectorSet4(quadVerts[2],  1, -1, 0, 1);
+	VectorSet4(quadVerts[3], -1, -1, 0, 1);
+
+	texCoords[0][0] = 0; texCoords[0][1] = 1;
+	texCoords[1][0] = 1; texCoords[1][1] = 1;
+	texCoords[2][0] = 1; texCoords[2][1] = 0;
+	texCoords[3][0] = 0; texCoords[3][1] = 0;
+
+	GL_State(GLS_DEPTHTEST_DISABLE);
+	GLSL_BindProgram(&tr.reflectShader);
+	GL_BindToTMU(tr.hdrDepthImage, TB_COLORMAP);
+	GL_BindToTMU(tr.renderImage, TB_LIGHTMAP);
+
+	// what turns a place before the eye into a place on the screen and back (ssao_fp.glsl)
+	VectorSet4(viewInfo, backEnd.viewParms.zFar / r_znear->value, backEnd.viewParms.zFar,
+		0.5f / tan(backEnd.viewParms.fovX * M_PI / 360.0f), 0.5f / tan(backEnd.viewParms.fovY * M_PI / 360.0f));
+	GLSL_SetUniformVec4(&tr.reflectShader, UNIFORM_VIEWINFO, viewInfo);
+
+	RB_InstantQuad2(quadVerts, texCoords);
+
+	// the smaller copies, for rougher surfaces
+	qglGenerateTextureMipmapEXT(tr.reflectImage->texnum, GL_TEXTURE_2D);
+
+	R_ProjectionWithoutJitter(&backEnd.viewParms, projection);
+	Mat4Multiply(projection, backEnd.viewParms.world.modelMatrix, tr.reflectMatrix);
+	tr.reflectFrame = backEnd.viewParms.frameCount;
+
+	// the passes after this copy between buffers, and a copy is cut to the scissor box
+	SetViewportAndScissor();
+}
+
+/*
+=============
 RB_PostProcess
 
 =============
@@ -1543,6 +1753,7 @@ const void *RB_PostProcess(const void *data)
 	FBO_t *srcFbo, *dstFbo;
 	ivec4_t srcBox, dstBox;
 	qboolean autoExposure;
+	qboolean wholePicture;	// REACTION: with the Ultra look, a view that fills the picture: its passes may leave the picture in another buffer (RB_PictureFbo)
 
 	// finish any 2D drawing if needed
 	if(tess.numIndexes)
@@ -1562,6 +1773,8 @@ const void *RB_PostProcess(const void *data)
 
 	srcFbo = tr.renderFbo;
 	dstFbo = tr.renderFbo;
+	wholePicture = r_ultraShadows->integer && tr.renderFbo && backEnd.viewParms.viewportX == 0 && backEnd.viewParms.viewportY == 0
+		&& backEnd.viewParms.viewportWidth == tr.renderFbo->width && backEnd.viewParms.viewportHeight == tr.renderFbo->height;
 
 	if (tr.msaaResolveFbo)
 	{
@@ -1587,10 +1800,21 @@ const void *RB_PostProcess(const void *data)
 		FBO_Blit(tr.screenSsaoFbo, srcBox, NULL, srcFbo, dstBox, NULL, NULL, GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
 	}
 
+	// REACTION: what each surface reflects of this picture, for the next frame
+	RB_ScreenReflections();
+
+	// REACTION: air, on the world only (a refdef without the world is a menu or the HUD's model)
+	if (srcFbo && r_haze->value > 0.0f && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		RB_Haze(srcFbo);
+
 	srcBox[0] = backEnd.viewParms.viewportX;
 	srcBox[1] = backEnd.viewParms.viewportY;
 	srcBox[2] = backEnd.viewParms.viewportWidth;
 	srcBox[3] = backEnd.viewParms.viewportHeight;
+
+	// REACTION: the glow goes on before tone mapping, so the tone mapper holds it in range
+	if (srcFbo && r_bloom->value > 0.0f)
+		RB_Bloom(srcFbo, srcBox, r_bloom->value);
 
 	if (srcFbo)
 	{
@@ -1601,7 +1825,14 @@ const void *RB_PostProcess(const void *data)
 			// Use an intermediate FBO because it can't blit to the same FBO directly
 			// and can't read from an MSAA dstFbo later.
 			RB_ToneMap(srcFbo, srcBox, tr.screenScratchFbo, srcBox, autoExposure);
-			FBO_FastBlit(tr.screenScratchFbo, srcBox, srcFbo, srcBox, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+			// REACTION: where the view fills the picture, the tone mapped picture stays in that buffer and the
+			// passes after this work on it there (RB_PictureFbo); a smaller view is one part of the picture, which
+			// goes back beside the rest
+			if (wholePicture)
+				srcFbo = tr.screenScratchFbo;
+			else
+				FBO_FastBlit(tr.screenScratchFbo, srcBox, srcFbo, srcBox, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		}
 		else if (r_cameraExposure->value != 0.0f)
 		{
@@ -1629,8 +1860,14 @@ const void *RB_PostProcess(const void *data)
 	else
 		RB_GaussianBlur(srcFbo, srcFbo, backEnd.refdef.blurFactor);
 
+	// REACTION: a view that fills the picture leaves it where the last pass wrote it (RB_PictureFbo)
 	if (srcFbo != dstFbo)
-		FBO_FastBlit(srcFbo, srcBox, dstFbo, dstBox, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	{
+		if (wholePicture)
+			backEnd.pictureFbo = srcFbo;
+		else
+			FBO_FastBlit(srcFbo, srcBox, dstFbo, dstBox, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	}
 
 #if 0
 	if (0)

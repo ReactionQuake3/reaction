@@ -28,6 +28,8 @@ const float MOTION_PIXELS = 8.0;
 const float MOTION_BLEND = 0.25;
 // The history is held within this many standard deviations of the neighbourhood's mean.
 const float SPREAD = 1.25;
+// REACTION: this frame's share on the view weapon: four frames' worth, 13 msec at 300 frames a second.
+const float WEAPON_BLEND = 0.25;
 
 // A surface's window depth changes linearly across the screen, also at a grazing angle, so its second difference across
 // a pixel is about zero inside a surface and large where the pixel sees a geometry edge or a thin ledge.
@@ -84,23 +86,37 @@ void main()
 	// the view weapon moves with the eye and is no part of the static world
 	if (depth < WEAPON_DEPTH)
 	{
+#if defined(TEMPORAL_WHOLE_PICTURE)
+		// REACTION: the weapon keeps its place on the screen from frame to frame, so its last frames are blended
+		// where they are, with a larger share for this frame (WEAPON_BLEND) so that a swing or a kick leaves no
+		// trail. A reflection a pixel thin on its edge then holds still where it crawled with every sway.
+		blend = max(blend, WEAPON_BLEND);
+#else
 		gl_FragColor = vec4(current, 0.0);
 		return;
+#endif
 	}
-
-	clip = u_ReprojectionMatrix * vec4(var_TexCoords * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
-	if (clip.w <= 0.0)
-		blend = 1.0;
 	else
-		previous = clip.xy / clip.w * 0.5 + 0.5;
+	{
+		clip = u_ReprojectionMatrix * vec4(var_TexCoords * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
+		if (clip.w <= 0.0)
+			blend = 1.0;
+		else
+			previous = clip.xy / clip.w * 0.5 + 0.5;
+	}
 
 	if (previous.x < 0.0 || previous.y < 0.0 || previous.x > 1.0 || previous.y > 1.0)
 		blend = 1.0;
 
 	// only where this pixel saw an edge lately; when starting over, the history is not read: it may be undefined
+#if defined(TEMPORAL_WHOLE_PICTURE)
+	// REACTION: every pixel of the static world counts as an edge, so the whole picture is blended
+	edge = 1.0;
+#else
 	edge = depthStep(depth) >= EDGE_DEPTH_STEP ? 1.0 : 0.0;
 	if (blend < 1.0)
 		edge = max(edge, texture2D(u_TextureMap, previous).a * EDGE_MEMORY);
+#endif
 
 	blend = max(blend, mix(blend, MOTION_BLEND, clamp(length((previous - var_TexCoords) / u_InvTexRes) / MOTION_PIXELS, 0.0, 1.0)));
 	blend = mix(1.0, blend, smoothstep(EDGE_FORGOTTEN, EDGE_FULL, edge));

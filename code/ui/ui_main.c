@@ -5655,6 +5655,15 @@ static void UI_Update(const char *name)
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_glCustom") == 0) {
+		// What the Ultra preset alone turns on, back at the renderer's defaults for every other preset
+		if (val >= 1 && val <= 5) {
+			trap_Cvar_SetValue("r_ultraShadows", 0);
+			trap_Cvar_SetValue("r_sunlightMode", 1);
+			trap_Cvar_SetValue("r_cubemapSize", 128);
+			trap_Cvar_SetValue("r_dlightMode", 0);
+			trap_Cvar_SetValue("r_bloom", 0);
+			trap_Cvar_SetValue("r_screenReflections", 0);
+		}
 		switch (val) {
 		//TTI: new presets
 		// No preset turns on cubemap reflections: the maps ship no cubemap probes, so the renderer would capture
@@ -5795,6 +5804,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("ui_shadowMaps", 2);
 			break;
 		case 5: // very high quality
+		case 6: // Ultra is Very High with the Ultra light on top; a map needs its Ultra light pack for it
 			trap_Cvar_SetValue("cg_brassTime", 20000);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 20000);
 			
@@ -5823,6 +5833,24 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("ui_filteringMode", 5);
 			trap_Cvar_SetValue("ui_shaderLevel", 1);
 			trap_Cvar_SetValue("ui_shadowMaps", 3);
+			if (val == 6) {
+				// The one preset that adds to the look: a real-time sun in place of the baked one, its shadows,
+				// crease shading, reflections, the glow round bright things, and temporal anti-aliasing, which
+				// with this look blends the whole picture over frames and keeps the rest steady. No other preset
+				// sets temporal anti-aliasing, and none turns it off. The reflections (r_cubeMapping) are set
+				// with Material Maps, below. Choices of their own, which no preset sets: the haze (r_haze); and
+				// the grade (r_grade), which lifts the picture's light, and a preset never changes how bright
+				// the game is.
+				trap_Cvar_SetValue("r_ultraShadows", 1);
+				trap_Cvar_SetValue("r_sunlightMode", 2);
+				trap_Cvar_SetValue("r_ssao", 1);
+				trap_Cvar_SetValue("r_cubemapSize", 256);
+				trap_Cvar_SetValue("r_dlightMode", 1);
+				trap_Cvar_SetValue("r_bloom", 0.35f);
+				trap_Cvar_SetValue("r_screenReflections", 1);
+				trap_Cvar_SetValue("r_temporalAA", 1);
+				trap_Cvar_SetValue("ui_shadowMaps", 4);
+			}
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_filteringMode") == 0) {
@@ -5874,7 +5902,9 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_deluxeMapping", 1);
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
-			trap_Cvar_SetValue("r_cubeMapping", 0);	// no cubemap probes in the maps, see the presets
+			// No cubemap probes in the maps, see the presets; but with the Ultra look on, whose maps bring their
+			// own. The Quality row runs this after its preset, which had switched Ultra's reflections off again.
+			trap_Cvar_SetValue("r_cubeMapping", trap_Cvar_VariableValue("r_ultraShadows") ? 1 : 0);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_shadowMaps") == 0) {
@@ -5905,6 +5935,12 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_shadowFilter", 2);
 			trap_Cvar_SetValue("r_shadowMapSize", 2048);
 			trap_Cvar_SetValue("r_shadowBlur", 1);
+			break;
+		case 4: // the Ultra preset's: maps at twice the size, their edges softened in the shadow pass itself
+			trap_Cvar_SetValue("r_sunShadows", 1);
+			trap_Cvar_SetValue("r_shadowFilter", 2);
+			trap_Cvar_SetValue("r_shadowMapSize", 4096);
+			trap_Cvar_SetValue("r_shadowBlur", 0);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_mousePitch") == 0) {
@@ -6013,7 +6049,9 @@ static const char *uiRestartCvars[] = {
 	"r_deluxeMapping", "r_normalMapping", "r_specularMapping", "r_cubeMapping",
 	"r_ext_compressed_textures", "r_ext_framebuffer_multisample",
 	"r_ext_texture_filter_anisotropic", "r_ext_max_anisotropy",
-	"r_sunShadows", "r_shadowFilter", "r_shadowMapSize", "r_shadowBlur"
+	"r_sunShadows", "r_shadowFilter", "r_shadowMapSize", "r_shadowBlur",
+	// what the Ultra preset alone sets, all read by the renderer only as it starts
+	"r_ultraShadows", "r_sunlightMode", "r_cubemapSize", "r_dlightMode", "r_screenReflections"
 };
 
 // Their values now, as one string.

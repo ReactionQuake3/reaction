@@ -13,7 +13,7 @@ varying vec4      var_Color;
 
 void main()
 {
-#if defined(USE_TEMPORAL_JITTER)
+#if defined(USE_TEMPORAL_JITTER) && !defined(TEMPORAL_WHOLE_PICTURE)
 	// the texture as if the view were not offset; an alpha-tested edge is geometry and keeps the offset
 	float textureShift = (u_AlphaTest == 0) ? 1.0 : 0.0;
 	vec4 color  = texture2D(u_DiffuseMap, var_DiffuseTex + (dFdx(var_DiffuseTex) * u_TemporalJitter.x + dFdy(var_DiffuseTex) * u_TemporalJitter.y) * textureShift);
