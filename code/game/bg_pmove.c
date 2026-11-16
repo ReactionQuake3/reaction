@@ -1406,6 +1406,19 @@ static void PM_GroundTrace(void)
 			Com_Printf("%i:Land\n", c_pmove);
 		}
 
+		// No move of this command turned the fall along the ground. The move ended above the ground, inside
+		// this trace's reach, without touching it; or PM_SlideMove stopped early, or gave a timer its old
+		// velocity back; or the player came up onto the ground by a step. The fall still has all its speed, so
+		// PM_CrashLand would read no landing (no step, no thud, no falling damage) and the next jump would
+		// start from the fall's speed. Give the fall the vertical speed the ground leaves of it, the part of
+		// a landing's turn that PM_StepSlideMove keeps.
+		if (!pml.turnedOnGround && DotProduct(pm->ps->velocity, trace.plane.normal) < 0) {
+			vec3_t turned;
+
+			PM_ClipVelocity(pm->ps->velocity, trace.plane.normal, turned, OVERCLIP);
+			pm->ps->velocity[2] = turned[2];
+		}
+
 		PM_CrashLand();
 
 		if (pml.ladder) {
