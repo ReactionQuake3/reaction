@@ -28,6 +28,9 @@ extern	botlib_export_t	*botlib_export;
 
 vm_t *uivm;
 
+// REACTION: the ui has asked where the system pointer is (UI_RQ3_GETPOINTER), so it follows it
+static qboolean uiFollowsPointer;
+
 /*
 ====================
 GetClientState
@@ -1026,6 +1029,10 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 	case UI_CEIL:
 		return FloatAsInt( ceil( VMF(1) ) );
 
+	case UI_RQ3_GETPOINTER:
+		uiFollowsPointer = qtrue;
+		return IN_PointerPlace( VMA(1) );
+
 	case UI_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA(1) );
 	case UI_PC_LOAD_SOURCE:
@@ -1083,6 +1090,19 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 
 /*
 ====================
+CL_UIFollowsPointer
+
+REACTION: a ui that asks where the system pointer is draws its own pointer
+there, so while its menus are up the input code leaves the mouse to the
+system instead of reading it as movement
+====================
+*/
+qboolean CL_UIFollowsPointer( void ) {
+	return uiFollowsPointer && ( Key_GetCatcher( ) & KEYCATCH_UI );
+}
+
+/*
+====================
 CL_ShutdownUI
 ====================
 */
@@ -1117,6 +1137,8 @@ void CL_InitUI( void ) {
 			interpret = VMI_COMPILED;
 	}
 
+	// a newly loaded ui has not asked yet
+	uiFollowsPointer = qfalse;
 	uivm = VM_Create( "ui", CL_UISystemCalls, interpret );
 	if ( !uivm ) {
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );

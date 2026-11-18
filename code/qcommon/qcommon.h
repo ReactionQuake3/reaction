@@ -1068,6 +1068,8 @@ void IN_Init( void *windowData );
 void IN_Frame( void );
 void IN_Shutdown( void );
 void IN_Restart( void );
+// REACTION: where the system pointer is in the window, 0 to 1 each way, while the menus follow it
+qboolean IN_PointerPlace( float *place );
 
 /*
 ==============================================================

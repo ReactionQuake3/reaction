@@ -1484,6 +1484,38 @@ void UI_DrawCenteredPic(qhandle_t image, int w, int h)
 #define UI_MOUSE_HIDE_TIME		3500
 #define UI_MOUSE_FADE_START		3000
 
+// the engine can say where the system pointer is (cl_menuPointer); an older one lacks trap_RQ3_GetPointer
+static qboolean ui_followPointer;
+
+/*
+=================
+UI_FollowPointer
+
+Puts the menu pointer where the system pointer is, so it moves at the player's
+own speed and acceleration as on the desktop. Where the engine cannot say, or
+the menus are not following it, the pointer moves by mouse counts
+(_UI_MouseEvent). Tablet mode keeps its own way.
+=================
+*/
+static void UI_FollowPointer(void)
+{
+	float place[2];
+	int x, y;
+
+	if (!ui_followPointer || ui_RQ3_tabletMode.integer || !trap_RQ3_GetPointer(place)) {
+		return;
+	}
+	x = (int) (uiInfo.uiDC.min[0] + place[0] * (uiInfo.uiDC.max[0] - uiInfo.uiDC.min[0]));
+	y = (int) (uiInfo.uiDC.min[1] + place[1] * (uiInfo.uiDC.max[1] - uiInfo.uiDC.min[1]));
+	if (x == uiInfo.uiDC.cursorx && y == uiInfo.uiDC.cursory) {
+		return;
+	}
+	uiInfo.uiDC.cursorx = x;
+	uiInfo.uiDC.cursory = y;
+	// no counts to add: the edges, the menus' hover and the pointer's fade timer follow the new place
+	_UI_MouseEvent(0, 0);
+}
+
 void _UI_Refresh(int realtime)
 {
 	static int index;
@@ -1505,6 +1537,8 @@ void _UI_Refresh(int realtime)
 
 	uiInfo.uiDC.frameTime = realtime - uiInfo.uiDC.realTime;
 	uiInfo.uiDC.realTime = realtime;
+
+	UI_FollowPointer();
 
 	previousTimes[index % UI_FPS_FRAMES] = uiInfo.uiDC.frameTime;
 	index++;
@@ -8729,6 +8763,7 @@ void _UI_Init(qboolean inGameLoad)
 	// for 640x480 virtualized screen
 	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.f / SCREEN_HEIGHT);
 	uiInfo.uiDC.xscale = uiInfo.uiDC.yscale;
+	ui_followPointer = trap_Cvar_VariableValue("cl_menuPointer") != 0;
 	uiInfo.uiDC.bias = 0.5f * (uiInfo.uiDC.glconfig.vidWidth - (uiInfo.uiDC.glconfig.vidHeight * SCREEN_WIDTH / (float)SCREEN_HEIGHT));
 
 	//Makro - set up 2D scene

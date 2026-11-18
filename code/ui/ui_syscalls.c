@@ -491,3 +491,8 @@ void trap_SetPbClStatus(int status)
 {
 	syscall(UI_SET_PBCLSTATUS, status);
 }
+
+qboolean trap_RQ3_GetPointer(float *place)
+{
+	return syscall(UI_RQ3_GETPOINTER, place);
+}

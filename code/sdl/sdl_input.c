@@ -44,9 +44,13 @@ static SDL_Joystick *stick = NULL;
 
 static qboolean mouseAvailable = qfalse;
 static qboolean mouseActive = qfalse;
+// REACTION: the menus follow the system pointer (IN_PointerMouse): neither read as movement nor let go
+static qboolean pointerActive = qfalse;
 
 static cvar_t *in_mouse             = NULL;
 static cvar_t *in_nograb;
+// REACTION: a test's stand-in for the system pointer's place, "x y" from 0 to 1 (IN_PointerPlace)
+static cvar_t *in_testPointer;
 
 static cvar_t *in_joystick          = NULL;
 static cvar_t *in_joystickThreshold = NULL;
@@ -350,6 +354,8 @@ static void IN_ActivateMouse( qboolean isFullscreen )
 	if (!mouseAvailable || !SDL_WasInit( SDL_INIT_VIDEO ) )
 		return;
 
+	pointerActive = qfalse;
+
 	if( !mouseActive )
 	{
 		SDL_SetRelativeMouseMode( SDL_TRUE );
@@ -396,6 +402,12 @@ static void IN_DeactivateMouse( qboolean isFullscreen )
 	if( !mouseAvailable )
 		return;
 
+	if( pointerActive )
+	{
+		SDL_SetWindowGrab( SDL_window, SDL_FALSE );
+		pointerActive = qfalse;
+	}
+
 	if( mouseActive )
 	{
 		IN_GobbleMotionEvents( );
@@ -409,6 +421,81 @@ static void IN_DeactivateMouse( qboolean isFullscreen )
 
 		mouseActive = qfalse;
 	}
+}
+
+/*
+===============
+IN_PointerMouse
+
+REACTION: while a ui that follows the system pointer shows its menus, the
+mouse is the system's own pointer: it moves at the player's own speed and
+acceleration, hidden over the window, where the ui draws its pointer at its
+place (IN_PointerPlace). Full screen keeps it on this screen; in a window it
+may leave and come back.
+===============
+*/
+static void IN_PointerMouse( qboolean isFullscreen )
+{
+	if( !mouseAvailable || !SDL_WasInit( SDL_INIT_VIDEO ) )
+		return;
+
+	if( pointerActive )
+		return;
+
+	if( mouseActive )
+	{
+		IN_GobbleMotionEvents( );
+		SDL_SetRelativeMouseMode( SDL_FALSE );
+		mouseActive = qfalse;
+	}
+
+	SDL_SetWindowGrab( SDL_window, isFullscreen ? SDL_TRUE : SDL_FALSE );
+	SDL_ShowCursor( SDL_DISABLE );
+
+	// the pointer starts in the middle, where relative mode held it; not when it is outside the window
+	if( SDL_GetWindowFlags( SDL_window ) & SDL_WINDOW_MOUSE_FOCUS )
+		SDL_WarpMouseInWindow( SDL_window, cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2 );
+
+	pointerActive = qtrue;
+}
+
+/*
+===============
+IN_PointerPlace
+
+REACTION: where the system pointer is in the window, 0 to 1 each way; false
+while the menus do not follow it, and the ui then moves its pointer by mouse
+counts. in_testPointer stands in for the pointer in a test, which never
+touches the real one.
+===============
+*/
+qboolean IN_PointerPlace( float *place )
+{
+	int x, y, width, height;
+
+	if( in_testPointer && in_testPointer->string[0] )
+	{
+		if( sscanf( in_testPointer->string, "%f %f", &place[0], &place[1] ) != 2 )
+			return qfalse;
+	}
+	else
+	{
+		if( !pointerActive )
+			return qfalse;
+
+		SDL_GetMouseState( &x, &y );
+		SDL_GetWindowSize( SDL_window, &width, &height );
+		if( width <= 0 || height <= 0 )
+			return qfalse;
+
+		// the middle of the pixel the pointer is on
+		place[0] = ( x + 0.5f ) / width;
+		place[1] = ( y + 0.5f ) / height;
+	}
+
+	place[0] = Com_Clamp( 0.0f, 1.0f, place[0] );
+	place[1] = Com_Clamp( 0.0f, 1.0f, place[1] );
+	return qtrue;
 }
 
 // We translate axes movement into keypresses
@@ -1263,6 +1350,11 @@ void IN_Frame( void )
 		// Window not got focus
 		IN_DeactivateMouse( cls.glconfig.isFullscreen );
 	}
+	else if( CL_UIFollowsPointer( ) )
+	{
+		// REACTION: the menus follow the system pointer
+		IN_PointerMouse( cls.glconfig.isFullscreen );
+	}
 	else
 		IN_ActivateMouse( cls.glconfig.isFullscreen );
 
@@ -1303,6 +1395,7 @@ void IN_Init( void *windowData )
 	// mouse variables
 	in_mouse = Cvar_Get( "in_mouse", "1", CVAR_ARCHIVE );
 	in_nograb = Cvar_Get( "in_nograb", "0", CVAR_ARCHIVE );
+	in_testPointer = Cvar_Get( "in_testPointer", "", CVAR_CHEAT );
 
 	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE|CVAR_LATCH );
 	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE );

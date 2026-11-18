@@ -1207,6 +1207,8 @@ void trap_R_RemapShader(const char *oldShader, const char *newShader, const char
 qboolean trap_VerifyCDKey(const char *key, const char *chksum);
 
 void trap_SetPbClStatus(int status);
+// where the system pointer is in the window, 0 to 1 each way; only on an engine with cl_menuPointer 1
+qboolean trap_RQ3_GetPointer(float *place);
 
 //
 // ui_addbots.c

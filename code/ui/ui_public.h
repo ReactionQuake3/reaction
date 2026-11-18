@@ -140,7 +140,12 @@ typedef enum {
 	UI_ATAN2,
 	UI_SQRT,
 	UI_FLOOR,
-	UI_CEIL
+	UI_CEIL,
+
+	UI_RQ3_BASE = 512,
+	// where the system pointer is in the window; asking tells the client this ui follows it
+	// (an engine with cl_menuPointer 1 has it)
+	UI_RQ3_GETPOINTER
 } uiImport_t;
 
 typedef enum {
