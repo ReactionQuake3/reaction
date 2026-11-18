@@ -134,7 +134,7 @@ Group # 1 - Look
 	// Icon
 	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-looking", 1)
 	
-	BEGIN_SLIDER("Mouse Speed", "sensitivity", 2.5, 1, 30, 1, 1)
+	BEGIN_SLIDER("Mouse Speed", "sensitivity", 3, 1, 30, 1, 1)
 		alignrect "line" ITEM_ALIGN_CENTER 56 44 112 VSIZE
 		ASSIGN_HINT("SliderMessage")
 	END_OPTION
