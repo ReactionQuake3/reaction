@@ -116,10 +116,18 @@ float Sample(const sampler2DShadow shadowmap, const mat4 mvp, const vec3 pos, co
 	// the map at that depth: the leaf shaded itself in specks that changed with every step (measured on
 	// teamjungle: 0.37 % of a tree's pixels flipping a step, 0.09 % without sun shadows). Anything else seen from
 	// its unlit side takes no sun at all, whatever this answers.
-	vec3 off = (dot(normal, toLight) < 0.0) ? -normal : normal;
-	float facing = clamp(dot(off, toLight), 0.0, 1.0);
-	float skim = sqrt(1.0 - facing * facing);
-	vec4 shadowpos = mvp * vec4(pos + off * (texelWorld * FILTER_REACH * skim) + toLight * (texelWorld * TOWARD_LIGHT), 1.0);
+	// The side turns over gradually, while the light passes from along the face to GRAZING behind it. A face the
+	// light runs along (on jericho, whose sun stands at yaw 270, every wall facing east or west) has a light term of
+	// nothing but the noise of a normal taken from the depths, and an outright choice by its sign put each pixel
+	// FILTER_REACH texels into the face's solid or out into the air at random: specks of shade and sun that changed
+	// with every frame and every move (at the shutters there, 14 to 21 % of the picture's points changed by more than
+	// a quarter in a turn of 0.25 degrees or a step of half a unit), and showed where the surface's own normal leans
+	// into the sun. Such a face now reads the eye's side, which is open air.
+	#define GRAZING 0.1   // a light term; the normal's noise from 24-bit depths is under 0.05 at 2000 units on a screen 3840 wide
+	float lit = dot(normal, toLight);
+	float side = clamp(2.0 * lit / GRAZING + 1.0, -1.0, 1.0);   // 1 down to lit 0, -1 from lit -GRAZING
+	float skim = sqrt(1.0 - min(lit * lit, 1.0));
+	vec4 shadowpos = mvp * vec4(pos + normal * (side * texelWorld * FILTER_REACH * skim) + toLight * (texelWorld * TOWARD_LIGHT), 1.0);
 
 	shadowpos.xyz = shadowpos.xyz * (0.5 / shadowpos.w) + vec3(0.5);
 	return PCF(shadowmap, shadowpos.xy, shadowpos.z);
