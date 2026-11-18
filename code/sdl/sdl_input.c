@@ -428,9 +428,11 @@ static void IN_DeactivateMouse( qboolean isFullscreen )
 IN_PointerMouse
 
 REACTION: while a ui that follows the system pointer shows its menus, the
-mouse is the system's own pointer: it moves at the player's own speed and
-acceleration, hidden over the window, where the ui draws its pointer at its
-place (IN_PointerPlace). Full screen keeps it on this screen; in a window it
+mouse is the system's own pointer, shown by the system with the ui's picture
+(IN_PointerImage): it moves at
+the player's own speed and acceleration, with no frame's delay and on every
+pixel, which a pointer the ui draws cannot. The ui reads its place for what
+the pointer is over (IN_PointerPlace) and draws none of its own. Full screen keeps it on this screen; in a window it
 may leave and come back.
 ===============
 */
@@ -450,7 +452,7 @@ static void IN_PointerMouse( qboolean isFullscreen )
 	}
 
 	SDL_SetWindowGrab( SDL_window, isFullscreen ? SDL_TRUE : SDL_FALSE );
-	SDL_ShowCursor( SDL_DISABLE );
+	SDL_ShowCursor( SDL_ENABLE );
 
 	// the pointer starts in the middle, where relative mode held it; not when it is outside the window
 	if( SDL_GetWindowFlags( SDL_window ) & SDL_WINDOW_MOUSE_FOCUS )
@@ -461,32 +463,190 @@ static void IN_PointerMouse( qboolean isFullscreen )
 
 /*
 ===============
-IN_PointerPlace
+IN_PointerImage
 
-REACTION: where the system pointer is in the window, 0 to 1 each way; false
-while the menus do not follow it, and the ui then moves its pointer by mouse
-counts. in_testPointer stands in for the pointer in a test, which never
-touches the real one.
+REACTION: gives the system pointer the ui's own pointer picture, so the menus
+keep their look while the system moves and draws the pointer. name is the
+picture's file (an uncompressed 24 or 32 bit TGA, as the ui's is), heightShare
+its size as a share of the window's height; its middle is the pointer's point,
+as where the ui draws it. A picture that cannot be used leaves the system's
+own arrow.
 ===============
 */
-qboolean IN_PointerPlace( float *place )
+#define POINTER_IMAGE_MAX	1024	// a picture's largest side, and the largest pointer made from it
+#define TGA_HEADER_SIZE		18
+#define TGA_UNCOMPRESSED_RGB	2
+#define TGA_TOP_DOWN		0x20
+
+static SDL_Cursor *pointerCursor;
+static char pointerImageName[MAX_QPATH];
+static int pointerImageSize;
+
+void IN_PointerImage( const char *name, float heightShare )
 {
+	byte *file, *pixels;
+	uint32_t *scaled;
+	SDL_Surface *surface;
+	SDL_Cursor *cursor;
+	int length, width, height, bytes, size, windowWidth, windowHeight, x, y;
+	int x0, y0, x1, y1, outWidth, outHeight;
+
+	if( !name || !name[0] || !SDL_window )
+		return;
+
+	SDL_GetWindowSize( SDL_window, &windowWidth, &windowHeight );
+	size = (int)( heightShare * windowHeight + 0.5f );
+	if( size < 1 || size > POINTER_IMAGE_MAX )
+		return;
+	if( size == pointerImageSize && !Q_stricmp( name, pointerImageName ) )
+		return;
+	// tried once for this picture and size, whether it can be used or not
+	Q_strncpyz( pointerImageName, name, sizeof( pointerImageName ) );
+	pointerImageSize = size;
+
+	length = FS_ReadFile( name, (void **)&file );
+	if( !file )
+		return;
+	cursor = NULL;
+	if( length > TGA_HEADER_SIZE && file[1] == 0 && file[2] == TGA_UNCOMPRESSED_RGB
+		&& ( file[16] == 24 || file[16] == 32 ) )
+	{
+		width = file[12] | ( file[13] << 8 );
+		height = file[14] | ( file[15] << 8 );
+		bytes = file[16] / 8;
+		pixels = file + TGA_HEADER_SIZE + file[0];
+		if( width >= 1 && width <= POINTER_IMAGE_MAX && height >= 1 && height <= POINTER_IMAGE_MAX
+			&& length >= TGA_HEADER_SIZE + file[0] + width * height * bytes )
+		{
+			// the picture's own part: what is not fully see-through. The ui's picture is mostly empty around its
+			// arrow, and a pointer of the whole picture's size is too large for the system to move without a trail
+			x0 = width; y0 = height; x1 = -1; y1 = -1;
+			for( y = 0; y < height; y++ )
+			{
+				for( x = 0; x < width; x++ )
+				{
+					if( bytes == 3 || pixels[( y * width + x ) * bytes + 3] )
+					{
+						if( x < x0 ) x0 = x;
+						if( x > x1 ) x1 = x;
+						if( y < y0 ) y0 = y;
+						if( y > y1 ) y1 = y;
+					}
+				}
+			}
+			if( !( file[17] & TGA_TOP_DOWN ) )
+			{
+				// rows are stored bottom up: turn the box to the picture's own top and bottom
+				int top = height - 1 - y1;
+
+				y1 = height - 1 - y0;
+				y0 = top;
+			}
+			outWidth = x1 >= x0 ? ( x1 - x0 + 1 ) * size / width : 0;
+			outHeight = y1 >= y0 ? ( y1 - y0 + 1 ) * size / height : 0;
+			scaled = outWidth >= 1 && outHeight >= 1 ? malloc( outWidth * outHeight * sizeof( *scaled ) ) : NULL;
+			if( scaled )
+			{
+				// each pointer pixel is the weighted mean of the four picture points around its place
+				for( y = 0; y < outHeight; y++ )
+				{
+					float fy = y0 + ( y + 0.5f ) * height / size - 0.5f;
+					int ya = (int)floorf( fy ), yb;
+					float wy = fy - ya;
+
+					ya = Com_Clamp( 0, height - 1, ya );
+					yb = ya + 1 < height ? ya + 1 : ya;
+					for( x = 0; x < outWidth; x++ )
+					{
+						float fx = x0 + ( x + 0.5f ) * width / size - 0.5f;
+						int xa = (int)floorf( fx ), xb, c;
+						float wx = fx - xa;
+						uint32_t pixel = 0;
+
+						xa = Com_Clamp( 0, width - 1, xa );
+						xb = xa + 1 < width ? xa + 1 : xa;
+						// ARGB: alpha, then red, green and blue from the TGA's blue, green, red order
+						for( c = 0; c < 4; c++ )
+						{
+							static const int shift[4] = { 0, 8, 16, 24 };
+							float v[4];
+							int i;
+
+							for( i = 0; i < 4; i++ )
+							{
+								int row = ( i < 2 ) ? ya : yb, col = ( i & 1 ) ? xb : xa;
+								const byte *q;
+
+								if( !( file[17] & TGA_TOP_DOWN ) )
+									row = height - 1 - row;
+								q = pixels + ( row * width + col ) * bytes;
+								v[i] = ( c == 3 && bytes == 3 ) ? 255 : q[c];
+							}
+							pixel |= (uint32_t)( ( v[0] * ( 1 - wx ) + v[1] * wx ) * ( 1 - wy )
+								+ ( v[2] * ( 1 - wx ) + v[3] * wx ) * wy + 0.5f ) << shift[c];
+						}
+						scaled[y * outWidth + x] = pixel;
+					}
+				}
+				surface = SDL_CreateRGBSurfaceWithFormatFrom( scaled, outWidth, outHeight, 32,
+					outWidth * sizeof( *scaled ), SDL_PIXELFORMAT_ARGB8888 );
+				if( surface )
+				{
+					// the pointer's point is the whole picture's middle, as where the ui draws it
+					cursor = SDL_CreateColorCursor( surface,
+						Com_Clamp( 0, outWidth - 1, ( width / 2 - x0 ) * size / width ),
+						Com_Clamp( 0, outHeight - 1, ( height / 2 - y0 ) * size / height ) );
+					SDL_FreeSurface( surface );
+				}
+				free( scaled );
+			}
+		}
+	}
+	FS_FreeFile( file );
+
+	if( !cursor )
+	{
+		Com_DPrintf( "IN_PointerImage: %s cannot be the system pointer's picture\n", name );
+		return;
+	}
+	SDL_SetCursor( cursor );
+	if( pointerCursor )
+		SDL_FreeCursor( pointerCursor );
+	pointerCursor = cursor;
+}
+
+/*
+===============
+IN_PointerPlace
+
+REACTION: where the system pointer is in the window, 0 to 1 each way. The
+answer is POINTER_NONE while the menus do not follow it (the ui then moves its
+own pointer by mouse counts), POINTER_SHOWN when the system shows its pointer
+there, and POINTER_PLACE_ONLY for in_testPointer, a test's stand-in that never
+touches the real pointer: the ui then draws its own at the place.
+===============
+*/
+int IN_PointerPlace( float *place )
+{
+	int answer = POINTER_SHOWN;
+
 	int x, y, width, height;
 
 	if( in_testPointer && in_testPointer->string[0] )
 	{
 		if( sscanf( in_testPointer->string, "%f %f", &place[0], &place[1] ) != 2 )
-			return qfalse;
+			return POINTER_NONE;
+		answer = POINTER_PLACE_ONLY;
 	}
 	else
 	{
 		if( !pointerActive )
-			return qfalse;
+			return POINTER_NONE;
 
 		SDL_GetMouseState( &x, &y );
 		SDL_GetWindowSize( SDL_window, &width, &height );
 		if( width <= 0 || height <= 0 )
-			return qfalse;
+			return POINTER_NONE;
 
 		// the middle of the pixel the pointer is on
 		place[0] = ( x + 0.5f ) / width;
@@ -495,7 +655,7 @@ qboolean IN_PointerPlace( float *place )
 
 	place[0] = Com_Clamp( 0.0f, 1.0f, place[0] );
 	place[1] = Com_Clamp( 0.0f, 1.0f, place[1] );
-	return qtrue;
+	return answer;
 }
 
 // We translate axes movement into keypresses

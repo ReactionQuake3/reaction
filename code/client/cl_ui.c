@@ -1031,6 +1031,8 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 
 	case UI_RQ3_GETPOINTER:
 		uiFollowsPointer = qtrue;
+		if( args[2] )
+			IN_PointerImage( VMA(2), VMF(3) );
 		return IN_PointerPlace( VMA(1) );
 
 	case UI_PC_ADD_GLOBAL_DEFINE:

@@ -1069,7 +1069,9 @@ void IN_Frame( void );
 void IN_Shutdown( void );
 void IN_Restart( void );
 // REACTION: where the system pointer is in the window, 0 to 1 each way, while the menus follow it
-qboolean IN_PointerPlace( float *place );
+int IN_PointerPlace( float *place );
+// REACTION: the picture the system pointer wears over the menus, and its size as a share of the window's height
+void IN_PointerImage( const char *name, float heightShare );
 
 /*
 ==============================================================

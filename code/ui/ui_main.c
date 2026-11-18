@@ -1483,16 +1483,22 @@ void UI_DrawCenteredPic(qhandle_t image, int w, int h)
 //Makro - mouse fading constants
 #define UI_MOUSE_HIDE_TIME		3500
 #define UI_MOUSE_FADE_START		3000
+// the pointer picture's size on the 640x480 grid when the menus name none
+#define UI_POINTER_SIZE			32
 
 // the engine can say where the system pointer is (cl_menuPointer); an older one lacks trap_RQ3_GetPointer
 static qboolean ui_followPointer;
+// the system shows its own pointer over the menus this frame, so none is drawn here
+static qboolean ui_systemPointer;
 
 /*
 =================
 UI_FollowPointer
 
 Puts the menu pointer where the system pointer is, so it moves at the player's
-own speed and acceleration as on the desktop. Where the engine cannot say, or
+own speed and acceleration as on the desktop. The system shows that pointer
+itself, on every pixel and with no frame's delay; the place here is for what
+the pointer is over. Where the engine cannot say, or
 the menus are not following it, the pointer moves by mouse counts
 (_UI_MouseEvent). Tablet mode keeps its own way.
 =================
@@ -1500,11 +1506,19 @@ the menus are not following it, the pointer moves by mouse counts
 static void UI_FollowPointer(void)
 {
 	float place[2];
-	int x, y;
+	int x, y, answer;
 
-	if (!ui_followPointer || ui_RQ3_tabletMode.integer || !trap_RQ3_GetPointer(place)) {
+	ui_systemPointer = qfalse;
+	if (!ui_followPointer || ui_RQ3_tabletMode.integer) {
 		return;
 	}
+	// the system's pointer wears the menus' own picture, at the size it is drawn here
+	answer = trap_RQ3_GetPointer(place, uiInfo.uiDC.Assets.cursorStr,
+				     (uiInfo.uiDC.cursorSize ? uiInfo.uiDC.cursorSize : UI_POINTER_SIZE) / (float) SCREEN_HEIGHT);
+	if (answer == POINTER_NONE) {
+		return;
+	}
+	ui_systemPointer = answer == POINTER_SHOWN;
 	x = (int) (uiInfo.uiDC.min[0] + place[0] * (uiInfo.uiDC.max[0] - uiInfo.uiDC.min[0]));
 	y = (int) (uiInfo.uiDC.min[1] + place[1] * (uiInfo.uiDC.max[1] - uiInfo.uiDC.min[1]));
 	if (x == uiInfo.uiDC.cursorx && y == uiInfo.uiDC.cursory) {
@@ -1644,7 +1658,7 @@ void _UI_Refresh(int realtime)
 		float ccolor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		int size = uiInfo.uiDC.cursorSize;
 		if (!size)
-			size = 32;
+			size = UI_POINTER_SIZE;
 		if (uiInfo.uiDC.mouseDown[0] || uiInfo.uiDC.mouseDown[1] || uiInfo.uiDC.mouseDown[2])
 		{
 			ccolor[0] = 1.00f;
@@ -1656,7 +1670,9 @@ void _UI_Refresh(int realtime)
 			ccolor[3] = 1.0f - (lifeTime - UI_MOUSE_FADE_START) / (float) (UI_MOUSE_HIDE_TIME - UI_MOUSE_FADE_START);
 		}
 		UI_SetColor(ccolor);
-		UI_DrawHandlePic(uiInfo.uiDC.cursorx - (size>>1), uiInfo.uiDC.cursory - (size>>1), size, size, uiInfo.uiDC.Assets.cursor);
+		if (!ui_systemPointer) {
+			UI_DrawHandlePic(uiInfo.uiDC.cursorx - (size>>1), uiInfo.uiDC.cursory - (size>>1), size, size, uiInfo.uiDC.Assets.cursor);
+		}
 		UI_SetColor(NULL);
 	}
 

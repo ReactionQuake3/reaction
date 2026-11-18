@@ -492,7 +492,7 @@ void trap_SetPbClStatus(int status)
 	syscall(UI_SET_PBCLSTATUS, status);
 }
 
-qboolean trap_RQ3_GetPointer(float *place)
+int trap_RQ3_GetPointer(float *place, const char *image, float heightShare)
 {
-	return syscall(UI_RQ3_GETPOINTER, place);
+	return syscall(UI_RQ3_GETPOINTER, place, image, PASSFLOAT(heightShare));
 }
