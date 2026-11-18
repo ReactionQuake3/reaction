@@ -263,7 +263,7 @@
 	group grpcontrols
 	type ITEM_TYPE_SLIDER
 	text "Mouse Speed:"
-	cvarfloat "sensitivity" 5 1 30
+	cvarfloat "sensitivity" 3 1 30
 	rect 224 92 112 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
