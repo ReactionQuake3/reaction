@@ -5675,9 +5675,9 @@ static void UI_Update(const char *name)
 		// on dark sunlit walls seen against the sky (teamjungle's rock tops). It needs base colour textures and
 		// specular maps with gloss in red and metalness in green.
 		// No preset turns on screen-space ambient occlusion (r_ssao): it darkens creases and corners, so it changes the
-		// look, and renderergl2 takes three depth samples per pixel at half the width and height, which leaves dark dots
-		// and stains along corners that flicker as the view moves. The lightmaps already hold the maps' shadows, so it
-		// adds little, and no menu offers it either (system.menu); r_ssao stays a console setting.
+		// look, and the lightmaps already hold the maps' shadows, corners included, so over them it draws a second shade
+		// into every corner: dark dots and stains with renderergl2's stock pass, a dark band with the pass that replaced
+		// it. No menu offers it either (system.menu); r_ssao stays a console setting.
 		// REACTION: a preset changes how demanding the game is, never how it looks or how bright it is: every one keeps
 		// Normal's HDR, tone mapping and fixed exposure. Without tone mapping the HDR picture is
 		// scaled by 2^r_cameraExposure, twice as bright since ioquake3's dfb9bed2 made that default 1. Auto exposure only
@@ -5835,15 +5835,15 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("ui_shadowMaps", 3);
 			if (val == 6) {
 				// The one preset that adds to the look: a real-time sun in place of the baked one, its shadows,
-				// crease shading, reflections, the glow round bright things, and temporal anti-aliasing, which
-				// with this look blends the whole picture over frames and keeps the rest steady. No other preset
-				// sets temporal anti-aliasing, and none turns it off. The reflections (r_cubeMapping) are set
-				// with Material Maps, below. Choices of their own, which no preset sets: the haze (r_haze); and
-				// the grade (r_grade), which lifts the picture's light, and a preset never changes how bright
-				// the game is.
+				// reflections, the glow round bright things, and temporal anti-aliasing, which with this look
+				// blends the whole picture over frames and keeps the rest steady. No other preset sets temporal
+				// anti-aliasing, and none turns it off. The reflections (r_cubeMapping) are set with Material
+				// Maps, below. Choices of their own, which no preset sets: the haze (r_haze); and the grade
+				// (r_grade), which lifts the picture's light, and a preset never changes how bright the game is.
+				// Ultra leaves r_ssao off, as every preset does (above): over the baked light, which already
+				// shades every corner, it drew a dark band into each one.
 				trap_Cvar_SetValue("r_ultraShadows", 1);
 				trap_Cvar_SetValue("r_sunlightMode", 2);
-				trap_Cvar_SetValue("r_ssao", 1);
 				trap_Cvar_SetValue("r_cubemapSize", 256);
 				trap_Cvar_SetValue("r_dlightMode", 1);
 				trap_Cvar_SetValue("r_bloom", 0.35f);
