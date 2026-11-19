@@ -5602,6 +5602,134 @@ static void UI_StartSkirmish(qboolean next)
 	}
 }
 
+/*
+REACTION: what each choice of the System menu's Filtering Mode, Material Maps and CSM rows sets. A row's own cvar
+(ui_filteringMode, ui_shaderLevel, ui_shadowMaps) is no setting of its own, and only the first is saved, as default.cfg
+names it; when the System menu opens, each row shows the choice the real settings match (UI_ShowSettingRows). Material
+Maps and CSM showed a value nobody saved, Off after every restart, and the Quality row's Custom then applied it and
+switched material maps and shadows off.
+*/
+typedef struct {
+	const char	*row;
+	int			choice;
+	const char	*cvar;
+	const char	*value;
+} uiRowSetting_t;
+
+static const uiRowSetting_t uiRowSettings[] = {
+	// texture filtering: bilinear, trilinear, then anisotropic 2x, 4x, 8x and 16x
+	{ "ui_filteringMode", 0, "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST" },
+	{ "ui_filteringMode", 0, "r_ext_texture_filter_anisotropic", "0" },
+	{ "ui_filteringMode", 0, "r_ext_max_anisotropy", "2" },
+	{ "ui_filteringMode", 1, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 1, "r_ext_texture_filter_anisotropic", "0" },
+	{ "ui_filteringMode", 1, "r_ext_max_anisotropy", "2" },
+	{ "ui_filteringMode", 2, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 2, "r_ext_texture_filter_anisotropic", "1" },
+	{ "ui_filteringMode", 2, "r_ext_max_anisotropy", "2" },
+	{ "ui_filteringMode", 3, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 3, "r_ext_texture_filter_anisotropic", "1" },
+	{ "ui_filteringMode", 3, "r_ext_max_anisotropy", "4" },
+	{ "ui_filteringMode", 4, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 4, "r_ext_texture_filter_anisotropic", "1" },
+	{ "ui_filteringMode", 4, "r_ext_max_anisotropy", "8" },
+	{ "ui_filteringMode", 5, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 5, "r_ext_texture_filter_anisotropic", "1" },
+	{ "ui_filteringMode", 5, "r_ext_max_anisotropy", "16" },
+	// material maps off and on: normal, specular and deluxe mapping; no PBR materials in the data, see the presets
+	// (r_cubeMapping follows the Ultra look, in UI_Update)
+	{ "ui_shaderLevel", 0, "r_pbr", "0" },
+	{ "ui_shaderLevel", 0, "r_deluxeMapping", "0" },
+	{ "ui_shaderLevel", 0, "r_normalMapping", "0" },
+	{ "ui_shaderLevel", 0, "r_specularMapping", "0" },
+	{ "ui_shaderLevel", 1, "r_pbr", "0" },
+	{ "ui_shaderLevel", 1, "r_deluxeMapping", "1" },
+	{ "ui_shaderLevel", 1, "r_normalMapping", "1" },
+	{ "ui_shaderLevel", 1, "r_specularMapping", "1" },
+	// cascaded shadow maps: off, low, medium, high, and the Ultra preset's maps at twice the size, their edges softened
+	// in the shadow pass itself. Off keeps the smallest size the menu offers: renderergl2 makes the sun shadow maps at
+	// this size whenever r_sunlightMode is on, also with r_sunShadows off, and fails its restart on a size of 0.
+	{ "ui_shadowMaps", 0, "r_sunShadows", "0" },
+	{ "ui_shadowMaps", 0, "r_shadowFilter", "0" },
+	{ "ui_shadowMaps", 0, "r_shadowMapSize", "512" },
+	{ "ui_shadowMaps", 0, "r_shadowBlur", "0" },
+	{ "ui_shadowMaps", 1, "r_sunShadows", "1" },
+	{ "ui_shadowMaps", 1, "r_shadowFilter", "1" },
+	{ "ui_shadowMaps", 1, "r_shadowMapSize", "512" },
+	{ "ui_shadowMaps", 1, "r_shadowBlur", "0" },
+	{ "ui_shadowMaps", 2, "r_sunShadows", "1" },
+	{ "ui_shadowMaps", 2, "r_shadowFilter", "1" },
+	{ "ui_shadowMaps", 2, "r_shadowMapSize", "1024" },
+	{ "ui_shadowMaps", 2, "r_shadowBlur", "1" },
+	{ "ui_shadowMaps", 3, "r_sunShadows", "1" },
+	{ "ui_shadowMaps", 3, "r_shadowFilter", "2" },
+	{ "ui_shadowMaps", 3, "r_shadowMapSize", "2048" },
+	{ "ui_shadowMaps", 3, "r_shadowBlur", "1" },
+	{ "ui_shadowMaps", 4, "r_sunShadows", "1" },
+	{ "ui_shadowMaps", 4, "r_shadowFilter", "2" },
+	{ "ui_shadowMaps", 4, "r_shadowMapSize", "4096" },
+	{ "ui_shadowMaps", 4, "r_shadowBlur", "0" }
+};
+
+// Sets a row's choice; qfalse when the row has no such choice.
+static qboolean UI_ApplySettingRow(const char *row, int choice)
+{
+	qboolean found = qfalse;
+	int i;
+
+	for (i = 0; i < ARRAY_LEN(uiRowSettings); i++) {
+		if (uiRowSettings[i].choice == choice && !Q_stricmp(uiRowSettings[i].row, row)) {
+			trap_Cvar_Set(uiRowSettings[i].cvar, uiRowSettings[i].value);
+			found = qtrue;
+		}
+	}
+	return found;
+}
+
+// Whether a cvar holds a value, as a word or as a number ("16" and "16.000000" are one).
+static qboolean UI_CvarHolds(const char *cvar, const char *value)
+{
+	char now[MAX_CVAR_VALUE_STRING];
+
+	trap_Cvar_VariableStringBuffer(cvar, now, sizeof(now));
+	if (!Q_stricmp(now, value)) {
+		return qtrue;
+	}
+	return Q_isanumber(now) && Q_isanumber(value) && atof(now) == atof(value);
+}
+
+// Each row shows the choice the real settings match: the one with the most of its settings in place (all of them, but
+// for a setting changed at the console), the lower on a tie. A row's choices run from 0 without a gap.
+static void UI_ShowSettingRows(void)
+{
+	static const char *rows[] = { "ui_filteringMode", "ui_shaderLevel", "ui_shadowMaps" };
+	int r, i, choice, held, total, best, bestHeld;
+
+	for (r = 0; r < ARRAY_LEN(rows); r++) {
+		best = -1;
+		bestHeld = -1;
+		for (choice = 0; ; choice++) {
+			held = total = 0;
+			for (i = 0; i < ARRAY_LEN(uiRowSettings); i++) {
+				if (uiRowSettings[i].choice == choice && !Q_stricmp(uiRowSettings[i].row, rows[r])) {
+					total++;
+					if (UI_CvarHolds(uiRowSettings[i].cvar, uiRowSettings[i].value)) {
+						held++;
+					}
+				}
+			}
+			if (!total) {
+				break;
+			}
+			if (held > bestHeld) {
+				best = choice;
+				bestHeld = held;
+			}
+		}
+		trap_Cvar_SetValue(rows[r], best);
+	}
+}
+
 static void UI_Update(const char *name)
 {
 	int val = trap_Cvar_VariableValue(name);
@@ -5856,95 +5984,13 @@ static void UI_Update(const char *name)
 			}
 			break;
 		}
-	} else if (Q_stricmp(name, "ui_filteringMode") == 0) {
-		switch (val) {
-		//TTI: filtering mode
-		case 0:	// bilinear
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_NEAREST");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
-			break;
-		case 1: // trilinear
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
-			break;
-		case 2: // 2x anisotropic
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
-			break;
-		case 3: // 4x anisotropic
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 4);
-			break;
-		case 4: // 8x anisotropic
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 8);
-			break;
-		case 5: // 16x anisotropic
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 16);
-			break;
-		}
+	} else if (Q_stricmp(name, "ui_filteringMode") == 0 || Q_stricmp(name, "ui_shadowMaps") == 0) {
+		UI_ApplySettingRow(name, val);
 	} else if (Q_stricmp(name, "ui_shaderLevel") == 0) {
-		switch (val) {
-		// material maps: normal, specular and deluxe mapping
-		case 0:	// disabled
-			trap_Cvar_SetValue("r_pbr", 0);
-			trap_Cvar_SetValue("r_deluxeMapping", 0);
-			trap_Cvar_SetValue("r_normalMapping", 0);
-			trap_Cvar_SetValue("r_specularMapping", 0);
-			trap_Cvar_SetValue("r_cubeMapping", 0);
-			break;
-		case 1: // enabled
-			trap_Cvar_SetValue("r_pbr", 0);	// no PBR materials in the data, see the presets
-			trap_Cvar_SetValue("r_deluxeMapping", 1);
-			trap_Cvar_SetValue("r_normalMapping", 1);
-			trap_Cvar_SetValue("r_specularMapping", 1);
-			// No cubemap probes in the maps, see the presets; but with the Ultra look on, whose maps bring their
-			// own. The Quality row runs this after its preset, which had switched Ultra's reflections off again.
-			trap_Cvar_SetValue("r_cubeMapping", trap_Cvar_VariableValue("r_ultraShadows") ? 1 : 0);
-			break;
-		}
-	} else if (Q_stricmp(name, "ui_shadowMaps") == 0) {
-		switch (val) {
-		// cascaded shadow maps
-		case 0:	// disabled
-			trap_Cvar_SetValue("r_sunShadows", 0);
-			trap_Cvar_SetValue("r_shadowFilter", 0);
-			// renderergl2 makes the sun shadow maps at this size whenever r_sunlightMode is on, also with
-			// r_sunShadows off, and fails its restart on a size of 0; keep the smallest size the menu offers
-			trap_Cvar_SetValue("r_shadowMapSize", 512);
-			trap_Cvar_SetValue("r_shadowBlur", 0);
-			break;
-		case 1: // low
-			trap_Cvar_SetValue("r_sunShadows", 1);
-			trap_Cvar_SetValue("r_shadowFilter", 1);
-			trap_Cvar_SetValue("r_shadowMapSize", 512);
-			trap_Cvar_SetValue("r_shadowBlur", 0);
-			break;
-		case 2: // medium
-			trap_Cvar_SetValue("r_sunShadows", 1);
-			trap_Cvar_SetValue("r_shadowFilter", 1);
-			trap_Cvar_SetValue("r_shadowMapSize", 1024);
-			trap_Cvar_SetValue("r_shadowBlur", 1);
-			break;
-		case 3: // high
-			trap_Cvar_SetValue("r_sunShadows", 1);
-			trap_Cvar_SetValue("r_shadowFilter", 2);
-			trap_Cvar_SetValue("r_shadowMapSize", 2048);
-			trap_Cvar_SetValue("r_shadowBlur", 1);
-			break;
-		case 4: // the Ultra preset's: maps at twice the size, their edges softened in the shadow pass itself
-			trap_Cvar_SetValue("r_sunShadows", 1);
-			trap_Cvar_SetValue("r_shadowFilter", 2);
-			trap_Cvar_SetValue("r_shadowMapSize", 4096);
-			trap_Cvar_SetValue("r_shadowBlur", 0);
-			break;
+		// No cubemap probes in the maps, see the presets; but with the Ultra look on, whose maps bring their own. The
+		// Quality row runs this after its preset, which had switched Ultra's reflections off again.
+		if (UI_ApplySettingRow(name, val)) {
+			trap_Cvar_SetValue("r_cubeMapping", val == 1 && trap_Cvar_VariableValue("r_ultraShadows") ? 1 : 0);
 		}
 	} else if (Q_stricmp(name, "ui_mousePitch") == 0) {
 		if (val == 0) {
@@ -5953,6 +5999,24 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("m_pitch", -0.022f);
 		}
 	}
+}
+
+// REACTION: the System menu's Quality row (uiScript applyQuality): a preset's settings, then the choices of its detail
+// rows and its curve detail, which the preset set (UI_Update). Custom (0) is the player's own settings and changes
+// nothing: it once applied the detail rows' unsaved values and switched material maps and shadows off.
+#define UI_PRESET_LAST 6	// Ultra: the presets run from 1 to this
+static void UI_ApplyQuality(void)
+{
+	int quality = (int) trap_Cvar_VariableValue("ui_glCustom");
+
+	if (quality < 1 || quality > UI_PRESET_LAST) {
+		return;
+	}
+	UI_Update("ui_glCustom");
+	UI_Update("ui_filteringMode");
+	UI_Update("ui_shaderLevel");
+	UI_Update("ui_shadowMaps");
+	UI_Update("r_lodbias");
 }
 
 static qboolean UI_ParseResolution(char* str, resolution_t* res)
@@ -6097,6 +6161,7 @@ static qboolean UI_RestartCvarsChanged(void)
 static void UI_InitSystemSettings(void)
 {
 	UI_SelectCurrentResolution();
+	UI_ShowSettingRows();
 	trap_Cvar_Set("ui_RQ3_applyNote", "0");
 }
 
@@ -6851,6 +6916,8 @@ static void UI_RunMenuScript(char **args)
 				trap_Cvar_Set("cl_paused", "0");
 				Menus_CloseAll();
 			}
+		} else if (Q_stricmp(name, "applyQuality") == 0) {
+			UI_ApplyQuality();
 		} else if (Q_stricmp(name, "glCustom") == 0) {
 			trap_Cvar_Set("ui_glCustom", "0");
 			//Makro - save/load the music volume            

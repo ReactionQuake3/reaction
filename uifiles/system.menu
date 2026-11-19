@@ -191,13 +191,7 @@ Group # 1 - Graphics
 			"Ultra"			6
 			"Custom"		0
 		}
-		action {
-			uiScript update "ui_glCustom" ;
-			uiScript update "ui_filteringMode" ;
-			uiScript update "ui_shaderLevel" ;
-			uiScript update "ui_shadowMaps" ;
-			uiScript update "r_lodbias"
-		}
+		action { uiScript applyQuality }
 		ASSIGN_HINT("hint_predef")
 	END_OPTION
 	ADD_HINT("hint_predef", "Choose pre-defined graphics settings", "group1")
