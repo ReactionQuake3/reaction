@@ -2347,6 +2347,7 @@ GLSL
 
 void GLSL_InitGPUShaders(void);
 void GLSL_ShutdownGPUShaders(void);
+qboolean GLSL_FastLight(void);	// REACTION
 void GLSL_VertexAttribPointers(uint32_t attribBits);
 void GLSL_BindProgram(shaderProgram_t * program);
 

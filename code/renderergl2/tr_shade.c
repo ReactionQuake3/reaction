@@ -1531,7 +1531,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			else
 			{
 				qboolean light = (pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK) != 0;
-				qboolean fastLight = !(r_normalMapping->integer || r_specularMapping->integer);
+				qboolean fastLight = GLSL_FastLight();
 
 				if (pStage->bundle[TB_DIFFUSEMAP].image[0])
 					R_BindAnimatedImageToTMU( &pStage->bundle[TB_DIFFUSEMAP], TB_DIFFUSEMAP);

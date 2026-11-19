@@ -988,6 +988,17 @@ void GLSL_DeleteGPUShader(shaderProgram_t *program)
 	}
 }
 
+/*
+REACTION: whether the light shaders take their fast path (USE_FAST_LIGHT), which draws a surface as its picture times its
+lightmap and leaves out the light worked out per pixel: when neither normal nor specular mapping asks for that light.
+Never with the Ultra look (r_ultraShadows): its lightmaps hold no sun, which is drawn per pixel (USE_PRIMARY_LIGHT,
+lightall_fp.glsl), so with Material Maps off a map in Ultra had no sun or moon at all.
+*/
+qboolean GLSL_FastLight(void)
+{
+	return !(r_normalMapping->integer || r_specularMapping->integer || r_ultraShadows->integer);
+}
+
 void GLSL_InitGPUShaders(void)
 {
 	int             startTime, endTime;
@@ -1150,7 +1161,7 @@ void GLSL_InitGPUShaders(void)
 	for (i = 0; i < LIGHTDEF_COUNT; i++)
 	{
 		int lightType = i & LIGHTDEF_LIGHTTYPE_MASK;
-		qboolean fastLight = !(r_normalMapping->integer || r_specularMapping->integer);
+		qboolean fastLight = GLSL_FastLight();
 
 		// skip impossible combos
 		if ((i & LIGHTDEF_USE_PARALLAXMAP) && !r_parallaxMapping->integer)
