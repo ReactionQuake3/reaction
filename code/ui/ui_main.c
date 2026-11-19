@@ -5662,8 +5662,12 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_cubemapSize", 128);
 			trap_Cvar_SetValue("r_dlightMode", 0);
 			trap_Cvar_SetValue("r_bloom", 0);
-			trap_Cvar_SetValue("r_screenReflections", 0);
 		}
+		// No preset turns on the screen's reflections (r_screenReflections), Ultra included: a surface mirrors only what
+		// is on the screen, so its reflection changes as the view turns (on urban3's roof a box showed the wall behind it
+		// when the view was level and the sky's probe when it looked down). It stays a console setting.
+		if (val >= 1)
+			trap_Cvar_SetValue("r_screenReflections", 0);
 		switch (val) {
 		//TTI: new presets
 		// No preset turns on cubemap reflections: the maps ship no cubemap probes, so the renderer would capture
@@ -5840,14 +5844,13 @@ static void UI_Update(const char *name)
 				// anti-aliasing, and none turns it off. The reflections (r_cubeMapping) are set with Material
 				// Maps, below. Choices of their own, which no preset sets: the haze (r_haze); and the grade
 				// (r_grade), which lifts the picture's light, and a preset never changes how bright the game is.
-				// Ultra leaves r_ssao off, as every preset does (above): over the baked light, which already
-				// shades every corner, it drew a dark band into each one.
+				// Ultra leaves r_ssao and r_screenReflections off, as every preset does (above): over the baked
+				// light, which already shades every corner, r_ssao drew a dark band into each one.
 				trap_Cvar_SetValue("r_ultraShadows", 1);
 				trap_Cvar_SetValue("r_sunlightMode", 2);
 				trap_Cvar_SetValue("r_cubemapSize", 256);
 				trap_Cvar_SetValue("r_dlightMode", 1);
 				trap_Cvar_SetValue("r_bloom", 0.35f);
-				trap_Cvar_SetValue("r_screenReflections", 1);
 				trap_Cvar_SetValue("r_temporalAA", 1);
 				trap_Cvar_SetValue("ui_shadowMaps", 4);
 			}
