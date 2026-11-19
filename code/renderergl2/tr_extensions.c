@@ -248,7 +248,11 @@ void GLimp_InitExtraExtensions(void)
 	glRefConfig.seamlessCubeMap = qfalse;
 	if (q_gl_version_at_least_3_2 || SDL_GL_ExtensionSupported(extension))
 	{
-		glRefConfig.seamlessCubeMap = !!r_arb_seamless_cube_map->integer;
+		// REACTION: always, where the card can. A surface that is not a mirror reads a probe's blurrier levels, where
+		// each face holds few texels; filtered face by face, the probe's brightness jumped where the mirrored line crossed
+		// from one face to the next, and that edge slid over a rough wall as the player moved (sludge's night sky, its
+		// clouds and lamps on black). The switch (r_arb_seamless_cube_map) was off by default and every profile saved it so.
+		glRefConfig.seamlessCubeMap = qtrue;
 
 		ri.Printf(PRINT_ALL, result[glRefConfig.seamlessCubeMap], extension);
 	}
