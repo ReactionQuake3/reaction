@@ -2864,7 +2864,10 @@ void R_CreateBuiltinImages( void ) {
 				tr.temporalHistoryImage[x] = R_CreateImage(va("*temporalHistory%d", x), NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, glRefConfig.textureFloat ? GL_RGBA16F_ARB : GL_RGBA8);
 		}
 
-		if (r_shadowBlur->integer || r_ssao->integer)
+		// REACTION: the air (r_haze, which a player turns on and off at any time) and the
+		// screen's reflections read this copy of the depth too. Both exist only under r_ultraShadows, which does not
+		// turn r_ssao on.
+		if (r_shadowBlur->integer || r_ssao->integer || r_ultraShadows->integer)
 			tr.hdrDepthImage = R_CreateImage("*hdrDepth", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_R32F);
 
 		if (r_drawSunRays->integer)
