@@ -794,6 +794,19 @@ static void ComputeFogColorMask( shaderStage_t *pStage, vec4_t fogColorMask )
 }
 
 
+/*
+** REACTION: whether shines and reflections are as sharp as their surfaces (lightall_fp.glsl, u_Reflections). They are,
+** but under Ultra with its tab's Reflections row off (r_reflections 0): the row is Ultra's, and below Ultra it changes
+** nothing. A probe is made with them sharp, so it holds the same picture whichever way the row stood as the map loaded.
+*/
+static float RB_ReflectionsSharp( void )
+{
+	qboolean renderToCubemap = tr.renderCubeFbo && glState.currentFBO == tr.renderCubeFbo;
+
+	return ( r_reflections->integer || !r_ultraShadows->integer || renderToCubemap ) ? 1.0f : 0.0f;
+}
+
+
 static void ForwardDlight( void ) {
 	int		l;
 	//vec3_t	origin;
@@ -903,6 +916,7 @@ static void ForwardDlight( void ) {
 
 		GLSL_SetUniformVec4(sp, UNIFORM_NORMALSCALE, pStage->normalScale);
 		GLSL_SetUniformVec4(sp, UNIFORM_SPECULARSCALE, pStage->specularScale);
+		GLSL_SetUniformFloat(sp, UNIFORM_REFLECTIONS, RB_ReflectionsSharp());
 		
 		// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 		// where they aren't rendered
@@ -1466,6 +1480,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			}
 
 			GLSL_SetUniformVec4(sp, UNIFORM_SPECULARSCALE, specularScale);
+			GLSL_SetUniformFloat(sp, UNIFORM_REFLECTIONS, RB_ReflectionsSharp());
 		}
 
 		//GLSL_SetUniformFloat(sp, UNIFORM_MAPLIGHTSCALE, backEnd.refdef.mapLightScale);

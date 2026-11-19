@@ -771,5 +771,13 @@ Group # 5 - Ultra
 	END_OPTION
 	ADD_HINT("hint_ownshadow", "Your own body's shadow in the sun. Only you see it: other players never cast one", "group5")
 
+	// The reflections: on by default; off, no surface shows a picture or a glint, and each keeps that light as an even sheen. //
+
+	BEGIN_OPTION("Reflections", "r_reflections", ITEM_TYPE_YESNO, 3, 5)
+		OPTION_BELOW("gr5_ctrl2")
+		ASSIGN_HINT("hint_reflections")
+	END_OPTION
+	ADD_HINT("hint_reflections", "Surfaces mirror the sky, the sun and their surroundings. Off, that light shows as an even sheen", "group5")
+
 }
 }

@@ -720,6 +720,7 @@ typedef enum
 	UNIFORM_PRIMARYLIGHTRADIUS,
 
 	UNIFORM_CUBEMAPINFO,
+	UNIFORM_REFLECTIONS,	// REACTION: r_reflections
 
 	UNIFORM_ALPHATEST,
 
@@ -1918,6 +1919,7 @@ extern  cvar_t  *r_ultraShadows;
 extern  cvar_t  *r_bloom;
 extern  cvar_t  *r_grade;
 extern  cvar_t  *r_haze;
+extern  cvar_t  *r_reflections;
 extern  cvar_t  *r_screenReflections;
 extern  cvar_t  *r_ignoreDstAlpha;
 

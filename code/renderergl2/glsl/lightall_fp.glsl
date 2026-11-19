@@ -40,6 +40,7 @@ uniform vec4      u_SpecularScale;
 #endif
 
 #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
+uniform float     u_Reflections;
 #if defined(USE_CUBEMAP)
 uniform vec4      u_CubeMapInfo;
 #endif
@@ -526,13 +527,18 @@ void main()
 	}
   #endif
 
+	// REACTION: how sharp every shine and reflection is, the sun's and the lamps' glints as the probe's picture. With
+	// Reflections off (r_reflections 0, the Ultra tab) it is the blurriest there is, so nothing shows a picture or a
+	// glint that moves with the eye; how much light each carries still follows the surface's own roughness.
+	float shineRoughness = u_Reflections != 0.0 ? roughness : 1.0;
+
 	reflectance  = CalcDiffuse(diffuse.rgb, NH, EH, roughness);
 
   #if defined(r_deluxeSpecular)
     #if defined(USE_LIGHT_VECTOR)
-	reflectance += CalcSpecular(specular.rgb, NH, EH, roughness) * r_deluxeSpecular;
+	reflectance += CalcSpecular(specular.rgb, NH, EH, shineRoughness) * r_deluxeSpecular;
     #else
-	reflectance += CalcSpecular(specular.rgb, NH, EH, pow(roughness, r_deluxeSpecular));
+	reflectance += CalcSpecular(specular.rgb, NH, EH, pow(shineRoughness, r_deluxeSpecular));
     #endif
   #endif
 
@@ -549,9 +555,9 @@ void main()
 	vec3 parallax = u_CubeMapInfo.xyz + u_CubeMapInfo.w * viewDir;
 
   #if defined(USE_BOX_CUBEMAP_PARALLAX)
-	vec3 cubeLightColor = hitCube(R * u_CubeMapInfo.w, parallax, u_CubeMapInfo.www, ROUGHNESS_MIPS * roughness, u_CubeMap).rgb * u_EnableTextures.w;
+	vec3 cubeLightColor = hitCube(R * u_CubeMapInfo.w, parallax, u_CubeMapInfo.www, ROUGHNESS_MIPS * shineRoughness, u_CubeMap).rgb * u_EnableTextures.w;
   #else
-	vec3 cubeLightColor = textureCubeLod(u_CubeMap, R + parallax, ROUGHNESS_MIPS * roughness).rgb * u_EnableTextures.w;
+	vec3 cubeLightColor = textureCubeLod(u_CubeMap, R + parallax, ROUGHNESS_MIPS * shineRoughness).rgb * u_EnableTextures.w;
   #endif
 
 	// normalize cubemap based on last roughness mip (~diffuse)
@@ -620,7 +626,7 @@ void main()
 	// is (RB_ScreenReflections, ssao_fp.glsl). It lies over the probe's reflection by that sureness: where the
 	// mirrored line met something in the picture, that shows; where it met nothing, the sky's probe stays. A rough
 	// surface reads a small copy of it, which is a blurred one. It is read where this place stood in that frame.
-	if (var_ReflectPos.w > 0.0)
+	if (var_ReflectPos.w > 0.0 && u_Reflections != 0.0)
 	{
 		vec2 was = var_ReflectPos.xy / var_ReflectPos.w * 0.5 + 0.5;
 
@@ -651,7 +657,7 @@ void main()
 	EH2 = clamp(dot(E, H2), 0.0, 1.0);
 	NH2 = clamp(dot(N, H2), 0.0, 1.0);
 
-	reflectance  = CalcSpecular(specular.rgb, NH2, EH2, roughness);
+	reflectance  = CalcSpecular(specular.rgb, NH2, EH2, shineRoughness);
 
 	// bit of a hack, with modulated shadowmaps, ignore diffuse
     #if !defined(SHADOWMAP_MODULATE)

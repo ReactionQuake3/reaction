@@ -169,6 +169,7 @@ cvar_t  *r_ultraShadows;
 cvar_t  *r_bloom;
 cvar_t  *r_grade;
 cvar_t  *r_haze;
+cvar_t  *r_reflections;
 cvar_t  *r_screenReflections;	// REACTION: surfaces reflect what is in the picture (RB_ScreenReflections)
 cvar_t  *r_ignoreDstAlpha;
 
@@ -1357,6 +1358,9 @@ void R_Register( void )
 	r_grade = ri.Cvar_Get( "r_grade", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	// REACTION: air between the eye and what is far (RB_Haze); 1 is the amount it is tuned for, 0 none. Not latched, so a key can flip it.
 	r_haze = ri.Cvar_Get( "r_haze", "0", CVAR_ARCHIVE );
+	// REACTION: whether shines and reflections are as sharp as their surfaces, or all as blurred as they get, each
+	// keeping its light as an even sheen (lightall_fp.glsl); the Ultra tab's Reflections row, which no preset sets
+	r_reflections = ri.Cvar_Get( "r_reflections", "1", CVAR_ARCHIVE );
 	r_screenReflections = ri.Cvar_Get( "r_screenReflections", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ignoreDstAlpha = ri.Cvar_Get( "r_ignoreDstAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
