@@ -468,6 +468,7 @@ typedef struct shader_s {
 
 	int			surfaceFlags;			// if explicitlyDefined, this will have SURF_* flags
 	int			contentFlags;
+	qboolean	noSunShadow;			// REACTION: surfaceparm nosunshadow, a lit fixture (R_ShaderCastsSunShadow)
 
 	qboolean	entityMergable;			// merge across entites optimizable (smoke, blood)
 
@@ -853,7 +854,8 @@ typedef enum {
 	VPF_FARPLANEFRUSTUM = 0x40,
 	VPF_NOCUBEMAPS      = 0x80,
 	VPF_TEMPORALJITTER  = 0x100,	// REACTION: the main view, whose static world is drawn a sub-pixel off for temporal anti-aliasing (r_temporalAA)
-	VPF_SUNCASTERS      = 0x200	// REACTION: a near shadow map that draws the world from its mesh on the card (RB_DrawSunCasters)
+	VPF_SUNCASTERS      = 0x200,	// REACTION: a near shadow map that draws the world from its mesh on the card (RB_DrawSunCasters)
+	VPF_SUN             = 0x400	// REACTION: a shadow map of the sun (R_RenderSunShadowMaps)
 } viewParmFlags_t;
 
 typedef struct {
@@ -1987,6 +1989,7 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 					 int *fogNum, int *dlightMap, int *pshadowMap );
 
 qboolean R_ShaderIsPlainSolid( const shader_t *shader );
+qboolean R_ShaderCastsSunShadow( const shader_t *shader );
 void R_AddSunBlockers( void );	// REACTION
 void R_AddSunOtherSurfaces( void );	// REACTION (tr_world.c)
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,

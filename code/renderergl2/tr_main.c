@@ -1495,6 +1495,21 @@ qboolean R_ShaderIsPlainSolid( const shader_t *shader ) {
 
 /*
 =================
+R_ShaderCastsSunShadow
+
+REACTION: whether a surface of this shader goes into the sun's shadow maps. A lit fixture, marked in its map's texture
+script with surfaceparm nosunshadow (a street lamp's head and pole), does not: its shadow would fall into the light it
+gives. Asked wherever a surface enters those maps: the world's mesh
+(R_BuildSunCasters), the solid blocks (R_BrushBlocksSun) and a sun view's surfaces (R_AddDrawSurf). It is still drawn
+and lit, and other things' shadows still fall on it.
+=================
+*/
+qboolean R_ShaderCastsSunShadow( const shader_t *shader ) {
+	return !shader->noSunShadow;
+}
+
+/*
+=================
 R_AddDrawSurf
 =================
 */
@@ -1505,6 +1520,8 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
 	index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
+	if ((tr.viewParms.flags & VPF_SUN) && !R_ShaderCastsSunShadow(shader))
+		return;
 	// REACTION: a shadow map holds depth only, so every plain solid surface is drawn alike whatever its shader, and
 	// all of them go in under the first such shader of their facing: one batch a map, not one a material.
 	if ((tr.viewParms.flags & VPF_DEPTHSHADOW) && r_ultraShadows->integer && R_ShaderIsPlainSolid(shader))
@@ -2595,7 +2612,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		if (glRefConfig.framebufferObject)
 			shadowParms.targetFbo = tr.sunShadowFbo[level];
 
-		shadowParms.flags = VPF_DEPTHSHADOW | VPF_DEPTHCLAMP | VPF_ORTHOGRAPHIC | VPF_NOVIEWMODEL;
+		shadowParms.flags = VPF_DEPTHSHADOW | VPF_DEPTHCLAMP | VPF_ORTHOGRAPHIC | VPF_NOVIEWMODEL | VPF_SUN;
 		// REACTION: a near map draws the world from its mesh on the card
 		if (level != 3 && r_ultraShadows->integer && tr.world->sunCasterVao && r_drawworld->integer)
 			shadowParms.flags |= VPF_SUNCASTERS;

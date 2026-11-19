@@ -2927,7 +2927,8 @@ every step. A brush with a face a player can see is a solid thing whole, so the 
 world go in here and are drawn into the shadow maps where they face the sun (tr.sunBlockerShader):
 they hold the sun off those rays. Every side, not only the ones marked undrawn: the map
 compiler also leaves out drawn sides that no player can see. Left out: what the sun
-does pass (sky, see-through and alpha-tested faces) and a brush with no drawn face at all, which may be a wall
+does pass (sky, see-through and alpha-tested faces), a lit fixture's (R_ShaderCastsSunShadow), and a brush with no
+drawn face at all, which may be a wall
 nobody is meant to see. The baked light this sun replaces was made with the same blocks.
 =================
 */
@@ -3028,6 +3029,9 @@ static qboolean R_BrushBlocksSun( const dbrush_t *brush, const dbrushside_t *sid
 			if ( drawn != tr.defaultShader && ( drawn->sort > SS_OPAQUE || drawn->isSky
 				|| ( drawn->stages[0] && ( drawn->stages[0]->stateBits & GLS_ATEST_BITS ) ) ) ) {
 				return qfalse;   // see-through
+			}
+			if ( !R_ShaderCastsSunShadow( drawn ) ) {
+				return qfalse;   // a lit fixture
 			}
 		}
 	}
@@ -3253,7 +3257,7 @@ static void R_BuildSunCasters( void ) {
 	for ( i = 0; i < s_worldData.numWorldSurfaces; i++ ) {
 		msurface_t *surf = &s_worldData.surfaces[i];
 
-		if ( !seen[i] || *surf->data == SF_SKIP || *surf->data == SF_BAD ) {
+		if ( !seen[i] || *surf->data == SF_SKIP || *surf->data == SF_BAD || !R_ShaderCastsSunShadow( surf->shader ) ) {
 			seen[i] = 0;
 		} else if ( R_IsSunCaster( surf ) ) {
 			srfBspSurface_t *bsp = (srfBspSurface_t *)surf->data;

@@ -1727,6 +1727,13 @@ static void ParseSurfaceParm( char **text ) {
 	int		i;
 
 	token = COM_ParseExt( text, qfalse );
+	// REACTION: a lit fixture (a street lamp's head and pole): the sun's or moon's shadow of it would fall into the
+	// light it gives. A map's texture script marks it; the map compiler, renderergl1 and 1.0's renderer read past an
+	// unknown surfaceparm, so it changes nothing there.
+	if ( !Q_stricmp( token, "nosunshadow" ) ) {
+		shader.noSunShadow = qtrue;
+		return;
+	}
 	for ( i = 0 ; i < numInfoParms ; i++ ) {
 		if ( !Q_stricmp( token, infoParms[i].name ) ) {
 			shader.surfaceFlags |= infoParms[i].surfaceFlags;
