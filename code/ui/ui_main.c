@@ -6001,6 +6001,26 @@ static void UI_Update(const char *name)
 	}
 }
 
+// REACTION: the build whose presets a profile's Quality took last (ui_RQ3_qualityBuild, UI_UpdateQualityAtStart): the
+// engine's version string, which names the commit.
+static qboolean UI_QualityBuildIsThis(void)
+{
+	char version[MAX_CVAR_VALUE_STRING];
+	char applied[MAX_CVAR_VALUE_STRING];
+
+	trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+	trap_Cvar_VariableStringBuffer("ui_RQ3_qualityBuild", applied, sizeof(applied));
+	return !strcmp(version, applied);
+}
+
+static void UI_MarkQualityBuild(void)
+{
+	char version[MAX_CVAR_VALUE_STRING];
+
+	trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+	trap_Cvar_Set("ui_RQ3_qualityBuild", version);
+}
+
 // REACTION: the System menu's Quality row (uiScript applyQuality): a preset's settings, then the choices of its detail
 // rows and its curve detail, which the preset set (UI_Update). Custom (0) is the player's own settings and changes
 // nothing: it once applied the detail rows' unsaved values and switched material maps and shadows off.
@@ -6017,6 +6037,7 @@ static void UI_ApplyQuality(void)
 	UI_Update("ui_shaderLevel");
 	UI_Update("ui_shadowMaps");
 	UI_Update("r_lodbias");
+	UI_MarkQualityBuild();
 }
 
 static qboolean UI_ParseResolution(char* str, resolution_t* res)
@@ -6156,6 +6177,89 @@ static qboolean UI_RestartCvarsChanged(void)
 	UI_RestartCvarValues(values, sizeof(values));
 	trap_Cvar_VariableStringBuffer("ui_RQ3_restartBase", base, sizeof(base));
 	return strcmp(values, base) != 0;
+}
+
+// REACTION: a profile set to a Quality preset holds the preset as the build it runs has it. The game keeps the values a
+// preset had when it was picked, and a later build can change a preset: Ultra stopped turning on r_ssao and
+// r_screenReflections, and the profiles that had picked it kept both under its name. So as the game starts, a profile
+// whose preset another build applied takes it again, once: ui_RQ3_qualityBuild then names this build, so a value the
+// renderer lowers for its card (r_ext_framebuffer_multisample) is raised at most once a build, not at every start.
+// What this start set apart from the profile's config stays: a +set on the command line, autoexec.cfg, or the engine
+// for the card. A start that restates the config's own value, or names a setting the config never kept, is not told
+// apart and takes the preset. A new profile, which the game read no config for, holds the game's defaults and is only
+// marked. Custom (0) is left alone; 1.0's menu named 4 Custom, and a 1.0 profile there takes High, which that Custom
+// applied. Returns whether a setting the renderer reads only as it starts changed.
+#define UI_PROFILE_SIZE		65536	// the largest profile config this reads
+#define UI_START_SETTINGS	64		// the most settings a start may set apart from the profile's config
+
+typedef struct {
+	char	name[MAX_QPATH];
+	char	value[MAX_CVAR_VALUE_STRING];
+} uiStartSetting_t;
+
+static qboolean UI_UpdateQualityAtStart(void)
+{
+	static char text[UI_PROFILE_SIZE];
+	static uiStartSetting_t started[UI_START_SETTINGS];
+	char name[MAX_QPATH];
+	char now[MAX_CVAR_VALUE_STRING];
+	char *p, *token;
+	fileHandle_t f;
+	int quality = (int) trap_Cvar_VariableValue("ui_glCustom");
+	int len, count, i;
+
+	if (quality < 1 || quality > UI_PRESET_LAST || UI_QualityBuildIsThis()) {
+		return qfalse;
+	}
+	// the engine writes the profile's config as its first frame starts, after this
+	len = trap_FS_FOpenFile(CONFIG_PREFIX ".cfg", &f, FS_READ);
+	if (len < 0) {
+		UI_MarkQualityBuild();
+		return qfalse;
+	}
+	if (len >= UI_PROFILE_SIZE) {
+		trap_FS_FCloseFile(f);
+		Com_Printf("^3Quality: " CONFIG_PREFIX ".cfg holds %i bytes, more than %i; its preset stays as an earlier build applied it\n", len, UI_PROFILE_SIZE - 1);
+		return qfalse;
+	}
+	trap_FS_Read(text, len, f);
+	trap_FS_FCloseFile(f);
+	text[len] = 0;
+
+	// the settings this start set apart from the config (the engine writes each as: seta name "value")
+	count = 0;
+	p = text;
+	while (1) {
+		token = COM_ParseExt(&p, qtrue);
+		if (!token[0]) {
+			break;
+		}
+		if (Q_stricmp(token, "seta")) {
+			SkipRestOfLine(&p);
+			continue;
+		}
+		Q_strncpyz(name, COM_ParseExt(&p, qfalse), sizeof(name));
+		token = COM_ParseExt(&p, qfalse);
+		if (!name[0] || UI_CvarHolds(name, token)) {
+			continue;
+		}
+		if (count == UI_START_SETTINGS) {
+			Com_Printf("^3Quality: this start set more than %i settings apart from " CONFIG_PREFIX ".cfg; its preset stays as an earlier build applied it\n", UI_START_SETTINGS);
+			return qfalse;
+		}
+		Q_strncpyz(started[count].name, name, sizeof(started[count].name));
+		trap_Cvar_VariableStringBuffer(name, started[count].value, sizeof(started[count].value));
+		count++;
+	}
+
+	UI_ApplyQuality();
+	for (i = 0; i < count; i++) {
+		trap_Cvar_VariableStringBuffer(started[i].name, now, sizeof(now));
+		if (strcmp(now, started[i].value)) {
+			trap_Cvar_Set(started[i].name, started[i].value);
+		}
+	}
+	return UI_RestartCvarsChanged();
 }
 
 static void UI_InitSystemSettings(void)
@@ -8867,6 +8971,7 @@ void _UI_Init(qboolean inGameLoad)
 	//
 //	int start;
 	qboolean needRestart = qfalse;
+	qboolean firstStart;
 
 	//uiInfo.inGameLoad = inGameLoad;
 
@@ -8878,7 +8983,13 @@ void _UI_Init(qboolean inGameLoad)
 	trap_GetGlconfig(&uiInfo.uiDC.glconfig);
 	UI_GetSupportedModes();
 	UI_BackupVideoCvar("r_fullscreen", "ui_RQ3_fullScreen");
+	// REACTION: the ui's first start in this run of the game knows of no renderer restart yet
+	firstStart = !ui_RQ3_restartBase.string[0];
 	UI_RememberRestartCvars(qfalse);
+	if (firstStart && UI_UpdateQualityAtStart()) {
+		UI_RememberRestartCvars(qtrue);
+		needRestart = qtrue;
+	}
 
 	UI_MakeExtensionsList();
 
@@ -9795,6 +9906,7 @@ vmCvar_t ui_RQ3_old_r_fullScreen;
 vmCvar_t ui_RQ3_videoChanges;
 vmCvar_t ui_RQ3_applyNote;
 vmCvar_t ui_RQ3_restartBase;
+vmCvar_t ui_RQ3_qualityBuild;
 vmCvar_t ui_RQ3_fullScreen;
 
 
@@ -10007,6 +10119,8 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_applyNote,				"ui_RQ3_applyNote", "0", CVAR_ROM},
 	// REACTION: the restart-needing settings at the last restart the ui knows of (UI_RememberRestartCvars)
 	{&ui_RQ3_restartBase,			"ui_RQ3_restartBase", "", CVAR_ROM},
+	// REACTION: the build whose presets the profile's Quality took last (UI_UpdateQualityAtStart)
+	{&ui_RQ3_qualityBuild,			"ui_RQ3_qualityBuild", "", CVAR_ARCHIVE},
 	{&ui_RQ3_fullScreen,			"ui_RQ3_fullScreen", "1", CVAR_ROM},
 };
 
