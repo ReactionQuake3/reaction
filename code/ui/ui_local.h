@@ -286,6 +286,9 @@ extern vmCvar_t ui_RQ3_old_r_customWidth;
 extern vmCvar_t ui_RQ3_old_r_customHeight;
 extern vmCvar_t ui_RQ3_old_r_fullScreen;
 extern vmCvar_t ui_RQ3_videoChanges;
+extern vmCvar_t ui_RQ3_applyNote;
+extern vmCvar_t ui_RQ3_restartBase;
+extern vmCvar_t ui_RQ3_qualityBuild;
 extern vmCvar_t ui_RQ3_fullScreen;
 
 //

@@ -102,7 +102,7 @@ cvar_t	*r_ext_max_anisotropy;
 cvar_t  *r_ext_framebuffer_object;
 cvar_t  *r_ext_texture_float;
 cvar_t  *r_ext_framebuffer_multisample;
-cvar_t  *r_arb_seamless_cube_map;
+cvar_t  *r_ext_texture_compression_bptc;
 cvar_t  *r_arb_vertex_array_object;
 cvar_t  *r_ext_direct_state_access;
 
@@ -164,6 +164,13 @@ cvar_t  *r_shadowMapSize;
 cvar_t  *r_shadowCascadeZNear;
 cvar_t  *r_shadowCascadeZFar;
 cvar_t  *r_shadowCascadeZBias;
+// REACTION: the Ultra look
+cvar_t  *r_ultraShadows;
+cvar_t  *r_bloom;
+cvar_t  *r_grade;
+cvar_t  *r_haze;
+cvar_t  *r_reflections;
+cvar_t  *r_screenReflections;	// REACTION: surfaces reflect what is in the picture (RB_ScreenReflections)
 cvar_t  *r_ignoreDstAlpha;
 
 cvar_t	*r_ignoreGLErrors;
@@ -1248,7 +1255,7 @@ void R_Register( void )
 	r_ext_framebuffer_object = ri.Cvar_Get( "r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_float = ri.Cvar_Get( "r_ext_texture_float", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_multisample = ri.Cvar_Get( "r_ext_framebuffer_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_arb_seamless_cube_map = ri.Cvar_Get( "r_arb_seamless_cube_map", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_texture_compression_bptc = ri.Cvar_Get( "r_ext_texture_compression_bptc", "1", CVAR_CHEAT | CVAR_LATCH );
 	r_arb_vertex_array_object = ri.Cvar_Get( "r_arb_vertex_array_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_direct_state_access = ri.Cvar_Get("r_ext_direct_state_access", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
@@ -1344,6 +1351,17 @@ void R_Register( void )
 	r_shadowCascadeZNear = ri.Cvar_Get( "r_shadowCascadeZNear", "8", CVAR_ARCHIVE | CVAR_LATCH );
 	r_shadowCascadeZFar = ri.Cvar_Get( "r_shadowCascadeZFar", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_shadowCascadeZBias = ri.Cvar_Get( "r_shadowCascadeZBias", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	// REACTION: shadow maps fixed to the world with a smooth edge; a glow around what is bright (its strength);
+	// a little more contrast and colour after tone mapping (its share)
+	r_ultraShadows = ri.Cvar_Get( "r_ultraShadows", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_bloom = ri.Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );
+	r_grade = ri.Cvar_Get( "r_grade", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	// REACTION: air between the eye and what is far (RB_Haze); 1 is the amount it is tuned for, 0 none. Not latched, so a key can flip it.
+	r_haze = ri.Cvar_Get( "r_haze", "0", CVAR_ARCHIVE );
+	// REACTION: whether shines and reflections are as sharp as their surfaces, or all as blurred as they get, each
+	// keeping its light as an even sheen (lightall_fp.glsl); the Ultra tab's Reflections row, which no preset sets
+	r_reflections = ri.Cvar_Get( "r_reflections", "1", CVAR_ARCHIVE );
+	r_screenReflections = ri.Cvar_Get( "r_screenReflections", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ignoreDstAlpha = ri.Cvar_Get( "r_ignoreDstAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
 	//

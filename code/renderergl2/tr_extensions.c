@@ -36,6 +36,7 @@ void GLimp_InitExtraExtensions(void)
 	const char* result[3] = { "...ignoring %s\n", "...using %s\n", "...%s not found\n" };
 	qboolean q_gl_version_at_least_3_0;
 	qboolean q_gl_version_at_least_3_2;
+	qboolean rgtcSupported = qfalse, bptcSupported = qfalse;
 
 	q_gl_version_at_least_3_0 = QGL_VERSION_ATLEAST( 3, 0 );
 	q_gl_version_at_least_3_2 = QGL_VERSION_ATLEAST( 3, 2 );
@@ -247,7 +248,11 @@ void GLimp_InitExtraExtensions(void)
 	glRefConfig.seamlessCubeMap = qfalse;
 	if (q_gl_version_at_least_3_2 || SDL_GL_ExtensionSupported(extension))
 	{
-		glRefConfig.seamlessCubeMap = !!r_arb_seamless_cube_map->integer;
+		// REACTION: always, where the card can. A surface that is not a mirror reads a probe's blurrier levels, where
+		// each face holds few texels; filtered face by face, the probe's brightness jumped where the mirrored line crossed
+		// from one face to the next, and that edge slid over a rough wall as the player moved (sludge's night sky, its
+		// clouds and lamps on black). The switch (r_arb_seamless_cube_map) was off by default and every profile saved it so.
+		glRefConfig.seamlessCubeMap = qtrue;
 
 		ri.Printf(PRINT_ALL, result[glRefConfig.seamlessCubeMap], extension);
 	}
@@ -295,7 +300,8 @@ void GLimp_InitExtraExtensions(void)
 
 	// GL_ARB_texture_compression_rgtc
 	extension = "GL_ARB_texture_compression_rgtc";
-	if (SDL_GL_ExtensionSupported(extension))
+	rgtcSupported = SDL_GL_ExtensionSupported(extension);
+	if (rgtcSupported)
 	{
 		qboolean useRgtc = r_ext_compressed_textures->integer >= 1;
 
@@ -312,8 +318,10 @@ void GLimp_InitExtraExtensions(void)
 	glRefConfig.swizzleNormalmap = r_ext_compressed_textures->integer && !(glRefConfig.textureCompression & TCR_RGTC);
 
 	// GL_ARB_texture_compression_bptc
+	// REACTION: r_ext_texture_compression_bptc 0 hides it, to test what a card without it draws
 	extension = "GL_ARB_texture_compression_bptc";
-	if (SDL_GL_ExtensionSupported(extension))
+	bptcSupported = SDL_GL_ExtensionSupported(extension) && r_ext_texture_compression_bptc->integer;
+	if (bptcSupported)
 	{
 		qboolean useBptc = r_ext_compressed_textures->integer >= 2;
 
@@ -348,6 +356,13 @@ void GLimp_InitExtraExtensions(void)
 	}
 
 done:
+
+	// REACTION: the modern look's packs hold BC7 colour and BC5 normal maps, and their shader scripts name images
+	// only those packs hold. A card that can't draw both, or OpenGL ES, which checks for neither, gets the original
+	// look whole, not black surfaces.
+	ri.Cvar_Set("r_modernLookSupported", (rgtcSupported && bptcSupported) ? "1" : "0");
+	if (!rgtcSupported || !bptcSupported)
+		ri.Printf(PRINT_WARNING, "WARNING: this card can't draw BC7 and BC5 textures, so the game keeps its original look\n");
 
 	// Determine GLSL version
 	if (1)

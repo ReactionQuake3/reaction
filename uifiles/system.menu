@@ -113,10 +113,10 @@
 
 	ADD_TAB(
 		"^_G^_raphics.",
-		"G", 1, "group2,group3,group4",
+		"G", 1, "group2,group3,group4,group5",
 		alignrect "title" ITEM_ALIGN_LEFT 2 28 52 16
 	)
-	ADD_HINT("hint_tab1", "Change rendering options", "group2,group3,group4")
+	ADD_HINT("hint_tab1", "Change rendering options", "group2,group3,group4,group5")
 
 //---------------------------------------------------------
 
@@ -124,10 +124,10 @@
 
 	ADD_TAB(
 		"^_D^_river info.",
-		"D", 2, "group1,group3,group4",
+		"D", 2, "group1,group3,group4,group5",
 		alignrect "tab1" ITEM_ALIGN_RIGHT -56 0 60 16
 	)
-    ADD_HINT("hint_tab2", "View OpenGL driver info", "group1,group3,group4")
+    ADD_HINT("hint_tab2", "View OpenGL driver info", "group1,group3,group4,group5")
 
 //---------------------------------------------------------
 
@@ -135,10 +135,10 @@
 
 	ADD_TAB(
 		"^_M^_isc.",
-		"M", 3, "group1,group2,group4",
+		"M", 3, "group1,group2,group4,group5",
 		alignrect "tab2" ITEM_ALIGN_RIGHT -30 0 32 16
 	)
-    ADD_HINT("hint_tab3", "Change display/sound/network options", "group1,group2,group4")
+    ADD_HINT("hint_tab3", "Change display/sound/network options", "group1,group2,group4,group5")
 
 //---------------------------------------------------------
 
@@ -146,10 +146,22 @@
 
 	ADD_TAB(
 		"^_V^_oIP.",
-		"V", 4, ",group1,group2,group3",
+		"V", 4, ",group1,group2,group3,group5",
 		alignrect "tab3" ITEM_ALIGN_RIGHT -28 0 32 16
 	)
-    ADD_HINT("hint_tab4", "Change VoIP settings", "group1,group2,group3")
+    ADD_HINT("hint_tab4", "Change VoIP settings", "group1,group2,group3,group5")
+
+//---------------------------------------------------------
+
+	// The Ultra look's own options. A tab of their own: two more rows in the Graphics list would push its
+	// Apply button off the paper.
+
+	ADD_TAB(
+		"^_U^_ltra.",
+		"U", 5, "group1,group2,group3,group4",
+		alignrect "tab4" ITEM_ALIGN_RIGHT -32 0 36 16
+	)
+    ADD_HINT("hint_tab5", "Options of the Ultra look. They take hold at once: no Apply needed", "group1,group2,group3,group4")
 
 
 
@@ -173,18 +185,13 @@ Group # 1 - Graphics
 		cvarFloatList {
 			"Very Low"		2
 			"Low"			3
-			"Normal"		1
+			"Medium"		1
 			"High"			4
 			"Very High"		5
+			"Ultra"			6
 			"Custom"		0
 		}
-		action {
-			uiScript update "ui_glCustom" ;
-			uiScript update "ui_filteringMode" ;
-			uiScript update "ui_shaderLevel" ;
-			uiScript update "ui_shadowMaps" ;
-			uiScript update "r_lodbias"
-		}
+		action { uiScript applyQuality }
 		ASSIGN_HINT("hint_predef")
 	END_OPTION
 	ADD_HINT("hint_predef", "Choose pre-defined graphics settings", "group1")
@@ -212,10 +219,23 @@ Group # 1 - Graphics
 	*/
 
 
+	// The look: a choice of its own, which no Quality preset sets, so it does not make Quality Custom. Apply switches it. //
+
+	BEGIN_OPTION("Look", "fs_modernPacks", ITEM_TYPE_MULTI, 12, 1)
+		OPTION_BELOW("gr1_ctrl1")
+		cvarFloatList {
+			"Legacy"		0
+			"Modern"		1
+		}
+		ASSIGN_HINT("hint_look")
+	END_OPTION
+	ADD_HINT("hint_look", "Modern: sharper art, new light and sky. Legacy: the game as it first looked. Apply to switch", "group1")
+
+
 	// Resolution //
 
 	BEGIN_SIMPLE_OPTION(2, 1)
-		OPTION_BELOW("gr1_ctrl1")
+		OPTION_BELOW("gr1_ctrl12")
 		text "Resolution:"
 		ownerDraw UI_RESOLUTION
 		ASSIGN_HINT("hint_res")
@@ -308,6 +328,7 @@ Group # 1 - Graphics
 			"Low"					1
 			"Medium"				2
 			"High"					3
+			"Ultra"					4
 		}
 		OPTION_BELOW("gr1_ctrl7")
 		action { uiScript glCustom ; uiScript update "ui_shadowMaps" }
@@ -418,12 +439,32 @@ Group # 1 - Graphics
 	textaligny 14
 	forecolor 0 0 0 1
 	action { uiScript applysystemSettings ; }
-	ASSIGN_HINT("hint_apply")
+	// ASSIGN_HINT, and the note below goes when the pointer leaves the button
+	onFocus { show "hint_apply" ; timeFade "hint_apply" forecolor 5 5 5 1 0 HINT_FADE_TIME }
+	leaveFocus { timeFade "hint_apply" forecolor 5 5 5 0 0 HINT_FADE_TIME ; setcvar ui_RQ3_applyNote 0 }
 	anglevectors 4 -83
 	visible 1
 	}
 
-	ADD_HINT("hint_apply", "Apply graphics changes and return to main menu", "group1")
+	ADD_HINT("hint_apply", "Apply graphics changes. The picture restarts only if a change needs it", "group1")
+
+	// Apply restarts the renderer only for a change that needs it (ui_main.c, UI_ApplySystemSettings). After an Apply
+	// that needed none, this says so under the button: without it the click would seem to do nothing.
+	itemdef {
+	text "Applied. No restart was needed"
+	name "apply_note,allgroups,group1,fade_alpha"
+	forecolor HINT_COLOR 1
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 224
+	textaligny 12
+	textscale .2
+	alignrect "btn_apply" ITEM_ALIGN_LEFT -160 VSPACE 240 VSIZE
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	decoration
+	cvarTest "ui_RQ3_applyNote"
+	showCvar { "1" }
+	}
 
 /*
 ==========================================================
@@ -702,6 +743,41 @@ Group # 4 - VoIP
 		cvarTest "cl_voipUseVAD"
 		showCvar { "0" }
 	END_OPTION
+
+
+/*
+==========================================================
+
+Group # 5 - Ultra
+
+==========================================================
+*/
+
+	ADD_TITLE_ICON(UI_ASSETS"/icons/rq3-system-graphics", "group5")
+
+	// The haze: off unless the player turns it on. It lies between the eye and what is far. //
+
+	BEGIN_OPTION("Distance Haze", "r_haze", ITEM_TYPE_YESNO, 1, 5)
+		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
+		ASSIGN_HINT("hint_haze")
+	END_OPTION
+	ADD_HINT("hint_haze", "Air over what is far. It makes distant things paler and a little harder to make out", "group5")
+
+	// The player's own body's shadow in the sun. No other player ever casts one. //
+
+	BEGIN_OPTION("Own Sun Shadow", "cg_RQ3_ownSunShadow", ITEM_TYPE_YESNO, 2, 5)
+		OPTION_BELOW("gr5_ctrl1")
+		ASSIGN_HINT("hint_ownshadow")
+	END_OPTION
+	ADD_HINT("hint_ownshadow", "Your own body's shadow in the sun. Only you see it: other players never cast one", "group5")
+
+	// The reflections: on by default; off, no surface shows a picture or a glint, and each keeps that light as an even sheen. //
+
+	BEGIN_OPTION("Reflections", "r_reflections", ITEM_TYPE_YESNO, 3, 5)
+		OPTION_BELOW("gr5_ctrl2")
+		ASSIGN_HINT("hint_reflections")
+	END_OPTION
+	ADD_HINT("hint_reflections", "Surfaces mirror the sky, the sun and their surroundings. Off, that light shows as an even sheen", "group5")
 
 }
 }

@@ -467,6 +467,58 @@ static void RB_VBlur(FBO_t *srcFbo, FBO_t *dstFbo, float strength)
 	RB_BlurAxis(srcFbo, dstFbo, strength, qfalse);
 }
 
+/*
+=============
+RB_Bloom
+
+REACTION: a soft glow around what is bright, in ten draws. The picture goes to half size and from there to the
+small buffer through a ring of sixteen taps (so a small bright thing does not flicker between the small buffer's
+texels); there it is multiplied by itself twice, which keeps only its bright parts (0.9 stays 0.66, 0.5 falls to
+0.06), spread by three more rings and added to the picture. Its first version blurred with the stock one-tap blits,
+five an axis, and took thirty-five draws.
+=============
+*/
+#define BLOOM_ASPECT 0.56f   // the small buffer is square and the screen is wide, so across it a ring is narrower
+
+static void RB_BloomRing(FBO_t *src, FBO_t *dst, ivec4_t srcBox, ivec4_t dstBox, float texels, float aspect, float share, int blend)
+{
+	vec4_t color;
+	vec2_t ring;
+
+	VectorSet4(color, share, share, share, 1.0f);
+	VectorSet2(ring, texels * aspect, texels);
+	FBO_Blit(src, srcBox, ring, dst, dstBox, &tr.bokehShader, color, blend);
+}
+
+void RB_Bloom(FBO_t *src, ivec4_t srcBox, float strength)
+{
+	vec4_t color;
+	ivec4_t half, small;
+	FBO_t *a = tr.textureScratchFbo[0], *b = tr.textureScratchFbo[1];
+
+	if (!tr.quarterFbo[0] || !a || !b)
+		return;
+
+	// FBO_Blit draws a source given no box upside down from one given its whole box, so every blit here names its boxes
+	VectorSet4(half, 0, 0, tr.quarterFbo[0]->width, tr.quarterFbo[0]->height);
+	VectorSet4(small, 0, 0, a->width, a->height);
+
+	FBO_FastBlit(src, srcBox, tr.quarterFbo[0], NULL, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	RB_BloomRing(tr.quarterFbo[0], a, half, small, 2.0f, 1.0f, 1.0f, 0);
+
+	FBO_FastBlit(a, NULL, b, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	FBO_Blit(a, small, NULL, b, small, NULL, NULL, GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
+	FBO_FastBlit(b, NULL, a, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	FBO_Blit(a, small, NULL, b, small, NULL, NULL, GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
+
+	RB_BloomRing(b, a, small, small, 1.5f, BLOOM_ASPECT, 0.5f, 0);
+	RB_BloomRing(b, a, small, small, 4.0f, BLOOM_ASPECT, 0.5f, GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	RB_BloomRing(a, b, small, small, 3.0f, BLOOM_ASPECT, 1.0f, 0);
+
+	VectorSet4(color, strength, strength, strength, 1.0f);
+	FBO_Blit(b, small, NULL, src, srcBox, NULL, color, GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+}
+
 void RB_GaussianBlur(FBO_t *srcFbo, FBO_t *dstFbo, float blur)
 {
 	//float mul = 1.f;

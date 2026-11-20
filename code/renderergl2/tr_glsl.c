@@ -123,6 +123,13 @@ static uniformInfo_t uniformsInfo[] =
 	{ "u_LightRadius",   GLSL_FLOAT },
 	{ "u_AmbientLight",  GLSL_VEC3 },
 	{ "u_DirectedLight", GLSL_VEC3 },
+	{ "u_LightFromPX",   GLSL_VEC3 },
+	{ "u_LightFromNX",   GLSL_VEC3 },
+	{ "u_LightFromPY",   GLSL_VEC3 },
+	{ "u_LightFromNY",   GLSL_VEC3 },
+	{ "u_LightFromPZ",   GLSL_VEC3 },
+	{ "u_LightFromNZ",   GLSL_VEC3 },
+	{ "u_ThinSurface",   GLSL_FLOAT },
 
 	{ "u_PortalRange", GLSL_FLOAT },
 
@@ -156,6 +163,7 @@ static uniformInfo_t uniformsInfo[] =
 	{ "u_PrimaryLightRadius",  GLSL_FLOAT },
 
 	{ "u_CubeMapInfo", GLSL_VEC4 },
+	{ "u_Reflections", GLSL_FLOAT },
 
 	{ "u_AlphaTest", GLSL_INT },
 
@@ -166,7 +174,10 @@ static uniformInfo_t uniformsInfo[] =
 	{ "u_ReprojectionMatrix", GLSL_MAT16 },
 	{ "u_TemporalBlend", GLSL_FLOAT },
 	{ "u_TemporalJitter", GLSL_VEC2 },
-	{ "u_TemporalDepthRange", GLSL_VEC2 }
+	{ "u_TemporalDepthRange", GLSL_VEC2 },
+
+	{ "u_ReflectMap", GLSL_INT },
+	{ "u_ReflectMatrix", GLSL_MAT16 }
 };
 
 typedef enum
@@ -292,6 +303,7 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLchar *extra, char *
 			Q_strcat(dest, size, "#define gl_FragColor out_Color\n");
 			Q_strcat(dest, size, "#define texture2D texture\n");
 			Q_strcat(dest, size, "#define textureCubeLod textureLod\n");
+			Q_strcat(dest, size, "#define texture2DLod textureLod\n");
 			Q_strcat(dest, size, "#define shadow2D texture\n");
 		}
 	}
@@ -403,6 +415,12 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLchar *extra, char *
 	// REACTION: temporal anti-aliasing draws the static world a fraction of a pixel off; textures read as if it were not
 	if (tr.temporalHistoryImage[0])
 		Q_strcat(dest, size, "#define USE_TEMPORAL_JITTER\n");
+
+	// REACTION: with the Ultra look the frames are blended over the whole static world, not only at its geometry
+	// edges, and textures and light take the offsets too, so that grain, relief and thin lines finer than a pixel are
+	// averaged over the offsets as edges are (temporalaa_fp.glsl). It is what keeps a modern engine's picture still.
+	if (tr.temporalHistoryImage[0] && r_ultraShadows->integer)
+		Q_strcat(dest, size, "#define TEMPORAL_WHOLE_PICTURE\n");
 
 	if (r_cubeMapping->integer)
 	{
@@ -971,6 +989,17 @@ void GLSL_DeleteGPUShader(shaderProgram_t *program)
 	}
 }
 
+/*
+REACTION: whether the light shaders take their fast path (USE_FAST_LIGHT), which draws a surface as its picture times its
+lightmap and leaves out the light worked out per pixel: when neither normal nor specular mapping asks for that light.
+Never with the Ultra look (r_ultraShadows): its lightmaps hold no sun, which is drawn per pixel (USE_PRIMARY_LIGHT,
+lightall_fp.glsl), so with Material Maps off a map in Ultra had no sun or moon at all.
+*/
+qboolean GLSL_FastLight(void)
+{
+	return !(r_normalMapping->integer || r_specularMapping->integer || r_ultraShadows->integer);
+}
+
 void GLSL_InitGPUShaders(void)
 {
 	int             startTime, endTime;
@@ -1133,7 +1162,7 @@ void GLSL_InitGPUShaders(void)
 	for (i = 0; i < LIGHTDEF_COUNT; i++)
 	{
 		int lightType = i & LIGHTDEF_LIGHTTYPE_MASK;
-		qboolean fastLight = !(r_normalMapping->integer || r_specularMapping->integer);
+		qboolean fastLight = GLSL_FastLight();
 
 		// skip impossible combos
 		if ((i & LIGHTDEF_USE_PARALLAXMAP) && !r_parallaxMapping->integer)
@@ -1211,6 +1240,17 @@ void GLSL_InitGPUShaders(void)
 				Q_strcat(extradefines, 1024, "#define USE_CUBEMAP\n");
 				if (r_cubeMapping->integer == 2)
 					Q_strcat(extradefines, 1024, "#define USE_BOX_CUBEMAP_PARALLAX\n");
+
+				// REACTION: surfaces show the screen's reflections over the probe's (lightall_fp.glsl). The
+				// roughest surface reads the image's copy REFLECT_SMALLEST pixels wide: smaller ones say nothing
+				if (tr.reflectImage)
+				{
+					int mips = 0;
+
+					while ((tr.reflectImage->width >> (mips + 1)) >= REFLECT_SMALLEST)
+						mips++;
+					Q_strcat(extradefines, 1024, va("#define USE_SCREEN_REFLECTIONS\n#define REFLECT_MIPS float(%d)\n", mips));
+				}
 			}
 			else if (r_deluxeSpecular->value > 0.000001f)
 			{
@@ -1244,6 +1284,10 @@ void GLSL_InitGPUShaders(void)
 			else if (r_sunlightMode->integer == 2)
 				Q_strcat(extradefines, 1024, "#define USE_PRIMARY_LIGHT\n");
 		}
+
+		// REACTION: the Ultra look's own rules for light on a normal map (lightall_fp.glsl); off, the stock ones
+		if (r_ultraShadows->integer)
+			Q_strcat(extradefines, 1024, "#define USE_ULTRA_LIGHT\n");
 
 		if (i & LIGHTDEF_USE_TCGEN_AND_TCMOD)
 		{
@@ -1287,6 +1331,7 @@ void GLSL_InitGPUShaders(void)
 		GLSL_SetUniformInt(&tr.lightallShader[i], UNIFORM_SPECULARMAP, TB_SPECULARMAP);
 		GLSL_SetUniformInt(&tr.lightallShader[i], UNIFORM_SHADOWMAP,   TB_SHADOWMAP);
 		GLSL_SetUniformInt(&tr.lightallShader[i], UNIFORM_CUBEMAP,     TB_CUBEMAP);
+		GLSL_SetUniformInt(&tr.lightallShader[i], UNIFORM_REFLECTMAP,  TB_REFLECTMAP);
 
 		GLSL_FinishGPUShader(&tr.lightallShader[i]);
 
@@ -1327,6 +1372,24 @@ void GLSL_InitGPUShaders(void)
 
 		GLSL_InitUniforms(&tr.shadowmapShader[i]);
 		GLSL_FinishGPUShader(&tr.shadowmapShader[i]);
+
+		numEtcShaders++;
+	}
+
+	// REACTION: depth only, for the world's solid surfaces in a depth-only pass (RB_IterateStagesGeneric): the plain
+	// vertex part, and a pixel part that does nothing
+	if (r_ultraShadows->integer)
+	{
+		attribs = ATTR_POSITION | ATTR_TEXCOORD;
+		extradefines[0] = '\0';
+
+		if (!GLSL_InitGPUShader(&tr.depthOnlyShader, "depthonly", attribs, qtrue, extradefines, qtrue, fallbackShader_generic_vp, "void main()\n{\n}\n"))
+		{
+			ri.Error(ERR_FATAL, "Could not load depthonly shader!");
+		}
+
+		GLSL_InitUniforms(&tr.depthOnlyShader);
+		GLSL_FinishGPUShader(&tr.depthOnlyShader);
 
 		numEtcShaders++;
 	}
@@ -1387,6 +1450,9 @@ void GLSL_InitGPUShaders(void)
 	attribs = ATTR_POSITION | ATTR_TEXCOORD;
 	extradefines[0] = '\0';
 
+	if (r_grade->value > 0.0f)
+		Q_strcat(extradefines, 1024, va("#define r_grade %f\n", r_grade->value));
+
 	if (!GLSL_InitGPUShader(&tr.tonemapShader, "tonemap", attribs, qtrue, extradefines, qtrue, fallbackShader_tonemap_vp, fallbackShader_tonemap_fp))
 	{
 		ri.Error(ERR_FATAL, "Could not load tonemap shader!");
@@ -1442,6 +1508,9 @@ void GLSL_InitGPUShaders(void)
 
 		if (r_shadowFilter->integer >= 2)
 			Q_strcat(extradefines, 1024, "#define USE_SHADOW_FILTER2\n");
+
+		if (r_ultraShadows->integer)
+			Q_strcat(extradefines, 1024, va("#define USE_SHADOW_SMOOTH\n#define WEAPON_DEPTH %.9g\n", DEPTHHACK_RANGE));
 
 		if (r_shadowCascadeZFar->integer != 0)
 			Q_strcat(extradefines, 1024, "#define USE_SHADOW_CASCADE\n");
@@ -1527,6 +1596,9 @@ void GLSL_InitGPUShaders(void)
 			Q_strcat(extradefines, 1024, "#extension GL_OES_standard_derivatives : enable\n");
 		}
 
+		// REACTION: how many smaller copies of the depth its samples may read (tr.depthSmallImage)
+		Q_strcat(extradefines, 1024, va("#define DEPTH_SMALL_COPIES float(%d)\n", DEPTH_SMALL_COPIES));
+
 		if (!GLSL_InitGPUShader(&tr.ssaoShader, "ssao", attribs, qtrue, extradefines, qtrue, fallbackShader_ssao_vp, fallbackShader_ssao_fp))
 		{
 			ri.Error(ERR_FATAL, "Could not load ssao shader!");
@@ -1535,10 +1607,49 @@ void GLSL_InitGPUShaders(void)
 		GLSL_InitUniforms(&tr.ssaoShader);
 
 		GLSL_SetUniformInt(&tr.ssaoShader, UNIFORM_SCREENDEPTHMAP, TB_COLORMAP);
+		GLSL_SetUniformInt(&tr.ssaoShader, UNIFORM_SCREENIMAGEMAP, TB_LIGHTMAP);	// REACTION: the depth's smaller copies (tr.depthSmallImage)
 
 		GLSL_FinishGPUShader(&tr.ssaoShader);
 
 		numEtcShaders++;
+
+		// REACTION: the same quad and depth read, compiled a second time as the air pass (ssao_fp.glsl, USE_HAZE).
+		// Only with the Ultra look on, whose option the haze is: off, the renderer makes the programs it always made
+		// and no other, and RB_Haze finds none and draws nothing.
+		if (r_ultraShadows->integer)
+		{
+			Q_strcat(extradefines, 1024, "#define USE_HAZE\n");
+
+			if (!GLSL_InitGPUShader(&tr.hazeShader, "ssao", attribs, qtrue, extradefines, qtrue, fallbackShader_ssao_vp, fallbackShader_ssao_fp))
+			{
+				ri.Error(ERR_FATAL, "Could not load the air shader!");
+			}
+
+			GLSL_InitUniforms(&tr.hazeShader);
+			GLSL_SetUniformInt(&tr.hazeShader, UNIFORM_SCREENDEPTHMAP, TB_COLORMAP);
+			GLSL_FinishGPUShader(&tr.hazeShader);
+
+			numEtcShaders++;
+		}
+
+		// REACTION: and a third time as the screen's reflections (ssao_fp.glsl, USE_REFLECT)
+		if (tr.reflectImage)
+		{
+			extradefines[0] = '\0';
+			Q_strcat(extradefines, 1024, va("#define USE_REFLECT\n#define WEAPON_DEPTH %.9g\n", DEPTHHACK_RANGE));
+
+			if (!GLSL_InitGPUShader(&tr.reflectShader, "ssao", attribs, qtrue, extradefines, qtrue, fallbackShader_ssao_vp, fallbackShader_ssao_fp))
+			{
+				ri.Error(ERR_FATAL, "Could not load the reflection shader!");
+			}
+
+			GLSL_InitUniforms(&tr.reflectShader);
+			GLSL_SetUniformInt(&tr.reflectShader, UNIFORM_SCREENDEPTHMAP, TB_COLORMAP);
+			GLSL_SetUniformInt(&tr.reflectShader, UNIFORM_SCREENIMAGEMAP, TB_LIGHTMAP);
+			GLSL_FinishGPUShader(&tr.reflectShader);
+
+			numEtcShaders++;
+		}
 
 
 		for (i = 0; i < 4; i++)
@@ -1630,6 +1741,9 @@ void GLSL_ShutdownGPUShaders(void)
 	for ( i = 0; i < SHADOWMAPDEF_COUNT; i++)
 		GLSL_DeleteGPUShader(&tr.shadowmapShader[i]);
 
+	if (tr.depthOnlyShader.program)
+		GLSL_DeleteGPUShader(&tr.depthOnlyShader);
+
 	GLSL_DeleteGPUShader(&tr.pshadowShader);
 	GLSL_DeleteGPUShader(&tr.down4xShader);
 	GLSL_DeleteGPUShader(&tr.bokehShader);
@@ -1640,6 +1754,8 @@ void GLSL_ShutdownGPUShaders(void)
 
 	GLSL_DeleteGPUShader(&tr.shadowmaskShader);
 	GLSL_DeleteGPUShader(&tr.ssaoShader);
+	GLSL_DeleteGPUShader(&tr.hazeShader);
+	GLSL_DeleteGPUShader(&tr.reflectShader);
 	GLSL_DeleteGPUShader(&tr.temporalAAShader);
 	GLSL_DeleteGPUShader(&tr.temporalKeepShader);
 

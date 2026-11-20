@@ -199,6 +199,8 @@ R_LoadLightmaps
 ===============
 */
 #define	DEFAULT_LIGHTMAP_SIZE	128
+// REACTION: a light atlas is baked as the BSP's light at 1.0's defaults, r_mapOverBrightBits 2 less r_overBrightBits 1
+#define	LIGHT_ATLAS_SHIFT		1
 static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 	imgFlags_t  imgFlags = IMGFLAG_NOLIGHTSCALE | IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE;
 	byte		*buf, *buf_p;
@@ -273,6 +275,44 @@ static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 
 	if (tr.worldDeluxeMapping)
 		tr.deluxemaps = ri.Hunk_Alloc( tr.numLightmaps * sizeof(image_t *), h_low );
+
+	// REACTION: a map's baked light as one compressed atlas in the fat layout, in place of the BSP's
+	// pages: the light can change with no change to the BSP, its checksum or its collision. A pure
+	// server hides a pack it does not run, and then the BSP's own light draws.
+	if (r_mergeLightmaps->integer && tr.numLightmaps == 1 && !tr.worldDeluxeMapping)
+	{
+		char atlasName[MAX_QPATH];
+		image_t *atlas = NULL;
+
+		// REACTION: a pack holds a map's light twice. lightmap.dds has the sun baked in and is every preset's
+		// light. lightmap-nosun.dds is the same light without the sun's own, for a sun drawn in real time with its
+		// shadows: only where the player has that on and the map has the file is the sun drawn at all (tr.ultraSun),
+		// so a map without it shows its baked light at every setting and no map is lit by two suns.
+		if (r_ultraShadows->integer && r_sunShadows->integer && r_sunlightMode->integer == 2)
+		{
+			Com_sprintf(atlasName, sizeof(atlasName), "maps/%s/lightmap-nosun.dds", s_worldData.baseName);
+			atlas = R_FindImageFile(atlasName, IMGTYPE_COLORALPHA,
+				IMGFLAG_MIPMAP | IMGFLAG_NOLIGHTSCALE | IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE);
+			tr.ultraSun = atlas != NULL;
+		}
+		if (!atlas)
+		{
+			Com_sprintf(atlasName, sizeof(atlasName), "maps/%s/lightmap.dds", s_worldData.baseName);
+			atlas = R_FindImageFile(atlasName, IMGTYPE_COLORALPHA,
+				IMGFLAG_MIPMAP | IMGFLAG_NOLIGHTSCALE | IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE);
+		}
+
+		if (atlas)
+		{
+			// The BSP's light is shifted by r_mapOverBrightBits - tr.overbrightBits (R_ColorShiftLightingBytes); the
+			// atlas holds it already shifted by LIGHT_ATLAS_SHIFT, so the stages that draw it make up the difference.
+			tr.lightAtlas = atlas;
+			tr.lightAtlasScale = (float)(1 << (r_mapOverBrightBits->integer - tr.overbrightBits)) / (1 << LIGHT_ATLAS_SHIFT);
+			tr.lightmaps[0] = atlas;
+			ri.Free(image);
+			return;
+		}
+	}
 
 	textureInternalFormat = GL_RGBA8;
 	if (r_hdr->integer && !qglesMajorVersion)
@@ -1724,7 +1764,8 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 		char filename[MAX_QPATH];
 		int size;
 
-		Com_sprintf( filename, sizeof( filename ), "maps/%s/vertlight.raw", s_worldData.baseName);
+		// REACTION: the corners' light too comes with and without the sun's own (R_LoadLightmaps)
+		Com_sprintf( filename, sizeof( filename ), tr.ultraSun ? "maps/%s/vertlight-nosun.raw" : "maps/%s/vertlight.raw", s_worldData.baseName);
 		//ri.Printf(PRINT_ALL, "looking for %s\n", filename);
 
 		size = ri.FS_ReadFile(filename, (void **)&hdrVertColors);
@@ -2267,6 +2308,122 @@ void R_LoadLightGrid( lump_t *l ) {
 
 /*
 ================
+R_LoadLightCube
+
+REACTION: the light in the air for what is not a wall (players, the gun in hand, pickups), from a pack:
+maps/<map>/lightcube.raw. The BSP's light grid gives a model one colour of light from one direction, as the map's
+2002 compile found it. The cube holds, for each point of a grid of its own, the light that arrives from each of six
+sides, made from the same bake as the light atlas, so a model's top is lit like the floor under it and its flank
+like the wall beside it (R_SetupEntityLightingCube). The sun is not in it: it is added in real time, as on walls.
+
+The file: "RQLC", version 1, the grid's origin, its step and its bounds, then LIGHT_SIDES of rgb a point (+x -x +y -y +z -z,
+floats) on the scale of the BSP's own light bytes, x running fastest. A point inside a wall holds zeros.
+================
+*/
+#define LIGHT_CUBE_MAGIC		"RQLC"
+#define LIGHT_CUBE_VERSION		2			// 1: no sun strength, the sky shader's own
+#define LIGHT_CUBE_HEADER		44			// bytes: magic 4, version 4, origin 12, step 12, bounds 12
+#define LIGHT_CUBE_SUN_BYTES	4			// version 2: after the header, this map's sun as a share of the sky shader's
+#define LIGHT_CUBE_SUN_LEAST	0.25f
+#define LIGHT_CUBE_SUN_MOST		4.0f
+#define LIGHT_CUBE_MOST_POINTS	( 1 << 20 )	// 72 MiB of floats; urban's has 81592
+#define LIGHT_CUBE_BRIGHTEST	1024.0f		// on the scale of light bytes, where 255 is as bright as a lightmap gets
+
+static void R_LoadLightCube( void ) {
+	char	filename[MAX_QPATH];
+	byte	*file;
+	int		size, version, bounds[3], numPoints, i, j, header;
+	float	origin[3], step[3], sun;
+	float	*in;
+	world_t	*w = &s_worldData;
+
+	// the cube holds the light without the sun's own: for a sun drawn in real time
+	if ( !tr.ultraSun ) {
+		return;
+	}
+
+	Com_sprintf( filename, sizeof( filename ), "maps/%s/lightcube.raw", w->baseName );
+	size = ri.FS_ReadFile( filename, (void **)&file );
+	if ( !file ) {
+		return;
+	}
+
+	// a pack's file is not to be trusted: every number in the header is checked before it is used
+	numPoints = 0;
+	if ( size >= LIGHT_CUBE_HEADER && !memcmp( file, LIGHT_CUBE_MAGIC, 4 ) ) {
+		Com_Memcpy( &version, file + 4, 4 );
+		Com_Memcpy( origin, file + 8, 12 );
+		Com_Memcpy( step, file + 20, 12 );
+		Com_Memcpy( bounds, file + 32, 12 );
+		numPoints = 1;
+		for ( i = 0 ; i < 3 ; i++ ) {
+			origin[i] = LittleFloat( origin[i] );
+			step[i] = LittleFloat( step[i] );
+			bounds[i] = LittleLong( bounds[i] );
+			if ( bounds[i] < 1 || bounds[i] > LIGHT_CUBE_MOST_POINTS || !( step[i] >= 1.0f ) || !( fabs( origin[i] ) <= WORLD_SIZE )
+				|| numPoints > LIGHT_CUBE_MOST_POINTS / bounds[i] ) {
+				numPoints = 0;
+				break;
+			}
+			numPoints *= bounds[i];
+		}
+		// Maps can share a sky shader (urban and teamjungle do), and its q3gl2_sun holds one strength; each map's own,
+		// set against that map's baked light, comes with its light cube.
+		version = LittleLong( version );
+		header = LIGHT_CUBE_HEADER + ( version == LIGHT_CUBE_VERSION ? LIGHT_CUBE_SUN_BYTES : 0 );
+		sun = 1.0f;
+		if ( ( version != LIGHT_CUBE_VERSION && version != 1 )
+			|| size != header + numPoints * (int)( LIGHT_SIDES * 3 * sizeof( float ) ) ) {
+			numPoints = 0;
+		} else if ( version == LIGHT_CUBE_VERSION ) {
+			Com_Memcpy( &sun, file + LIGHT_CUBE_HEADER, LIGHT_CUBE_SUN_BYTES );
+			sun = LittleFloat( sun );
+			if ( !( sun >= LIGHT_CUBE_SUN_LEAST && sun <= LIGHT_CUBE_SUN_MOST ) ) {
+				numPoints = 0;
+			}
+		}
+	}
+	if ( !numPoints ) {
+		ri.Printf( PRINT_WARNING, "WARNING: %s is not a light cube this renderer reads\n", filename );
+		ri.FS_FreeFile( file );
+		return;
+	}
+
+	// the sky shader is parsed with the map's surfaces, before this, and once a load
+	VectorScale( tr.sunLight, sun, tr.sunLight );
+	ri.Printf( PRINT_ALL, "light cube: this map's sun is %.3f of its sky shader's\n", sun );
+
+	w->lightCube = ri.Hunk_Alloc( numPoints * LIGHT_SIDES * 3 * sizeof( float ), h_low );
+	in = (float *)( file + header );
+	for ( i = 0 ; i < numPoints * LIGHT_SIDES ; i++ ) {
+		vec4_t	c;
+
+		for ( j = 0 ; j < 3 ; j++ ) {
+			c[j] = LittleFloat( in[i * 3 + j] );
+			// also what is not a number at all
+			if ( !( c[j] >= 0.0f ) ) {
+				c[j] = 0.0f;
+			} else if ( c[j] > LIGHT_CUBE_BRIGHTEST ) {
+				c[j] = LIGHT_CUBE_BRIGHTEST;
+			}
+		}
+		c[3] = 1.0f;
+		// brought to the renderer's light as the grid's and the lightmaps' bytes are, then to a model's 0-255
+		R_ColorShiftLightingFloats( c, c );
+		VectorScale( c, 255.0f, &w->lightCube[i * 3] );
+	}
+	ri.FS_FreeFile( file );
+
+	for ( i = 0 ; i < 3 ; i++ ) {
+		w->lightCubeOrigin[i] = origin[i];
+		w->lightCubeInverseSize[i] = 1.0f / step[i];
+		w->lightCubeBounds[i] = bounds[i];
+	}
+	ri.Printf( PRINT_ALL, "light cube: %d x %d x %d points of light from six sides, for models\n", bounds[0], bounds[1], bounds[2] );
+}
+
+/*
+================
 R_LoadEntities
 ================
 */
@@ -2585,17 +2742,78 @@ void R_LoadCubemapEntities(char *cubemapEntityName)
 	}
 }
 
+// REACTION: a map's pack can hold one probe named SKY_PROBE_NAME, high over the map: the sky and the skyline.
+// Every world surface with a lightmap then shows that probe, not the one nearest to it: the sheen a road or a
+// wall has where the eye skims along it, the sky in a window's glass. How much of that sky a surface sees is in
+// its lightmap's alpha (lightall_fp.glsl), so a street shows it and a room does not. One probe for all of them
+// splits no batch: with the nearest of urban's 29 on every surface, a frame of 336 batches was drawn as 1744, in
+// the shadow passes too. A lit surface without a lightmap (a model built into the map) keeps the probe nearest
+// to it, and a surface no light falls on takes none.
+#define SKY_PROBE_NAME "sky"
+
+// Whether the shader has a stage that light falls on, and whether such a stage has a lightmap.
+static qboolean R_ShaderIsLit(const shader_t *shader, qboolean *lightmapped)
+{
+	qboolean lit = qfalse;
+	int stage;
+
+	*lightmapped = qfalse;
+
+	for (stage = 0; stage < MAX_SHADER_STAGES && shader->stages[stage]; stage++)
+	{
+		const shaderStage_t *pStage = shader->stages[stage];
+
+		if (pStage->active && pStage->glslShaderGroup == tr.lightallShader)
+		{
+			lit = qtrue;
+
+			if ((pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK) == LIGHTDEF_USE_LIGHTMAP)
+				*lightmapped = qtrue;
+		}
+	}
+
+	return lit;
+}
+
 void R_AssignCubemapsToWorldSurfaces(void)
 {
 	world_t	*w;
 	int i;
+	int skyCount = 0, ownCount = 0;
 
 	w = &s_worldData;
+
+	tr.skyCubemap = 0;
+
+	if (r_ultraShadows->integer)
+	{
+		for (i = 0; i < tr.numCubemaps; i++)
+		{
+			if (!Q_stricmp(tr.cubemaps[i].name, SKY_PROBE_NAME))
+				tr.skyCubemap = i + 1;
+		}
+	}
 
 	for (i = 0; i < w->numsurfaces; i++)
 	{
 		msurface_t *surf = &w->surfaces[i];
 		vec3_t surfOrigin;
+
+		// without a sky probe every surface takes the probe nearest to it, as before
+		if (tr.skyCubemap)
+		{
+			qboolean lightmapped;
+
+			if (!R_ShaderIsLit(surf->shader, &lightmapped))
+				continue;
+
+			if (lightmapped)
+			{
+				surf->cubemapIndex = tr.skyCubemap;
+				skyCount++;
+				continue;
+			}
+		}
 
 		if (surf->cullinfo.type & CULLINFO_SPHERE)
 		{
@@ -2614,8 +2832,12 @@ void R_AssignCubemapsToWorldSurfaces(void)
 		}
 
 		surf->cubemapIndex = R_CubemapForPoint(surfOrigin);
+		ownCount += surf->cubemapIndex != 0;
 		//ri.Printf(PRINT_ALL, "surface %d has cubemap %d\n", i, surf->cubemapIndex);
 	}
+
+	if (tr.skyCubemap)
+		ri.Printf(PRINT_ALL, "reflections: %d of the world's %d surfaces show the sky probe, %d the probe nearest to them\n", skyCount, w->numsurfaces, ownCount);
 }
 
 
@@ -2691,6 +2913,435 @@ void R_CalcVertexLightDirs( void )
 	}
 }
 
+
+/*
+=================
+R_LoadSunBlockers
+
+REACTION: the map's solid blocks, for the sun's shadow maps to hold beside the drawn surfaces. A shadow map holds
+the drawn surfaces that face away from the sun. A ray that comes down just past the foot of a wall standing in its
+own shadow meets none of those before the ground: it went in through the wall's top or sunny side, which the map
+does not hold, and nothing is drawn inside. So there the map said "nothing in the way", the shadow's soft edge
+reached into that, and a broken line of sun ran along the corner where the wall meets the ground, crawling with
+every step. A brush with a face a player can see is a solid thing whole, so the sides of each such brush of the
+world go in here and are drawn into the shadow maps where they face the sun (tr.sunBlockerShader):
+they hold the sun off those rays. Every side, not only the ones marked undrawn: the map
+compiler also leaves out drawn sides that no player can see. Left out: what the sun
+does pass (sky, see-through and alpha-tested faces), a lit fixture's (R_ShaderCastsSunShadow), and a brush with no
+drawn face at all, which may be a wall
+nobody is meant to see. The baked light this sun replaces was made with the same blocks.
+=================
+*/
+#define SUN_BLOCKER_FACE_POINTS 64
+#define SUN_BLOCKER_REACH 65536.0       // a face starts as a square this far each way, beyond any map
+#define SUN_BLOCKER_ON_PLANE 0.01       // game units: a point this close to a side's plane lies on it
+
+static int R_ClipSunBlockerFace( double points[SUN_BLOCKER_FACE_POINTS][3], int count, const cplane_t *plane ) {
+	double kept[SUN_BLOCKER_FACE_POINTS][3];
+	int i, j, keptCount = 0;
+
+	for ( i = 0; i < count; i++ ) {
+		const double *a = points[i];
+		const double *b = points[( i + 1 ) % count];
+		double da = a[0] * plane->normal[0] + a[1] * plane->normal[1] + a[2] * plane->normal[2] - plane->dist;
+		double db = b[0] * plane->normal[0] + b[1] * plane->normal[1] + b[2] * plane->normal[2] - plane->dist;
+
+		if ( da <= SUN_BLOCKER_ON_PLANE ) {
+			if ( keptCount == SUN_BLOCKER_FACE_POINTS ) {
+				return 0;
+			}
+			for ( j = 0; j < 3; j++ ) {
+				kept[keptCount][j] = a[j];
+			}
+			keptCount++;
+		}
+		if ( ( da <= SUN_BLOCKER_ON_PLANE ) != ( db <= SUN_BLOCKER_ON_PLANE ) ) {
+			double t = da / ( da - db );
+
+			if ( keptCount == SUN_BLOCKER_FACE_POINTS ) {
+				return 0;
+			}
+			for ( j = 0; j < 3; j++ ) {
+				kept[keptCount][j] = a[j] + ( b[j] - a[j] ) * t;
+			}
+			keptCount++;
+		}
+	}
+
+	for ( i = 0; i < keptCount; i++ ) {
+		for ( j = 0; j < 3; j++ ) {
+			points[i][j] = kept[i][j];
+		}
+	}
+	return keptCount;
+}
+
+// The blocks go into the shadow maps in pieces of many brushes each: a surface apiece cost the processor 1.3 msec a
+// frame on urban (1147 of them into each map). A piece stays within what one batch of the tessellator holds
+// (SHADER_MAX_VERTEXES, SHADER_MAX_INDEXES), so it draws whether or not the vertex cache takes it.
+#define SUN_BLOCKER_PIECE_VERTS 900
+#define SUN_BLOCKER_PIECE_INDEXES 5400
+
+static void R_FinishSunBlockerPiece( srfBspSurface_t *out, const srfVert_t *verts, int numVerts, const glIndex_t *indexes, int numIndexes ) {
+	int i;
+
+	out->surfaceType = SF_TRIANGLES;
+	out->numVerts = numVerts;
+	out->verts = ri.Hunk_Alloc( numVerts * sizeof( out->verts[0] ), h_low );
+	Com_Memcpy( out->verts, verts, numVerts * sizeof( out->verts[0] ) );
+	out->numIndexes = numIndexes;
+	out->indexes = ri.Hunk_Alloc( numIndexes * sizeof( out->indexes[0] ), h_low );
+	Com_Memcpy( out->indexes, indexes, numIndexes * sizeof( out->indexes[0] ) );
+	ClearBounds( out->cullBounds[0], out->cullBounds[1] );
+	for ( i = 0; i < numVerts; i++ ) {
+		AddPointToBounds( out->verts[i].xyz, out->cullBounds[0], out->cullBounds[1] );
+	}
+}
+
+// Whether the brush is one the sun's shadow maps take as a solid block (R_LoadSunBlockers).
+static qboolean R_BrushBlocksSun( const dbrush_t *brush, const dbrushside_t *sides, int sidesCount ) {
+	int firstSide = LittleLong( brush->firstSide );
+	int numSides = LittleLong( brush->numSides );
+	int shaderNum = LittleLong( brush->shaderNum );
+	qboolean seen = qfalse;
+	int k;
+
+	if ( firstSide < 0 || numSides < 4 || firstSide + numSides > sidesCount || shaderNum < 0 || shaderNum >= s_worldData.numShaders ) {
+		return qfalse;
+	}
+	if ( !( s_worldData.shaders[shaderNum].contentFlags & CONTENTS_SOLID ) || ( s_worldData.shaders[shaderNum].contentFlags & CONTENTS_TRANSLUCENT ) ) {
+		return qfalse;
+	}
+	for ( k = 0; k < numSides; k++ ) {
+		int sideShader = LittleLong( sides[firstSide + k].shaderNum );
+		int sidePlane = LittleLong( sides[firstSide + k].planeNum );
+
+		if ( sideShader < 0 || sideShader >= s_worldData.numShaders || sidePlane < 0 || sidePlane >= s_worldData.numplanes ) {
+			return qfalse;   // a broken side
+		}
+		if ( s_worldData.shaders[sideShader].surfaceFlags & SURF_SKY ) {
+			return qfalse;
+		}
+		if ( !( s_worldData.shaders[sideShader].surfaceFlags & SURF_NODRAW ) ) {
+			shader_t *drawn = R_FindShaderByName( s_worldData.shaders[sideShader].shader );
+
+			seen = qtrue;
+			if ( drawn != tr.defaultShader && ( drawn->sort > SS_OPAQUE || drawn->isSky
+				|| ( drawn->stages[0] && ( drawn->stages[0]->stateBits & GLS_ATEST_BITS ) ) ) ) {
+				return qfalse;   // see-through
+			}
+			if ( !R_ShaderCastsSunShadow( drawn ) ) {
+				return qfalse;   // a lit fixture
+			}
+		}
+	}
+	return seen;
+}
+
+// One side's face: a square on its plane, cut by every other side. Returns its corner count, 0 when nothing is left.
+static int R_SunBlockerFace( const dbrush_t *brush, const dbrushside_t *sides, int side, double points[SUN_BLOCKER_FACE_POINTS][3] ) {
+	int firstSide = LittleLong( brush->firstSide );
+	int numSides = LittleLong( brush->numSides );
+	const cplane_t *plane = &s_worldData.planes[LittleLong( sides[firstSide + side].planeNum )];
+	vec3_t right, up;
+	int count = 4, j, m;
+
+	PerpendicularVector( right, plane->normal );
+	CrossProduct( plane->normal, right, up );
+	for ( j = 0; j < 3; j++ ) {
+		double centre = (double)plane->normal[j] * plane->dist;
+
+		points[0][j] = centre - ( right[j] + up[j] ) * SUN_BLOCKER_REACH;
+		points[1][j] = centre + ( right[j] - up[j] ) * SUN_BLOCKER_REACH;
+		points[2][j] = centre + ( right[j] + up[j] ) * SUN_BLOCKER_REACH;
+		points[3][j] = centre - ( right[j] - up[j] ) * SUN_BLOCKER_REACH;
+	}
+	for ( m = 0; m < numSides && count >= 3; m++ ) {
+		if ( m != side ) {
+			count = R_ClipSunBlockerFace( points, count, &s_worldData.planes[LittleLong( sides[firstSide + m].planeNum )] );
+		}
+	}
+	return count >= 3 ? count : 0;
+}
+
+static void R_LoadSunBlockers( lump_t *brushesLump, lump_t *sidesLump, lump_t *modelsLump ) {
+	static srfVert_t pieceVert[SUN_BLOCKER_PIECE_VERTS];        // too large for the stack
+	static glIndex_t pieceIndex[SUN_BLOCKER_PIECE_INDEXES];
+	static double face[SUN_BLOCKER_FACE_POINTS][3];
+	int pieceVerts = 0, pieceIndexes = 0, blocks = 0;
+	dbrush_t *brushes = (void *)( fileBase + brushesLump->fileofs );
+	dbrushside_t *sides = (void *)( fileBase + sidesLump->fileofs );
+	dmodel_t *models = (void *)( fileBase + modelsLump->fileofs );
+	int brushesCount = brushesLump->filelen / sizeof( *brushes );
+	int sidesCount = sidesLump->filelen / sizeof( *sides );
+	int firstBrush, numBrushes, b, i, j, k;
+	int winding = 0, triangles = 0;
+	qboolean full = qfalse;
+	srfBspSurface_t *out;
+
+	s_worldData.numSunBlockers = 0;
+	s_worldData.sunBlockers = NULL;
+	s_worldData.sunBlockerShader = tr.sunBlockerShader;
+
+	if ( !tr.ultraSun || modelsLump->filelen < sizeof( *models ) ) {
+		return;
+	}
+
+	// only the world's own brushes: a door's or a lift's move with it, and its drawn faces cast its shadow
+	firstBrush = LittleLong( models[0].firstBrush );
+	numBrushes = LittleLong( models[0].numBrushes );
+	if ( firstBrush < 0 || numBrushes <= 0 || firstBrush + numBrushes > brushesCount ) {
+		ri.Printf( PRINT_WARNING, "WARNING: the world's brushes lie outside the map's brush lump: no sun blockers\n" );
+		return;
+	}
+
+	// which way round a drawn face's corners run, seen from its front: the blocks' faces must run the same way
+	for ( i = 0; i < s_worldData.numsurfaces && !winding; i++ ) {
+		srfBspSurface_t *drawn = (srfBspSurface_t *)s_worldData.surfaces[i].data;
+
+		if ( *s_worldData.surfaces[i].data == SF_FACE && drawn->numIndexes >= 3 ) {
+			vec3_t ab, ac, across;
+			float facing;
+
+			VectorSubtract( drawn->verts[drawn->indexes[1]].xyz, drawn->verts[drawn->indexes[0]].xyz, ab );
+			VectorSubtract( drawn->verts[drawn->indexes[2]].xyz, drawn->verts[drawn->indexes[0]].xyz, ac );
+			CrossProduct( ab, ac, across );
+			facing = DotProduct( across, drawn->cullPlane.normal );
+			if ( fabs( facing ) > 0.001f ) {
+				winding = facing > 0 ? 1 : -1;
+			}
+		}
+	}
+	if ( !winding ) {
+		ri.Printf( PRINT_WARNING, "WARNING: the map has no flat face to take the winding from: no sun blockers\n" );
+		return;
+	}
+
+	// room for a piece a brush; a piece holds thirty-seven brushes of six four-cornered sides
+	out = ri.Hunk_Alloc( numBrushes * sizeof( *out ), h_low );
+	s_worldData.sunBlockers = out;
+
+	for ( b = 0; b < numBrushes && !full; b++ ) {
+		const dbrush_t *brush = &brushes[firstBrush + b];
+		int numSides = LittleLong( brush->numSides );
+		qboolean any = qfalse;
+
+		if ( !R_BrushBlocksSun( brush, sides, sidesCount ) ) {
+			continue;
+		}
+
+		for ( k = 0; k < numSides; k++ ) {
+			const cplane_t *plane = &s_worldData.planes[LittleLong( sides[LittleLong( brush->firstSide ) + k].planeNum )];
+			int count = R_SunBlockerFace( brush, sides, k, face );
+			double ab[3], ac[3], facing;
+			int first;
+
+			if ( !count ) {
+				continue;
+			}
+
+			// the piece is full: it becomes a surface, and this face starts the next
+			if ( pieceVerts + count > SUN_BLOCKER_PIECE_VERTS || pieceIndexes + ( count - 2 ) * 3 > SUN_BLOCKER_PIECE_INDEXES ) {
+				// The list has room for this piece and for the one that follows it only while two are left. A map
+				// is not to be trusted: one made of a few brushes with hundreds of sides would fill more pieces
+				// than it has brushes, and loses the rest of its blocks here, not the memory behind the list.
+				if ( s_worldData.numSunBlockers + 2 > numBrushes ) {
+					ri.Printf( PRINT_WARNING, "WARNING: the world's brushes have more sides than the sun blockers hold: the rest are left out\n" );
+					full = qtrue;
+					break;
+				}
+				R_FinishSunBlockerPiece( out, pieceVert, pieceVerts, pieceIndex, pieceIndexes );
+				out++;
+				s_worldData.numSunBlockers++;
+				pieceVerts = pieceIndexes = 0;
+			}
+
+			for ( j = 0; j < 3; j++ ) {
+				ab[j] = face[1][j] - face[0][j];
+				ac[j] = face[2][j] - face[0][j];
+			}
+			facing = ( ab[1] * ac[2] - ab[2] * ac[1] ) * plane->normal[0] + ( ab[2] * ac[0] - ab[0] * ac[2] ) * plane->normal[1]
+				+ ( ab[0] * ac[1] - ab[1] * ac[0] ) * plane->normal[2];
+			first = pieceVerts;
+			for ( i = 0; i < count; i++ ) {
+				// the same way round as the drawn faces
+				const double *point = face[( ( facing > 0 ) == ( winding > 0 ) ) ? i : count - 1 - i];
+
+				VectorSet( pieceVert[pieceVerts].xyz, point[0], point[1], point[2] );
+				pieceVerts++;
+			}
+			for ( i = 2; i < count; i++ ) {
+				pieceIndex[pieceIndexes++] = first;
+				pieceIndex[pieceIndexes++] = first + i - 1;
+				pieceIndex[pieceIndexes++] = first + i;
+			}
+			triangles += count - 2;
+			any = qtrue;
+		}
+		if ( any ) {
+			blocks++;
+		}
+	}
+
+	if ( pieceIndexes ) {
+		R_FinishSunBlockerPiece( out, pieceVert, pieceVerts, pieceIndex, pieceIndexes );
+		s_worldData.numSunBlockers++;
+	}
+
+	ri.Printf( PRINT_ALL, "sun blockers: %d of the world's %d brushes, %d triangles in %d pieces\n", blocks, numBrushes, triangles, s_worldData.numSunBlockers );
+}
+
+// Whether a near shadow map draws the surface as it draws every plain solid one (R_BuildSunCasters).
+static qboolean R_IsSunCaster( const msurface_t *surf ) {
+	surfaceType_t type = *surf->data;
+
+	return ( type == SF_FACE || type == SF_GRID || type == SF_TRIANGLES ) && R_ShaderIsPlainSolid( surf->shader );
+}
+
+// Orders the mesh's triangles nearest the sun first (R_BuildSunCasters). A shadow map keeps the nearest depth of each
+// texel, so a triangle drawn after one that hides it from the sun is thrown out by the card's depth test before it
+// fills anything; drawn first, it fills its texels and they are filled again. The sun stands still, so the order is
+// made once (urban, three maps of 4096: 0.70 msec of the card's time to 0.63).
+static const vec3_t *r_sunCasterXyz;
+
+static int R_SunCasterNearerSun( const void *a, const void *b ) {
+	const GLuint *ta = a, *tb = b;
+	float da = DotProduct( r_sunCasterXyz[ta[0]], tr.sunDirection ) + DotProduct( r_sunCasterXyz[ta[1]], tr.sunDirection ) + DotProduct( r_sunCasterXyz[ta[2]], tr.sunDirection );
+	float db = DotProduct( r_sunCasterXyz[tb[0]], tr.sunDirection ) + DotProduct( r_sunCasterXyz[tb[1]], tr.sunDirection ) + DotProduct( r_sunCasterXyz[tb[2]], tr.sunDirection );
+
+	return ( da < db ) - ( da > db );
+}
+
+/*
+=================
+R_BuildSunCasters
+
+REACTION: the part of the world a near shadow map draws the same way in every frame, as one mesh that stays on
+the card. The maps took the world a surface at a time, as the picture does: every frame walked the map's tree for
+each of them, culled, sorted and gathered some thousand surfaces into batches, and a batch whose surfaces had
+changed, which every step of the eye does to a map that follows it, went to the card whole again. A shadow map
+needs none of that. It draws every plain solid surface (R_ShaderIsPlainSolid) with one program and no texture, so
+those go in here once, positions only, as a run of triangles for each side a shader culls, with the solid blocks
+(R_LoadSunBlockers) in the back-sided run as their shader is. A near map then draws each run with one call
+(RB_DrawSunCasters), and what lies outside its box the card clips away. The world's other surfaces (alpha-tested,
+moved by a deform, with a depth offset) keep the old way, from a list (R_AddSunOtherSurfaces); so do doors and
+everything else that moves.
+=================
+*/
+static void R_BuildSunCasters( void ) {
+	int numVerts = 0, numIndexes = 0, numOthers = 0;
+	int cullIndexes[CT_TWO_SIDED + 1] = { 0, 0, 0 };
+	int cullNext[CT_TWO_SIDED + 1];
+	int i, k, cull, vert = 0;
+	byte *seen;
+	vec3_t *xyz;
+	GLuint *indexes;
+	vao_t *vao;
+
+	if ( !tr.ultraSun || !tr.depthOnlyShader.program
+		|| glRefConfig.vaoCacheGlIndexType != GL_UNSIGNED_INT || s_worldData.numWorldSurfaces <= 0 ) {
+		return;
+	}
+
+	// a surface no leaf holds is never drawn
+	seen = ri.Hunk_AllocateTempMemory( s_worldData.numWorldSurfaces );
+	Com_Memset( seen, 0, s_worldData.numWorldSurfaces );
+	for ( i = 0; i < s_worldData.nummarksurfaces; i++ ) {
+		int surf = s_worldData.marksurfaces[i];
+
+		if ( surf >= 0 && surf < s_worldData.numWorldSurfaces ) {
+			seen[surf] = 1;
+		}
+	}
+
+	for ( i = 0; i < s_worldData.numWorldSurfaces; i++ ) {
+		msurface_t *surf = &s_worldData.surfaces[i];
+
+		if ( !seen[i] || *surf->data == SF_SKIP || *surf->data == SF_BAD || !R_ShaderCastsSunShadow( surf->shader ) ) {
+			seen[i] = 0;
+		} else if ( R_IsSunCaster( surf ) ) {
+			srfBspSurface_t *bsp = (srfBspSurface_t *)surf->data;
+
+			numVerts += bsp->numVerts;
+			cullIndexes[surf->shader->cullType] += bsp->numIndexes;
+		} else {
+			numOthers++;
+		}
+	}
+	for ( i = 0; i < s_worldData.numSunBlockers; i++ ) {
+		numVerts += s_worldData.sunBlockers[i].numVerts;
+		cullIndexes[s_worldData.sunBlockerShader->cullType] += s_worldData.sunBlockers[i].numIndexes;
+	}
+	for ( cull = 0; cull <= CT_TWO_SIDED; cull++ ) {
+		s_worldData.sunCasterFirstIndex[cull] = numIndexes;
+		s_worldData.sunCasterNumIndexes[cull] = cullIndexes[cull];
+		cullNext[cull] = numIndexes;
+		numIndexes += cullIndexes[cull];
+	}
+	if ( !numVerts || !numIndexes ) {
+		ri.Hunk_FreeTempMemory( seen );
+		return;
+	}
+
+	s_worldData.sunOtherSurfaces = ri.Hunk_Alloc( ( numOthers ? numOthers : 1 ) * sizeof( s_worldData.sunOtherSurfaces[0] ), h_low );
+	xyz = ri.Hunk_AllocateTempMemory( numVerts * sizeof( xyz[0] ) );
+	indexes = ri.Hunk_AllocateTempMemory( numIndexes * sizeof( indexes[0] ) );
+
+	// the world's surfaces first, then the blocks; i runs on past the surfaces into the blocks
+	for ( i = 0; i < s_worldData.numWorldSurfaces + s_worldData.numSunBlockers; i++ ) {
+		srfBspSurface_t *bsp;
+
+		if ( i < s_worldData.numWorldSurfaces ) {
+			msurface_t *surf = &s_worldData.surfaces[i];
+
+			if ( !seen[i] ) {
+				continue;
+			}
+			if ( !R_IsSunCaster( surf ) ) {
+				s_worldData.sunOtherSurfaces[s_worldData.numSunOtherSurfaces++] = i;
+				continue;
+			}
+			bsp = (srfBspSurface_t *)surf->data;
+			cull = surf->shader->cullType;
+		} else {
+			bsp = &s_worldData.sunBlockers[i - s_worldData.numWorldSurfaces];
+			cull = s_worldData.sunBlockerShader->cullType;
+		}
+
+		for ( k = 0; k < bsp->numIndexes; k++ ) {
+			indexes[cullNext[cull]++] = vert + bsp->indexes[k];
+		}
+		for ( k = 0; k < bsp->numVerts; k++ ) {
+			VectorCopy( bsp->verts[k].xyz, xyz[vert] );
+			vert++;
+		}
+	}
+
+	r_sunCasterXyz = (const vec3_t *)xyz;
+	for ( cull = 0; cull <= CT_TWO_SIDED; cull++ ) {
+		qsort( indexes + s_worldData.sunCasterFirstIndex[cull], s_worldData.sunCasterNumIndexes[cull] / 3, 3 * sizeof( indexes[0] ), R_SunCasterNearerSun );
+	}
+	r_sunCasterXyz = NULL;
+
+	vao = R_CreateVao( "sunCasters", (byte *)xyz, numVerts * sizeof( xyz[0] ), (byte *)indexes, numIndexes * sizeof( indexes[0] ), VAO_USAGE_STATIC );
+	vao->attribs[ATTR_INDEX_POSITION].enabled = 1;
+	vao->attribs[ATTR_INDEX_POSITION].count = 3;
+	vao->attribs[ATTR_INDEX_POSITION].type = GL_FLOAT;
+	vao->attribs[ATTR_INDEX_POSITION].normalized = GL_FALSE;
+	vao->attribs[ATTR_INDEX_POSITION].stride = sizeof( xyz[0] );
+	vao->attribs[ATTR_INDEX_POSITION].offset = 0;
+	Vao_SetVertexPointers( vao );
+	R_BindNullVao();
+	s_worldData.sunCasterVao = vao;
+
+	ri.Hunk_FreeTempMemory( indexes );
+	ri.Hunk_FreeTempMemory( xyz );
+	ri.Hunk_FreeTempMemory( seen );
+
+	ri.Printf( PRINT_ALL, "sun casters: %d triangles (%d front-sided, %d back-sided, %d two-sided) on %d corners; %d other surfaces\n",
+		numIndexes / 3, s_worldData.sunCasterNumIndexes[CT_FRONT_SIDED] / 3, s_worldData.sunCasterNumIndexes[CT_BACK_SIDED] / 3,
+		s_worldData.sunCasterNumIndexes[CT_TWO_SIDED] / 3, numVerts, s_worldData.numSunOtherSurfaces );
+}
 
 /*
 =================
@@ -2780,8 +3431,11 @@ void RE_LoadWorldMap( const char *name ) {
 	R_LoadMarksurfaces (&header->lumps[LUMP_LEAFSURFACES]);
 	R_LoadNodesAndLeafs (&header->lumps[LUMP_NODES], &header->lumps[LUMP_LEAFS]);
 	R_LoadSubmodels (&header->lumps[LUMP_MODELS]);
+	R_LoadSunBlockers( &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES], &header->lumps[LUMP_MODELS] );
+	R_BuildSunCasters();
 	R_LoadVisibility( &header->lumps[LUMP_VISIBILITY] );
 	R_LoadLightGrid( &header->lumps[LUMP_LIGHTGRID] );
+	R_LoadLightCube();
 
 	// determine vertex light directions
 	R_CalcVertexLightDirs();
@@ -2984,7 +3638,10 @@ void RE_LoadWorldMap( const char *name ) {
 			R_LoadCubemapEntities("misc_cubemap");
 		}
 
-		if (!tr.numCubemaps)
+		// REACTION: not with the Ultra look, which turns reflections on for everyone who picks it: a map that brings
+		// no probes of its own then reflects nothing, where probes at its spawn points laid a grey film on dark walls
+		// and a sheen on the gun.
+		if (!tr.numCubemaps && !r_ultraShadows->integer)
 		{
 			// use deathmatch spawn points as cubemaps
 			R_LoadCubemapEntities("info_player_deathmatch");

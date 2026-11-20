@@ -5602,6 +5602,134 @@ static void UI_StartSkirmish(qboolean next)
 	}
 }
 
+/*
+REACTION: what each choice of the System menu's Filtering Mode, Material Maps and CSM rows sets. A row's own cvar
+(ui_filteringMode, ui_shaderLevel, ui_shadowMaps) is no setting of its own, and only the first is saved, as default.cfg
+names it; when the System menu opens, each row shows the choice the real settings match (UI_ShowSettingRows). Material
+Maps and CSM showed a value nobody saved, Off after every restart, and the Quality row's Custom then applied it and
+switched material maps and shadows off.
+*/
+typedef struct {
+	const char	*row;
+	int			choice;
+	const char	*cvar;
+	const char	*value;
+} uiRowSetting_t;
+
+static const uiRowSetting_t uiRowSettings[] = {
+	// texture filtering: bilinear, trilinear, then anisotropic 2x, 4x, 8x and 16x
+	{ "ui_filteringMode", 0, "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST" },
+	{ "ui_filteringMode", 0, "r_ext_texture_filter_anisotropic", "0" },
+	{ "ui_filteringMode", 0, "r_ext_max_anisotropy", "2" },
+	{ "ui_filteringMode", 1, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 1, "r_ext_texture_filter_anisotropic", "0" },
+	{ "ui_filteringMode", 1, "r_ext_max_anisotropy", "2" },
+	{ "ui_filteringMode", 2, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 2, "r_ext_texture_filter_anisotropic", "1" },
+	{ "ui_filteringMode", 2, "r_ext_max_anisotropy", "2" },
+	{ "ui_filteringMode", 3, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 3, "r_ext_texture_filter_anisotropic", "1" },
+	{ "ui_filteringMode", 3, "r_ext_max_anisotropy", "4" },
+	{ "ui_filteringMode", 4, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 4, "r_ext_texture_filter_anisotropic", "1" },
+	{ "ui_filteringMode", 4, "r_ext_max_anisotropy", "8" },
+	{ "ui_filteringMode", 5, "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" },
+	{ "ui_filteringMode", 5, "r_ext_texture_filter_anisotropic", "1" },
+	{ "ui_filteringMode", 5, "r_ext_max_anisotropy", "16" },
+	// material maps off and on: normal, specular and deluxe mapping; no PBR materials in the data, see the presets
+	// (r_cubeMapping follows the Ultra look, in UI_Update)
+	{ "ui_shaderLevel", 0, "r_pbr", "0" },
+	{ "ui_shaderLevel", 0, "r_deluxeMapping", "0" },
+	{ "ui_shaderLevel", 0, "r_normalMapping", "0" },
+	{ "ui_shaderLevel", 0, "r_specularMapping", "0" },
+	{ "ui_shaderLevel", 1, "r_pbr", "0" },
+	{ "ui_shaderLevel", 1, "r_deluxeMapping", "1" },
+	{ "ui_shaderLevel", 1, "r_normalMapping", "1" },
+	{ "ui_shaderLevel", 1, "r_specularMapping", "1" },
+	// cascaded shadow maps: off, low, medium, high, and the Ultra preset's maps at twice the size, their edges softened
+	// in the shadow pass itself. Off keeps the smallest size the menu offers: renderergl2 makes the sun shadow maps at
+	// this size whenever r_sunlightMode is on, also with r_sunShadows off, and fails its restart on a size of 0.
+	{ "ui_shadowMaps", 0, "r_sunShadows", "0" },
+	{ "ui_shadowMaps", 0, "r_shadowFilter", "0" },
+	{ "ui_shadowMaps", 0, "r_shadowMapSize", "512" },
+	{ "ui_shadowMaps", 0, "r_shadowBlur", "0" },
+	{ "ui_shadowMaps", 1, "r_sunShadows", "1" },
+	{ "ui_shadowMaps", 1, "r_shadowFilter", "1" },
+	{ "ui_shadowMaps", 1, "r_shadowMapSize", "512" },
+	{ "ui_shadowMaps", 1, "r_shadowBlur", "0" },
+	{ "ui_shadowMaps", 2, "r_sunShadows", "1" },
+	{ "ui_shadowMaps", 2, "r_shadowFilter", "1" },
+	{ "ui_shadowMaps", 2, "r_shadowMapSize", "1024" },
+	{ "ui_shadowMaps", 2, "r_shadowBlur", "1" },
+	{ "ui_shadowMaps", 3, "r_sunShadows", "1" },
+	{ "ui_shadowMaps", 3, "r_shadowFilter", "2" },
+	{ "ui_shadowMaps", 3, "r_shadowMapSize", "2048" },
+	{ "ui_shadowMaps", 3, "r_shadowBlur", "1" },
+	{ "ui_shadowMaps", 4, "r_sunShadows", "1" },
+	{ "ui_shadowMaps", 4, "r_shadowFilter", "2" },
+	{ "ui_shadowMaps", 4, "r_shadowMapSize", "4096" },
+	{ "ui_shadowMaps", 4, "r_shadowBlur", "0" }
+};
+
+// Sets a row's choice; qfalse when the row has no such choice.
+static qboolean UI_ApplySettingRow(const char *row, int choice)
+{
+	qboolean found = qfalse;
+	int i;
+
+	for (i = 0; i < ARRAY_LEN(uiRowSettings); i++) {
+		if (uiRowSettings[i].choice == choice && !Q_stricmp(uiRowSettings[i].row, row)) {
+			trap_Cvar_Set(uiRowSettings[i].cvar, uiRowSettings[i].value);
+			found = qtrue;
+		}
+	}
+	return found;
+}
+
+// Whether a cvar holds a value, as a word or as a number ("16" and "16.000000" are one).
+static qboolean UI_CvarHolds(const char *cvar, const char *value)
+{
+	char now[MAX_CVAR_VALUE_STRING];
+
+	trap_Cvar_VariableStringBuffer(cvar, now, sizeof(now));
+	if (!Q_stricmp(now, value)) {
+		return qtrue;
+	}
+	return Q_isanumber(now) && Q_isanumber(value) && atof(now) == atof(value);
+}
+
+// Each row shows the choice the real settings match: the one with the most of its settings in place (all of them, but
+// for a setting changed at the console), the lower on a tie. A row's choices run from 0 without a gap.
+static void UI_ShowSettingRows(void)
+{
+	static const char *rows[] = { "ui_filteringMode", "ui_shaderLevel", "ui_shadowMaps" };
+	int r, i, choice, held, total, best, bestHeld;
+
+	for (r = 0; r < ARRAY_LEN(rows); r++) {
+		best = -1;
+		bestHeld = -1;
+		for (choice = 0; ; choice++) {
+			held = total = 0;
+			for (i = 0; i < ARRAY_LEN(uiRowSettings); i++) {
+				if (uiRowSettings[i].choice == choice && !Q_stricmp(uiRowSettings[i].row, rows[r])) {
+					total++;
+					if (UI_CvarHolds(uiRowSettings[i].cvar, uiRowSettings[i].value)) {
+						held++;
+					}
+				}
+			}
+			if (!total) {
+				break;
+			}
+			if (held > bestHeld) {
+				best = choice;
+				bestHeld = held;
+			}
+		}
+		trap_Cvar_SetValue(rows[r], best);
+	}
+}
+
 static void UI_Update(const char *name)
 {
 	int val = trap_Cvar_VariableValue(name);
@@ -5655,6 +5783,19 @@ static void UI_Update(const char *name)
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_glCustom") == 0) {
+		// What the Ultra preset alone turns on, back at the renderer's defaults for every other preset
+		if (val >= 1 && val <= 5) {
+			trap_Cvar_SetValue("r_ultraShadows", 0);
+			trap_Cvar_SetValue("r_sunlightMode", 1);
+			trap_Cvar_SetValue("r_cubemapSize", 128);
+			trap_Cvar_SetValue("r_dlightMode", 0);
+			trap_Cvar_SetValue("r_bloom", 0);
+		}
+		// No preset turns on the screen's reflections (r_screenReflections), Ultra included: a surface mirrors only what
+		// is on the screen, so its reflection changes as the view turns (on urban3's roof a box showed the wall behind it
+		// when the view was level and the sky's probe when it looked down). It stays a console setting.
+		if (val >= 1)
+			trap_Cvar_SetValue("r_screenReflections", 0);
 		switch (val) {
 		//TTI: new presets
 		// No preset turns on cubemap reflections: the maps ship no cubemap probes, so the renderer would capture
@@ -5666,9 +5807,9 @@ static void UI_Update(const char *name)
 		// on dark sunlit walls seen against the sky (teamjungle's rock tops). It needs base colour textures and
 		// specular maps with gloss in red and metalness in green.
 		// No preset turns on screen-space ambient occlusion (r_ssao): it darkens creases and corners, so it changes the
-		// look, and renderergl2 takes three depth samples per pixel at half the width and height, which leaves dark dots
-		// and stains along corners that flicker as the view moves. The lightmaps already hold the maps' shadows, so it
-		// adds little, and no menu offers it either (system.menu); r_ssao stays a console setting.
+		// look, and the lightmaps already hold the maps' shadows, corners included, so over them it draws a second shade
+		// into every corner: dark dots and stains with renderergl2's stock pass, a dark band with the pass that replaced
+		// it. No menu offers it either (system.menu); r_ssao stays a console setting.
 		// REACTION: a preset changes how demanding the game is, never how it looks or how bright it is: every one keeps
 		// Normal's HDR, tone mapping and fixed exposure. Without tone mapping the HDR picture is
 		// scaled by 2^r_cameraExposure, twice as bright since ioquake3's dfb9bed2 made that default 1. Auto exposure only
@@ -5795,6 +5936,7 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("ui_shadowMaps", 2);
 			break;
 		case 5: // very high quality
+		case 6: // Ultra is Very High with the Ultra light on top; a map needs its Ultra light pack for it
 			trap_Cvar_SetValue("cg_brassTime", 20000);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 20000);
 			
@@ -5823,89 +5965,32 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("ui_filteringMode", 5);
 			trap_Cvar_SetValue("ui_shaderLevel", 1);
 			trap_Cvar_SetValue("ui_shadowMaps", 3);
+			if (val == 6) {
+				// The one preset that adds to the look: a real-time sun in place of the baked one, its shadows,
+				// reflections, the glow round bright things, and temporal anti-aliasing, which with this look
+				// blends the whole picture over frames and keeps the rest steady. No other preset sets temporal
+				// anti-aliasing, and none turns it off. The reflections (r_cubeMapping) are set with Material
+				// Maps, below. Choices of their own, which no preset sets: the haze (r_haze); and the grade
+				// (r_grade), which lifts the picture's light, and a preset never changes how bright the game is.
+				// Ultra leaves r_ssao and r_screenReflections off, as every preset does (above): over the baked
+				// light, which already shades every corner, r_ssao drew a dark band into each one.
+				trap_Cvar_SetValue("r_ultraShadows", 1);
+				trap_Cvar_SetValue("r_sunlightMode", 2);
+				trap_Cvar_SetValue("r_cubemapSize", 256);
+				trap_Cvar_SetValue("r_dlightMode", 1);
+				trap_Cvar_SetValue("r_bloom", 0.35f);
+				trap_Cvar_SetValue("r_temporalAA", 1);
+				trap_Cvar_SetValue("ui_shadowMaps", 4);
+			}
 			break;
 		}
-	} else if (Q_stricmp(name, "ui_filteringMode") == 0) {
-		switch (val) {
-		//TTI: filtering mode
-		case 0:	// bilinear
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_NEAREST");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
-			break;
-		case 1: // trilinear
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
-			break;
-		case 2: // 2x anisotropic
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
-			break;
-		case 3: // 4x anisotropic
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 4);
-			break;
-		case 4: // 8x anisotropic
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 8);
-			break;
-		case 5: // 16x anisotropic
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 16);
-			break;
-		}
+	} else if (Q_stricmp(name, "ui_filteringMode") == 0 || Q_stricmp(name, "ui_shadowMaps") == 0) {
+		UI_ApplySettingRow(name, val);
 	} else if (Q_stricmp(name, "ui_shaderLevel") == 0) {
-		switch (val) {
-		// material maps: normal, specular and deluxe mapping
-		case 0:	// disabled
-			trap_Cvar_SetValue("r_pbr", 0);
-			trap_Cvar_SetValue("r_deluxeMapping", 0);
-			trap_Cvar_SetValue("r_normalMapping", 0);
-			trap_Cvar_SetValue("r_specularMapping", 0);
-			trap_Cvar_SetValue("r_cubeMapping", 0);
-			break;
-		case 1: // enabled
-			trap_Cvar_SetValue("r_pbr", 0);	// no PBR materials in the data, see the presets
-			trap_Cvar_SetValue("r_deluxeMapping", 1);
-			trap_Cvar_SetValue("r_normalMapping", 1);
-			trap_Cvar_SetValue("r_specularMapping", 1);
-			trap_Cvar_SetValue("r_cubeMapping", 0);	// no cubemap probes in the maps, see the presets
-			break;
-		}
-	} else if (Q_stricmp(name, "ui_shadowMaps") == 0) {
-		switch (val) {
-		// cascaded shadow maps
-		case 0:	// disabled
-			trap_Cvar_SetValue("r_sunShadows", 0);
-			trap_Cvar_SetValue("r_shadowFilter", 0);
-			// renderergl2 makes the sun shadow maps at this size whenever r_sunlightMode is on, also with
-			// r_sunShadows off, and fails its restart on a size of 0; keep the smallest size the menu offers
-			trap_Cvar_SetValue("r_shadowMapSize", 512);
-			trap_Cvar_SetValue("r_shadowBlur", 0);
-			break;
-		case 1: // low
-			trap_Cvar_SetValue("r_sunShadows", 1);
-			trap_Cvar_SetValue("r_shadowFilter", 1);
-			trap_Cvar_SetValue("r_shadowMapSize", 512);
-			trap_Cvar_SetValue("r_shadowBlur", 0);
-			break;
-		case 2: // medium
-			trap_Cvar_SetValue("r_sunShadows", 1);
-			trap_Cvar_SetValue("r_shadowFilter", 1);
-			trap_Cvar_SetValue("r_shadowMapSize", 1024);
-			trap_Cvar_SetValue("r_shadowBlur", 1);
-			break;
-		case 3: // high
-			trap_Cvar_SetValue("r_sunShadows", 1);
-			trap_Cvar_SetValue("r_shadowFilter", 2);
-			trap_Cvar_SetValue("r_shadowMapSize", 2048);
-			trap_Cvar_SetValue("r_shadowBlur", 1);
-			break;
+		// No cubemap probes in the maps, see the presets; but with the Ultra look on, whose maps bring their own. The
+		// Quality row runs this after its preset, which had switched Ultra's reflections off again.
+		if (UI_ApplySettingRow(name, val)) {
+			trap_Cvar_SetValue("r_cubeMapping", val == 1 && trap_Cvar_VariableValue("r_ultraShadows") ? 1 : 0);
 		}
 	} else if (Q_stricmp(name, "ui_mousePitch") == 0) {
 		if (val == 0) {
@@ -5914,6 +5999,45 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("m_pitch", -0.022f);
 		}
 	}
+}
+
+// REACTION: the build whose presets a profile's Quality took last (ui_RQ3_qualityBuild, UI_UpdateQualityAtStart): the
+// engine's version string, which names the commit.
+static qboolean UI_QualityBuildIsThis(void)
+{
+	char version[MAX_CVAR_VALUE_STRING];
+	char applied[MAX_CVAR_VALUE_STRING];
+
+	trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+	trap_Cvar_VariableStringBuffer("ui_RQ3_qualityBuild", applied, sizeof(applied));
+	return !strcmp(version, applied);
+}
+
+static void UI_MarkQualityBuild(void)
+{
+	char version[MAX_CVAR_VALUE_STRING];
+
+	trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+	trap_Cvar_Set("ui_RQ3_qualityBuild", version);
+}
+
+// REACTION: the System menu's Quality row (uiScript applyQuality): a preset's settings, then the choices of its detail
+// rows and its curve detail, which the preset set (UI_Update). Custom (0) is the player's own settings and changes
+// nothing: it once applied the detail rows' unsaved values and switched material maps and shadows off.
+#define UI_PRESET_LAST 6	// Ultra: the presets run from 1 to this
+static void UI_ApplyQuality(void)
+{
+	int quality = (int) trap_Cvar_VariableValue("ui_glCustom");
+
+	if (quality < 1 || quality > UI_PRESET_LAST) {
+		return;
+	}
+	UI_Update("ui_glCustom");
+	UI_Update("ui_filteringMode");
+	UI_Update("ui_shaderLevel");
+	UI_Update("ui_shadowMaps");
+	UI_Update("r_lodbias");
+	UI_MarkQualityBuild();
 }
 
 static qboolean UI_ParseResolution(char* str, resolution_t* res)
@@ -6001,9 +6125,148 @@ static void UI_GetSupportedModes(void)
 	UI_SelectCurrentResolution();
 }
 
+// REACTION: the System menu's settings that only a renderer restart shows: the cvars the renderer reads as it starts
+// (CVAR_LATCH in the engine), and the look's packs, which the file system reads as each image loads. A ui module
+// can't ask the engine for a cvar's flags, and its sets go past the latch, so the names are kept here: a menu row or
+// preset that sets another latched cvar adds its name, or Apply will not restart for it. All hold whole numbers. The
+// video mode (r_mode, r_customwidth, r_customheight, r_fullscreen) has its own road in UI_ApplySystemSettings.
+static const char *uiRestartCvars[] = {
+	"fs_modernPacks",
+	"r_picmip", "r_subdivisions", "r_imageUpsample",
+	"r_hdr", "r_ssao", "r_pbr", "r_temporalAA",
+	"r_deluxeMapping", "r_normalMapping", "r_specularMapping", "r_cubeMapping",
+	"r_ext_compressed_textures", "r_ext_framebuffer_multisample",
+	"r_ext_texture_filter_anisotropic", "r_ext_max_anisotropy",
+	"r_sunShadows", "r_shadowFilter", "r_shadowMapSize", "r_shadowBlur",
+	// what the Ultra preset alone sets, all read by the renderer only as it starts
+	"r_ultraShadows", "r_sunlightMode", "r_cubemapSize", "r_dlightMode", "r_screenReflections"
+};
+
+// Their values now, as one string.
+static void UI_RestartCvarValues(char *values, int size)
+{
+	int i;
+
+	values[0] = 0;
+	for (i = 0; i < ARRAY_LEN(uiRestartCvars); i++) {
+		Q_strcat(values, size, va("%i ", (int) trap_Cvar_VariableValue(uiRestartCvars[i])));
+	}
+}
+
+// ui_RQ3_restartBase holds their values at the last renderer restart this module knows of: the game's start and
+// every Apply that restarted. It is a cvar because the module's memory is new at every start of the ui, and a map
+// load starts the ui too, with a renderer that has not read all of these again (its extensions keep the values of
+// its last full start). A vid_restart from the console is not seen; the next Apply after one may restart once
+// more than it had to.
+static void UI_RememberRestartCvars(qboolean restarting)
+{
+	char values[MAX_CVAR_VALUE_STRING];
+
+	if (!restarting && ui_RQ3_restartBase.string[0]) {
+		return;
+	}
+	UI_RestartCvarValues(values, sizeof(values));
+	trap_Cvar_Set("ui_RQ3_restartBase", values);
+}
+
+static qboolean UI_RestartCvarsChanged(void)
+{
+	char values[MAX_CVAR_VALUE_STRING];
+	char base[MAX_CVAR_VALUE_STRING];
+
+	UI_RestartCvarValues(values, sizeof(values));
+	trap_Cvar_VariableStringBuffer("ui_RQ3_restartBase", base, sizeof(base));
+	return strcmp(values, base) != 0;
+}
+
+// REACTION: a profile set to a Quality preset holds the preset as the build it runs has it. The game keeps the values a
+// preset had when it was picked, and a later build can change a preset: Ultra stopped turning on r_ssao and
+// r_screenReflections, and the profiles that had picked it kept both under its name. So as the game starts, a profile
+// whose preset another build applied takes it again, once: ui_RQ3_qualityBuild then names this build, so a value the
+// renderer lowers for its card (r_ext_framebuffer_multisample) is raised at most once a build, not at every start.
+// What this start set apart from the profile's config stays: a +set on the command line, autoexec.cfg, or the engine
+// for the card. A start that restates the config's own value, or names a setting the config never kept, is not told
+// apart and takes the preset. A new profile, which the game read no config for, holds the game's defaults and is only
+// marked. Custom (0) is left alone; 1.0's menu named 4 Custom, and a 1.0 profile there takes High, which that Custom
+// applied. Returns whether a setting the renderer reads only as it starts changed.
+#define UI_PROFILE_SIZE		65536	// the largest profile config this reads
+#define UI_START_SETTINGS	64		// the most settings a start may set apart from the profile's config
+
+typedef struct {
+	char	name[MAX_QPATH];
+	char	value[MAX_CVAR_VALUE_STRING];
+} uiStartSetting_t;
+
+static qboolean UI_UpdateQualityAtStart(void)
+{
+	static char text[UI_PROFILE_SIZE];
+	static uiStartSetting_t started[UI_START_SETTINGS];
+	char name[MAX_QPATH];
+	char now[MAX_CVAR_VALUE_STRING];
+	char *p, *token;
+	fileHandle_t f;
+	int quality = (int) trap_Cvar_VariableValue("ui_glCustom");
+	int len, count, i;
+
+	if (quality < 1 || quality > UI_PRESET_LAST || UI_QualityBuildIsThis()) {
+		return qfalse;
+	}
+	// the engine writes the profile's config as its first frame starts, after this
+	len = trap_FS_FOpenFile(CONFIG_PREFIX ".cfg", &f, FS_READ);
+	if (len < 0) {
+		UI_MarkQualityBuild();
+		return qfalse;
+	}
+	if (len >= UI_PROFILE_SIZE) {
+		trap_FS_FCloseFile(f);
+		Com_Printf("^3Quality: " CONFIG_PREFIX ".cfg holds %i bytes, more than %i; its preset stays as an earlier build applied it\n", len, UI_PROFILE_SIZE - 1);
+		return qfalse;
+	}
+	trap_FS_Read(text, len, f);
+	trap_FS_FCloseFile(f);
+	text[len] = 0;
+
+	// the settings this start set apart from the config (the engine writes each as: seta name "value")
+	count = 0;
+	p = text;
+	while (1) {
+		token = COM_ParseExt(&p, qtrue);
+		if (!token[0]) {
+			break;
+		}
+		if (Q_stricmp(token, "seta")) {
+			SkipRestOfLine(&p);
+			continue;
+		}
+		Q_strncpyz(name, COM_ParseExt(&p, qfalse), sizeof(name));
+		token = COM_ParseExt(&p, qfalse);
+		if (!name[0] || UI_CvarHolds(name, token)) {
+			continue;
+		}
+		if (count == UI_START_SETTINGS) {
+			Com_Printf("^3Quality: this start set more than %i settings apart from " CONFIG_PREFIX ".cfg; its preset stays as an earlier build applied it\n", UI_START_SETTINGS);
+			return qfalse;
+		}
+		Q_strncpyz(started[count].name, name, sizeof(started[count].name));
+		trap_Cvar_VariableStringBuffer(name, started[count].value, sizeof(started[count].value));
+		count++;
+	}
+
+	UI_ApplyQuality();
+	for (i = 0; i < count; i++) {
+		trap_Cvar_VariableStringBuffer(started[i].name, now, sizeof(now));
+		if (strcmp(now, started[i].value)) {
+			trap_Cvar_Set(started[i].name, started[i].value);
+		}
+	}
+	return UI_RestartCvarsChanged();
+}
+
 static void UI_InitSystemSettings(void)
 {
 	UI_SelectCurrentResolution();
+	UI_ShowSettingRows();
+	trap_Cvar_Set("ui_RQ3_applyNote", "0");
 }
 
 static qboolean UI_ChangeVideoCvarAndBackup(const char* name, const char* backup, int value)
@@ -6052,7 +6315,19 @@ static void UI_ApplySystemSettings(void)
 		trap_Cvar_Set("ui_RQ3_videoChanges", "1");
 	}
 
-	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
+	// REACTION: restart the renderer only for a change that needs it: the video mode above, or a setting the
+	// renderer reads only as it starts. Every other setting is in effect already, and a restart in a game loads
+	// the whole map again. The menu says which it was (ui_RQ3_applyNote, system.menu).
+	if (changed || UI_RestartCvarsChanged())
+	{
+		UI_RememberRestartCvars(qtrue);
+		trap_Cvar_Set("ui_RQ3_applyNote", "0");
+		trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
+	}
+	else
+	{
+		trap_Cvar_Set("ui_RQ3_applyNote", "1");
+	}
 }
 
 static void UI_RevertVideoSettings(void)
@@ -6745,6 +7020,8 @@ static void UI_RunMenuScript(char **args)
 				trap_Cvar_Set("cl_paused", "0");
 				Menus_CloseAll();
 			}
+		} else if (Q_stricmp(name, "applyQuality") == 0) {
+			UI_ApplyQuality();
 		} else if (Q_stricmp(name, "glCustom") == 0) {
 			trap_Cvar_Set("ui_glCustom", "0");
 			//Makro - save/load the music volume            
@@ -8694,6 +8971,7 @@ void _UI_Init(qboolean inGameLoad)
 	//
 //	int start;
 	qboolean needRestart = qfalse;
+	qboolean firstStart;
 
 	//uiInfo.inGameLoad = inGameLoad;
 
@@ -8705,6 +8983,13 @@ void _UI_Init(qboolean inGameLoad)
 	trap_GetGlconfig(&uiInfo.uiDC.glconfig);
 	UI_GetSupportedModes();
 	UI_BackupVideoCvar("r_fullscreen", "ui_RQ3_fullScreen");
+	// REACTION: the ui's first start in this run of the game knows of no renderer restart yet
+	firstStart = !ui_RQ3_restartBase.string[0];
+	UI_RememberRestartCvars(qfalse);
+	if (firstStart && UI_UpdateQualityAtStart()) {
+		UI_RememberRestartCvars(qtrue);
+		needRestart = qtrue;
+	}
 
 	UI_MakeExtensionsList();
 
@@ -9619,6 +9904,9 @@ vmCvar_t ui_RQ3_old_r_customWidth;
 vmCvar_t ui_RQ3_old_r_customHeight;
 vmCvar_t ui_RQ3_old_r_fullScreen;
 vmCvar_t ui_RQ3_videoChanges;
+vmCvar_t ui_RQ3_applyNote;
+vmCvar_t ui_RQ3_restartBase;
+vmCvar_t ui_RQ3_qualityBuild;
 vmCvar_t ui_RQ3_fullScreen;
 
 
@@ -9827,6 +10115,12 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_old_r_customHeight,	"ui_RQ3_old_r_customHeight", "480", CVAR_ROM},
 	{&ui_RQ3_old_r_fullScreen,		"ui_RQ3_old_r_fullScreen", "1", CVAR_ROM},
 	{&ui_RQ3_videoChanges,			"ui_RQ3_videoChanges", "0", CVAR_ROM},
+	// REACTION: 1 after an Apply in the System menu that needed no restart; the menu shows its note by it
+	{&ui_RQ3_applyNote,				"ui_RQ3_applyNote", "0", CVAR_ROM},
+	// REACTION: the restart-needing settings at the last restart the ui knows of (UI_RememberRestartCvars)
+	{&ui_RQ3_restartBase,			"ui_RQ3_restartBase", "", CVAR_ROM},
+	// REACTION: the build whose presets the profile's Quality took last (UI_UpdateQualityAtStart)
+	{&ui_RQ3_qualityBuild,			"ui_RQ3_qualityBuild", "", CVAR_ARCHIVE},
 	{&ui_RQ3_fullScreen,			"ui_RQ3_fullScreen", "1", CVAR_ROM},
 };
 

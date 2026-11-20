@@ -794,6 +794,19 @@ static void ComputeFogColorMask( shaderStage_t *pStage, vec4_t fogColorMask )
 }
 
 
+/*
+** REACTION: whether shines and reflections are as sharp as their surfaces (lightall_fp.glsl, u_Reflections). They are,
+** but under Ultra with its tab's Reflections row off (r_reflections 0): the row is Ultra's, and below Ultra it changes
+** nothing. A probe is made with them sharp, so it holds the same picture whichever way the row stood as the map loaded.
+*/
+static float RB_ReflectionsSharp( void )
+{
+	qboolean renderToCubemap = tr.renderCubeFbo && glState.currentFBO == tr.renderCubeFbo;
+
+	return ( r_reflections->integer || !r_ultraShadows->integer || renderToCubemap ) ? 1.0f : 0.0f;
+}
+
+
 static void ForwardDlight( void ) {
 	int		l;
 	//vec3_t	origin;
@@ -903,6 +916,7 @@ static void ForwardDlight( void ) {
 
 		GLSL_SetUniformVec4(sp, UNIFORM_NORMALSCALE, pStage->normalScale);
 		GLSL_SetUniformVec4(sp, UNIFORM_SPECULARSCALE, pStage->specularScale);
+		GLSL_SetUniformFloat(sp, UNIFORM_REFLECTIONS, RB_ReflectionsSharp());
 		
 		// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 		// where they aren't rendered
@@ -1189,7 +1203,17 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		if (backEnd.depthFill)
 		{
-			if (pStage->glslShaderGroup == tr.lightallShader)
+			// REACTION: a depth-only pass (the shadow maps, the depth laid down before the picture) drew every
+			// surface with its material's own program, which reads the texture and tests its alpha for each pixel
+			// although nothing but depth is kept. A solid surface of the world needs neither: with a program whose
+			// pixel part is empty the card fills depth at its full rate (urban's shadow maps: 0.6 msec a frame).
+			if (r_ultraShadows->integer && tr.depthOnlyShader.program && !(pStage->stateBits & GLS_ATEST_BITS)
+				&& !tess.shader->numDeforms && !glState.vertexAnimation && !glState.boneAnimation
+				&& (!backEnd.currentEntity || backEnd.currentEntity == &tr.worldEntity))
+			{
+				sp = &tr.depthOnlyShader;
+			}
+			else if (pStage->glslShaderGroup == tr.lightallShader)
 			{
 				int index = 0;
 
@@ -1327,6 +1351,13 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 			ComputeShaderColors(pStage, baseColor, vertColor, pStage->stateBits);
 
+			// REACTION: a stage that draws the map's light atlas brings it to the BSP's light (tr_bsp.c)
+			if (tr.lightAtlas && (pStage->bundle[0].image[0] == tr.lightAtlas || pStage->bundle[TB_LIGHTMAP].image[0] == tr.lightAtlas))
+			{
+				VectorScale(baseColor, tr.lightAtlasScale, baseColor);
+				VectorScale(vertColor, tr.lightAtlasScale, vertColor);
+			}
+
 			GLSL_SetUniformVec4(sp, UNIFORM_BASECOLOR, baseColor);
 			GLSL_SetUniformVec4(sp, UNIFORM_VERTCOLOR, vertColor);
 		}
@@ -1335,8 +1366,26 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		{
 			vec4_t vec;
 
-			VectorScale(backEnd.currentEntity->ambientLight, 1.0f / 255.0f, vec);
-			GLSL_SetUniformVec3(sp, UNIFORM_AMBIENTLIGHT, vec);
+			if (sp->uniforms[UNIFORM_LIGHTFROM_PX] != -1)
+			{
+				// REACTION: this program lights a model from six sides (lightall_fp.glsl), so its one ambient
+				// colour stands aside (1: the six are the light) and each side's light goes in
+				int side;
+
+				VectorSet(vec, 1.0f, 1.0f, 1.0f);
+				GLSL_SetUniformVec3(sp, UNIFORM_AMBIENTLIGHT, vec);
+
+				for (side = 0; side < LIGHT_SIDES; side++)
+				{
+					VectorScale(backEnd.currentEntity->lightFrom[side], 1.0f / 255.0f, vec);
+					GLSL_SetUniformVec3(sp, UNIFORM_LIGHTFROM_PX + side, vec);
+				}
+			}
+			else
+			{
+				VectorScale(backEnd.currentEntity->ambientLight, 1.0f / 255.0f, vec);
+				GLSL_SetUniformVec3(sp, UNIFORM_AMBIENTLIGHT, vec);
+			}
 
 			VectorScale(backEnd.currentEntity->directedLight, 1.0f / 255.0f, vec);
 			GLSL_SetUniformVec3(sp, UNIFORM_DIRECTEDLIGHT, vec);
@@ -1410,6 +1459,15 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		GLSL_SetUniformVec4(sp, UNIFORM_NORMALSCALE, pStage->normalScale);
 
+		// REACTION: a leaf. A map's built-in model (lit by its corners) that is drawn from both sides with holes cut
+		// by its picture's alpha is a thin sheet, and the sun on one side of it shows on the other (lightall_fp.glsl).
+		// A green leaf lets through about as much green light as it throws back and less red and blue (roughly a
+		// tenth of the light each way in green): seven tenths of what its lit side shows, in its own colour.
+		GLSL_SetUniformFloat(sp, UNIFORM_THINSURFACE,
+			( input->shader->cullType == CT_TWO_SIDED && ( pStage->stateBits & GLS_ATEST_BITS )
+			&& pStage->glslShaderGroup == tr.lightallShader
+			&& ( pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK ) == LIGHTDEF_USE_LIGHT_VERTEX ) ? ULTRA_THIN_THROUGH : 0.0f);
+
 		{
 			vec4_t specularScale;
 			Vector4Copy(pStage->specularScale, specularScale);
@@ -1422,6 +1480,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			}
 
 			GLSL_SetUniformVec4(sp, UNIFORM_SPECULARSCALE, specularScale);
+			GLSL_SetUniformFloat(sp, UNIFORM_REFLECTIONS, RB_ReflectionsSharp());
 		}
 
 		//GLSL_SetUniformFloat(sp, UNIFORM_MAPLIGHTSCALE, backEnd.refdef.mapLightScale);
@@ -1487,7 +1546,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			else
 			{
 				qboolean light = (pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK) != 0;
-				qboolean fastLight = !(r_normalMapping->integer || r_specularMapping->integer);
+				qboolean fastLight = GLSL_FastLight();
 
 				if (pStage->bundle[TB_DIFFUSEMAP].image[0])
 					R_BindAnimatedImageToTMU( &pStage->bundle[TB_DIFFUSEMAP], TB_DIFFUSEMAP);
@@ -1561,12 +1620,42 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			if (cubemap->image)
 				GL_BindToTMU( cubemap->image, TB_CUBEMAP);
 
-			VectorSubtract(cubemap->origin, backEnd.viewParms.or.origin, vec);
-			vec[3] = 1.0f;
+			if (input->cubemapIndex == tr.skyCubemap)
+			{
+				// REACTION: the sky's probe shows what is far away, the same from every place: no parallax,
+				// and a radius of none tells the shader which probe this is (lightall_fp.glsl)
+				VectorSet4(vec, 0.0f, 0.0f, 0.0f, 0.0f);
+			}
+			else
+			{
+				VectorSubtract(cubemap->origin, backEnd.viewParms.or.origin, vec);
+				vec[3] = 1.0f;
 
-			VectorScale4(vec, 1.0f / cubemap->parallaxRadius, vec);
+				VectorScale4(vec, 1.0f / cubemap->parallaxRadius, vec);
+			}
 
 			GLSL_SetUniformVec4(sp, UNIFORM_CUBEMAPINFO, vec);
+		}
+
+		// REACTION: the screen's reflections of the frame before, for programs that read them (lightall_fp.glsl).
+		// Only the main view of the world can: a probe's, a mirror's or a shadow map's view is another picture,
+		// and the first frame after a restart, or after a frame that drew no world, has none before it. For those
+		// the matrix is all zero. (After a jump to another place the frame before is read as after any move: what
+		// was on the screen then is found again, the rest shows the probe.)
+		if (sp->uniforms[UNIFORM_REFLECTMATRIX] != -1)
+		{
+			static const mat4_t none;
+
+			if (tr.reflectImage && tr.reflectFrame == backEnd.viewParms.frameCount - 1 && !backEnd.viewParms.isPortal
+				&& !(backEnd.viewParms.flags & (VPF_NOCUBEMAPS | VPF_DEPTHSHADOW)) && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+			{
+				GL_BindToTMU(tr.reflectImage, TB_REFLECTMAP);
+				GLSL_SetUniformMat4(sp, UNIFORM_REFLECTMATRIX, tr.reflectMatrix);
+			}
+			else
+			{
+				GLSL_SetUniformMat4(sp, UNIFORM_REFLECTMATRIX, none);
+			}
 		}
 
 		//

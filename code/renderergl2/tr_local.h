@@ -102,6 +102,10 @@ typedef struct {
 	vec3_t		ambientLight;	// color normalized to 0-255
 	int			ambientLightInt;	// 32 bit rgba packed
 	vec3_t		directedLight;
+	// REACTION: the light that arrives from each of six sides (+x -x +y -y +z -z), 0-255 as ambientLight: from
+	// the pack's light cube where the map has one (R_LoadLightCube), else ambientLight on every side
+#define LIGHT_SIDES 6
+	vec3_t		lightFrom[LIGHT_SIDES];
 } trRefEntity_t;
 
 
@@ -373,8 +377,13 @@ enum
 	TB_SHADOWMAP   = 5,
 	TB_CUBEMAP     = 6,
 	TB_SHADOWMAP4  = 6,
-	NUM_TEXTURE_BUNDLES = 7
+	TB_REFLECTMAP  = 7,	// REACTION: the screen's reflections (RB_ScreenReflections)
+	NUM_TEXTURE_BUNDLES = 8
 };
+
+#define REFLECT_SMALLEST 16	// REACTION: pixels across, the smallest copy of the screen's reflections a surface reads
+#define DEPTH_SMALL_COPIES 4	// REACTION: smaller copies of the half-size depth (tr.depthSmallImage); the last is a sixteenth of it across
+#define ULTRA_THIN_THROUGH 0.7f	// REACTION: the share of the sun on a leaf's lit side that its other side shows (tr_shade.c)
 
 typedef enum
 {
@@ -459,6 +468,7 @@ typedef struct shader_s {
 
 	int			surfaceFlags;			// if explicitlyDefined, this will have SURF_* flags
 	int			contentFlags;
+	qboolean	noSunShadow;			// REACTION: surfaceparm nosunshadow, a lit fixture (R_ShaderCastsSunShadow)
 
 	qboolean	entityMergable;			// merge across entites optimizable (smoke, blood)
 
@@ -670,6 +680,13 @@ typedef enum
 	UNIFORM_LIGHTRADIUS,
 	UNIFORM_AMBIENTLIGHT,
 	UNIFORM_DIRECTEDLIGHT,
+	UNIFORM_LIGHTFROM_PX,	// REACTION: trRefEntity_t's lightFrom, in that order
+	UNIFORM_LIGHTFROM_NX,
+	UNIFORM_LIGHTFROM_PY,
+	UNIFORM_LIGHTFROM_NY,
+	UNIFORM_LIGHTFROM_PZ,
+	UNIFORM_LIGHTFROM_NZ,
+	UNIFORM_THINSURFACE,	// REACTION: the share of the sun a thin surface (a leaf) lets through to its other side; 0 for anything else
 
 	UNIFORM_PORTALRANGE,
 
@@ -703,6 +720,7 @@ typedef enum
 	UNIFORM_PRIMARYLIGHTRADIUS,
 
 	UNIFORM_CUBEMAPINFO,
+	UNIFORM_REFLECTIONS,	// REACTION: r_reflections
 
 	UNIFORM_ALPHATEST,
 
@@ -715,6 +733,9 @@ typedef enum
 	UNIFORM_TEMPORALBLEND,
 	UNIFORM_TEMPORALJITTER,		// REACTION: pixels the static world is drawn off, for textures to read as if it were not
 	UNIFORM_TEMPORALDEPTHRANGE,	// REACTION: a model's nearest and farthest depth, what temporal anti-aliasing leaves alone
+
+	UNIFORM_REFLECTMAP,		// REACTION: the screen's reflections of the frame before ...
+	UNIFORM_REFLECTMATRIX,	// ... and what takes a place in the world to its place in that frame's picture
 
 	UNIFORM_COUNT
 } uniform_t;
@@ -833,7 +854,9 @@ typedef enum {
 	VPF_USESUNLIGHT     = 0x20,
 	VPF_FARPLANEFRUSTUM = 0x40,
 	VPF_NOCUBEMAPS      = 0x80,
-	VPF_TEMPORALJITTER  = 0x100	// REACTION: the main view, whose static world is drawn a sub-pixel off for temporal anti-aliasing (r_temporalAA)
+	VPF_TEMPORALJITTER  = 0x100,	// REACTION: the main view, whose static world is drawn a sub-pixel off for temporal anti-aliasing (r_temporalAA)
+	VPF_SUNCASTERS      = 0x200,	// REACTION: a near shadow map that draws the world from its mesh on the card (RB_DrawSunCasters)
+	VPF_SUN             = 0x400	// REACTION: a shadow map of the sun (R_RenderSunShadowMaps)
 } viewParmFlags_t;
 
 typedef struct {
@@ -1201,6 +1224,12 @@ typedef struct {
 	byte		*lightGridData;
 	uint16_t	*lightGrid16;
 
+	// REACTION: the light in the air from six sides, on a grid of its own (R_LoadLightCube); NULL without one
+	float		*lightCube;			// LIGHT_SIDES of rgb a point, 0-255 as a model's ambientLight; all 0 inside a wall
+	vec3_t		lightCubeOrigin;
+	vec3_t		lightCubeInverseSize;
+	int			lightCubeBounds[3];
+
 
 	int			numClusters;
 	int			clusterBytes;
@@ -1208,6 +1237,20 @@ typedef struct {
 
 	char		*entityString;
 	char		*entityParsePoint;
+
+	// REACTION: the map's solid blocks, drawn into the sun's shadow maps only (R_LoadSunBlockers)
+	int			numSunBlockers;
+	srfBspSurface_t	*sunBlockers;
+	struct shader_s	*sunBlockerShader;
+
+	// REACTION: what the sun's near shadow maps draw of the world the same way every frame, as one mesh kept on the
+	// card (R_BuildSunCasters): a run of triangles for each side a shader culls. NULL without one. The world's other
+	// surfaces are listed for the front end (R_AddSunOtherSurfaces).
+	vao_t		*sunCasterVao;
+	int			sunCasterFirstIndex[CT_TWO_SIDED + 1];
+	int			sunCasterNumIndexes[CT_TWO_SIDED + 1];
+	int			numSunOtherSurfaces;
+	int			*sunOtherSurfaces;
 } world_t;
 
 
@@ -1505,6 +1548,9 @@ typedef struct {
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 
 	FBO_t *last2DFBO;
+	// REACTION: where the frame's picture is once RB_PostProcess has left it in another buffer than tr.renderFbo
+	// (RB_PictureFbo); NULL while it is in tr.renderFbo, as at the start of every frame
+	FBO_t *pictureFbo;
 	qboolean    colorMask[4];
 	qboolean    depthFill;
 	float       greyscale;
@@ -1565,6 +1611,8 @@ typedef struct {
 	image_t					*sunShadowDepthImage[4];
 	image_t                 *screenShadowImage;
 	image_t                 *screenSsaoImage;
+	image_t                 *reflectImage;		// REACTION: RB_ScreenReflections
+	image_t                 *depthSmallImage;	// REACTION: the depth at half size with smaller copies, for the ambient occlusion's samples
 	image_t					*hdrDepthImage;
 	image_t                 *renderCubeImage;
 	
@@ -1584,6 +1632,12 @@ typedef struct {
 	FBO_t					*sunShadowFbo[4];
 	FBO_t					*screenShadowFbo;
 	FBO_t					*screenSsaoFbo;
+	FBO_t					*depthSmallFbo;
+	FBO_t					*reflectFbo;
+	// REACTION: from a place in the world to its place in the picture reflectImage was made from, and the frame
+	// that picture was drawn in (RB_ScreenReflections); the next frame's surfaces read the image through it
+	mat4_t					reflectMatrix;
+	int						reflectFrame;
 	FBO_t					*hdrDepthFbo;
 	FBO_t                   *renderCubeFbo;
 
@@ -1599,12 +1653,16 @@ typedef struct {
 	int						lightmapSize;
 	image_t					**lightmaps;
 	image_t					**deluxemaps;
+	image_t					*lightAtlas;		// REACTION: the map's light from a pack (tr_bsp.c), or NULL
+	float					lightAtlasScale;	// brings the atlas's light to the BSP's at this overbright setting
+	qboolean				ultraSun;			// REACTION: this map's sun is drawn in real time: the player has it on, and the map's pack holds its light without the sun (R_LoadLightmaps)
 
 	int						fatLightmapCols;
 	int						fatLightmapRows;
 
 	int                     numCubemaps;
 	cubemap_t               *cubemaps;
+	int                     skyCubemap;		// REACTION: the probe of the map's sky, as a cubemapIndex (from 1), or 0 (tr_bsp.c)
 
 	trRefEntity_t			*currentEntity;
 	trRefEntity_t			worldEntity;		// point currentEntity at this when rendering world
@@ -1628,6 +1686,9 @@ typedef struct {
 	shaderProgram_t calclevels4xShader[2];
 	shaderProgram_t shadowmaskShader;
 	shaderProgram_t ssaoShader;
+	shaderProgram_t hazeShader;	// REACTION: r_haze
+	shaderProgram_t reflectShader;	// REACTION: r_screenReflections
+	shaderProgram_t depthOnlyShader;	// REACTION: the world's solid surfaces in a depth-only pass
 	shaderProgram_t depthBlurShader[4];
 	shaderProgram_t testcubeShader;
 	shaderProgram_t greyscaleShader;
@@ -1657,6 +1718,10 @@ typedef struct {
 	vec3_t					sunDirection;
 	vec3_t                  lastCascadeSunDirection;
 	float                   lastCascadeSunMvp[16];
+	// REACTION: the one shader every plain caster is drawn with
+	struct shader_s         *shadowCaster[3];	// by cullType_t
+	struct shader_s         *sunBlockerShader;	// REACTION: R_LoadSunBlockers
+	qboolean                wholeMapView;		// while the map-wide shadow map is drawn
 
 	frontEndCounters_t		pc;
 	int						frontEndMsec;		// not in pc due to clearing issue
@@ -1752,7 +1817,7 @@ extern cvar_t	*r_displayRefresh;		// optional display refresh option
 extern  cvar_t  *r_ext_framebuffer_object;
 extern  cvar_t  *r_ext_texture_float;
 extern  cvar_t  *r_ext_framebuffer_multisample;
-extern  cvar_t  *r_arb_seamless_cube_map;
+extern  cvar_t  *r_ext_texture_compression_bptc;
 extern  cvar_t  *r_arb_vertex_array_object;
 extern  cvar_t  *r_ext_direct_state_access;
 
@@ -1850,6 +1915,12 @@ extern  cvar_t  *r_shadowMapSize;
 extern  cvar_t  *r_shadowCascadeZNear;
 extern  cvar_t  *r_shadowCascadeZFar;
 extern  cvar_t  *r_shadowCascadeZBias;
+extern  cvar_t  *r_ultraShadows;
+extern  cvar_t  *r_bloom;
+extern  cvar_t  *r_grade;
+extern  cvar_t  *r_haze;
+extern  cvar_t  *r_reflections;
+extern  cvar_t  *r_screenReflections;
 extern  cvar_t  *r_ignoreDstAlpha;
 
 extern	cvar_t	*r_greyscale;
@@ -1918,7 +1989,11 @@ void R_AddPolygonSurfaces( void );
 void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, 
 					 int *fogNum, int *dlightMap, int *pshadowMap );
 
-void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, 
+qboolean R_ShaderIsPlainSolid( const shader_t *shader );
+qboolean R_ShaderCastsSunShadow( const shader_t *shader );
+void R_AddSunBlockers( void );	// REACTION
+void R_AddSunOtherSurfaces( void );	// REACTION (tr_world.c)
+void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 				   int fogIndex, int dlightMap, int pshadowMap, int cubemap );
 
 void R_CalcTexDirs(vec3_t sdir, vec3_t tdir, const vec3_t v1, const vec3_t v2,
@@ -2273,6 +2348,7 @@ GLSL
 
 void GLSL_InitGPUShaders(void);
 void GLSL_ShutdownGPUShaders(void);
+qboolean GLSL_FastLight(void);	// REACTION
 void GLSL_VertexAttribPointers(uint32_t attribBits);
 void GLSL_BindProgram(shaderProgram_t * program);
 

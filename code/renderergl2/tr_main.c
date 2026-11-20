@@ -1478,22 +1478,66 @@ static void R_RadixSort( drawSurf_t *source, int size )
 
 /*
 =================
+R_ShaderIsPlainSolid
+
+REACTION: whether a depth-only pass draws a surface of this shader as it draws any other plain solid one. Such a
+pass draws a shader's first stage alone and no colour, so what could make a difference is all in this list: a
+vertex deform, a depth offset, an alpha test, a depth state of its own, the sky's or a portal's own drawing. Two
+such shaders still differ in the side they cull (cullType), which the caller compares.
+=================
+*/
+qboolean R_ShaderIsPlainSolid( const shader_t *shader ) {
+	return shader->sort == SS_OPAQUE && !shader->numDeforms && !shader->polygonOffset && !shader->isSky && !shader->isPortal
+		&& shader->stages[0] && shader->stages[0]->glslShaderGroup == tr.lightallShader
+		&& !(shader->stages[0]->stateBits & GLS_ATEST_BITS)
+		&& (shader->stages[0]->stateBits & (GLS_DEPTHMASK_TRUE | GLS_DEPTHFUNC_BITS | GLS_DEPTHTEST_DISABLE)) == GLS_DEPTHMASK_TRUE;
+}
+
+/*
+=================
+R_ShaderCastsSunShadow
+
+REACTION: whether a surface of this shader goes into the sun's shadow maps. A lit fixture, marked in its map's texture
+script with surfaceparm nosunshadow (a street lamp's head and pole), does not: its shadow would fall into the light it
+gives. Asked wherever a surface enters those maps: the world's mesh
+(R_BuildSunCasters), the solid blocks (R_BrushBlocksSun) and a sun view's surfaces (R_AddDrawSurf). It is still drawn
+and lit, and other things' shadows still fall on it.
+=================
+*/
+qboolean R_ShaderCastsSunShadow( const shader_t *shader ) {
+	return !shader->noSunShadow;
+}
+
+/*
+=================
 R_AddDrawSurf
 =================
 */
-void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, 
+void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 				   int fogIndex, int dlightMap, int pshadowMap, int cubemap ) {
 	int			index;
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
 	index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
+	if ((tr.viewParms.flags & VPF_SUN) && !R_ShaderCastsSunShadow(shader))
+		return;
+	// REACTION: a shadow map holds depth only, so every plain solid surface is drawn alike whatever its shader, and
+	// all of them go in under the first such shader of their facing: one batch a map, not one a material.
+	if ((tr.viewParms.flags & VPF_DEPTHSHADOW) && r_ultraShadows->integer && R_ShaderIsPlainSolid(shader))
+	{
+		if (!tr.shadowCaster[shader->cullType])
+			tr.shadowCaster[shader->cullType] = shader;
+		shader = tr.shadowCaster[shader->cullType];
+	}
+
 	// the sort data is packed into a single 32 bit value so it can be
 	// compared quickly during the qsorting process
 	tr.refdef.drawSurfs[index].sort = (shader->sortedIndex << QSORT_SHADERNUM_SHIFT) 
 		| tr.shiftedEntityNum | ( fogIndex << QSORT_FOGNUM_SHIFT ) 
 		| ((int)pshadowMap << QSORT_PSHADOW_SHIFT) | (int)dlightMap;
-	tr.refdef.drawSurfs[index].cubemapIndex = cubemap;
+	// REACTION: a shadow map holds depth only, so a probe there does nothing but split its batches
+	tr.refdef.drawSurfs[index].cubemapIndex = (tr.viewParms.flags & (VPF_SHADOWMAP | VPF_DEPTHSHADOW)) ? 0 : cubemap;
 	tr.refdef.drawSurfs[index].surface = surface;
 	tr.refdef.numDrawSurfs++;
 }
@@ -1591,6 +1635,12 @@ static void R_AddEntitySurface (int entityNum)
 	// mirrors, because the true body position will already be drawn
 	//
 	if ( (ent->e.renderfx & RF_FIRST_PERSON) && (tr.viewParms.flags & VPF_NOVIEWMODEL)) {
+		return;
+	}
+
+	// REACTION: what the game marks as casting no shadow in the sun stays out of the sun's shadow maps, the only
+	// views drawn straight on (VPF_ORTHOGRAPHIC)
+	if ( (ent->e.renderfx & RF_NO_SUN_SHADOW) && (tr.viewParms.flags & VPF_ORTHOGRAPHIC) ) {
 		return;
 	}
 
@@ -2304,7 +2354,8 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 	// Make up a projection
 	VectorScale(lightDir, -1.0f, lightViewAxis[0]);
 
-	if (level == 3 || lightViewIndependentOfCameraView)
+	// REACTION: the three near shadow maps keep the world's own directions, so their texels do not turn with the view
+	if (level == 3 || lightViewIndependentOfCameraView || r_ultraShadows->integer)
 	{
 		// Use world up as light view up
 		VectorSet(lightViewAxis[2], 0, 0, 1);
@@ -2324,7 +2375,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 	// Check if too close to parallel to light direction
 	if (fabsf(DotProduct(lightViewAxis[2], lightViewAxis[0])) > 0.9f)
 	{
-		if (level == 3 || lightViewIndependentOfCameraView)
+		if (level == 3 || lightViewIndependentOfCameraView || r_ultraShadows->integer)
 		{
 			// Use world left as light view up
 			VectorSet(lightViewAxis[2], 0, 1, 0);
@@ -2473,6 +2524,36 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 			AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 		}
 
+		// REACTION: a near shadow map is a box of a fixed size around the eye, laid on a grid fixed in the world.
+		// Fitted to a slice of the view it changed size and slid under the world as the view turned, and every shadow
+		// edge crawled; centred ahead of the eye it still swept over the map with every turn, and far shadows changed
+		// map, and so sharpness, as it passed. Around the eye, which map a point falls in depends on where the player
+		// stands and never on where the player looks.
+		if (level != 3 && r_ultraShadows->integer)
+		{
+			static const float cascadeRadius[3] = { 256.0f, 640.0f, 1536.0f };   // game units; the map-wide one takes over beyond
+			vec4_t centre, lightCentre, worldZero, lightZero;
+			float radius = cascadeRadius[level];
+			float texel = 2.0f * radius / tr.sunShadowFbo[level]->width;
+			int axis;
+
+			VectorCopy(fd->vieworg, centre);
+			centre[3] = 1;
+			Mat4Transform(lightViewMatrix, centre, lightCentre);
+			VectorSet4(worldZero, 0, 0, 0, 1);
+			Mat4Transform(lightViewMatrix, worldZero, lightZero);   // the light view starts at the eye; the grid starts at the world's origin
+
+			lightviewBounds[0][0] = lightCentre[0] - radius;
+			lightviewBounds[1][0] = lightCentre[0] + radius;
+			for (axis = 1; axis < 3; axis++)
+			{
+				float onGrid = floor((lightCentre[axis] - lightZero[axis]) / texel) * texel + lightZero[axis];
+
+				lightviewBounds[0][axis] = onGrid - radius;
+				lightviewBounds[1][axis] = onGrid + radius;
+			}
+		}
+
 		if (!glRefConfig.depthClamp)
 			lightviewBounds[0][0] = lightviewBounds[1][0] - 8192;
 
@@ -2531,7 +2612,10 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		if (glRefConfig.framebufferObject)
 			shadowParms.targetFbo = tr.sunShadowFbo[level];
 
-		shadowParms.flags = VPF_DEPTHSHADOW | VPF_DEPTHCLAMP | VPF_ORTHOGRAPHIC | VPF_NOVIEWMODEL;
+		shadowParms.flags = VPF_DEPTHSHADOW | VPF_DEPTHCLAMP | VPF_ORTHOGRAPHIC | VPF_NOVIEWMODEL | VPF_SUN;
+		// REACTION: a near map draws the world from its mesh on the card
+		if (level != 3 && r_ultraShadows->integer && tr.world->sunCasterVao && r_drawworld->integer)
+			shadowParms.flags |= VPF_SUNCASTERS;
 		shadowParms.zFar = lightviewBounds[1][0];
 
 		VectorCopy(lightOrigin, shadowParms.or.origin);
@@ -2541,6 +2625,12 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		VectorCopy(lightViewAxis[2], shadowParms.or.axis[2]);
 
 		VectorCopy(lightOrigin, shadowParms.pvsOrigin );
+
+		// REACTION: the map-wide shadow map is drawn once and kept, so it holds the whole world and nothing that
+		// moves. Seen from the light grid's corner it held only what that spot's cluster sees, and it kept the shadow of
+		// whoever stood in the map on its first frame.
+		if (level == 3 && r_ultraShadows->integer)
+			VectorSet(shadowParms.pvsOrigin, 0, 0, 262144.0f);   // above every map (they end at 65536): no cluster, so every leaf
 
 		{
 			tr.viewCount++;
@@ -2558,16 +2648,65 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 
 			R_SetupProjectionOrtho(&tr.viewParms, lightviewBounds);
 
-			R_AddWorldSurfaces ();
+			if (level == 3 && r_ultraShadows->integer)
+			{
+				tr.wholeMapView = qtrue;
+				R_AddWorldSurfaces ();
+				R_AddSunBlockers ();
+				tr.wholeMapView = qfalse;
+				tr.visClusters[tr.visIndex] = -2;   // its leaves were marked through every door: no later view may reuse them
+			}
+			else
+			{
+				if (tr.viewParms.flags & VPF_SUNCASTERS)
+				{
+					// the plain solid surfaces and the blocks are in the mesh (RB_DrawSunCasters)
+					R_AddSunOtherSurfaces ();
+				}
+				else
+				{
+					R_AddWorldSurfaces ();
+					R_AddSunBlockers ();
+				}
 
-			R_AddPolygonSurfaces();
+				R_AddPolygonSurfaces();
 
-			R_AddEntitySurfaces ();
+				R_AddEntitySurfaces ();
+			}
 
 			R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
 		}
 
 		Mat4Multiply(tr.viewParms.projectionMatrix, tr.viewParms.world.modelMatrix, tr.refdef.sunShadowMvp[level]);
+	}
+}
+
+/*
+=================
+R_AddSunBlockers
+
+REACTION: the map's solid blocks (R_LoadSunBlockers, tr_bsp.c), into the shadow map being drawn: those its box
+holds, or all of them for the map-wide one.
+=================
+*/
+void R_AddSunBlockers( void )
+{
+	int i;
+
+	if (!r_ultraShadows->integer || !tr.world || !tr.world->numSunBlockers)
+		return;
+
+	tr.currentEntityNum = REFENTITYNUM_WORLD;
+	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
+
+	for (i = 0; i < tr.world->numSunBlockers; i++)
+	{
+		srfBspSurface_t *blocker = &tr.world->sunBlockers[i];
+
+		if (!tr.wholeMapView && R_CullBox(blocker->cullBounds) == CULL_OUT)
+			continue;
+
+		R_AddDrawSurf((surfaceType_t *)blocker, tr.world->sunBlockerShader, 0, 0, 0, 0);
 	}
 }
 

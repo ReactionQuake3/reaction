@@ -343,6 +343,25 @@ static void R_AddWorldSurface( msurface_t *surf, int dlightBits, int pshadowBits
 }
 
 /*
+=================
+R_AddSunOtherSurfaces
+
+REACTION: for a near shadow map that draws the world from its mesh on the card (VPF_SUNCASTERS): the world's
+surfaces that are not in that mesh, each culled against the map's box as any surface is.
+=================
+*/
+void R_AddSunOtherSurfaces( void ) {
+	int i;
+
+	tr.currentEntityNum = REFENTITYNUM_WORLD;
+	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
+
+	for ( i = 0; i < tr.world->numSunOtherSurfaces; i++ ) {
+		R_AddWorldSurface( tr.world->surfaces + tr.world->sunOtherSurfaces[i], 0, 0 );
+	}
+}
+
+/*
 =============================================================
 
 	BRUSH MODELS
@@ -718,7 +737,8 @@ static void R_MarkLeaves (void) {
 		}
 
 		// check for door connection
-		if ( (tr.refdef.areamask[leaf->area>>3] & (1<<(leaf->area&7)) ) ) {
+		// REACTION: not for the map-wide shadow map, which is drawn once and must hold what is behind a door that is shut then
+		if ( !tr.wholeMapView && (tr.refdef.areamask[leaf->area>>3] & (1<<(leaf->area&7)) ) ) {
 			continue;		// not visible
 		}
 
