@@ -5380,6 +5380,21 @@ void Item_Slider_Paint(itemDef_t * item)
 		pt.x -= (SLIDER_THUMB_WIDTH / 2);
 		DC->setColor(newColor);
 		DC->drawHandlePic(pt.x, pt.y, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb);
+		// REACTION: showNumber: the whole number a setting read as an integer takes (atoi, as the engine fills
+		// vmCvar_t.integer), kept to the bar's range as the thumb is, right of the bar and level with its label
+		if ((item->window.flags & WINDOW_SHOWNUMBER) && item->cvar) {
+			char buff[32];
+			int number;
+
+			DC->getCVarString(item->cvar, buff, sizeof(buff));
+			number = atoi(buff);
+			if (number > (int) editDef->maxVal)
+				number = (int) editDef->maxVal;
+			else if (number < (int) editDef->minVal)
+				number = (int) editDef->minVal;
+			DC->drawText(x + SLIDER_WIDTH + SLIDER_THUMB_WIDTH / 2 + 4, item->text ? item->textRect.y : y + SLIDER_HEIGHT,
+				item->textscale, newColor, va("%i", number), 0, 0, 0, item->textStyle, qfalse);
+		}
 	}
 }
 
@@ -7365,6 +7380,13 @@ qboolean ItemParse_decoration(itemDef_t * item, int handle)
 	return qtrue;
 }
 
+// REACTION: showNumber
+qboolean ItemParse_showNumber(itemDef_t * item, int handle)
+{
+	item->window.flags |= WINDOW_SHOWNUMBER;
+	return qtrue;
+}
+
 // notselectable
 qboolean ItemParse_notselectable(itemDef_t * item, int handle)
 {
@@ -8161,6 +8183,7 @@ keywordHash_t itemParseKeywords[] = {
 	{"maxPaintChars", ItemParse_maxPaintChars, NULL},
 	{"focusSound", ItemParse_focusSound, NULL},
 	{"cvarFloat", ItemParse_cvarFloat, NULL},
+	{"showNumber", ItemParse_showNumber, NULL},
 	{"cvarStrList", ItemParse_cvarStrList, NULL},
 	{"cvarFloatList", ItemParse_cvarFloatList, NULL},
 	{"addColorRange", ItemParse_addColorRange, NULL},
@@ -8709,6 +8732,15 @@ qboolean MenuParse_ownerdraw(itemDef_t * item, int handle)
 	return qtrue;
 }
 
+// REACTION: drawAlone
+qboolean MenuParse_drawAlone(itemDef_t * item, int handle)
+{
+	menuDef_t *menu = (menuDef_t *) item;
+
+	menu->window.flags |= WINDOW_DRAWALONE;
+	return qtrue;
+}
+
 // decoration
 qboolean MenuParse_popup(itemDef_t * item, int handle)
 {
@@ -8858,6 +8890,7 @@ keywordHash_t menuParseKeywords[] = {
 	{"itemDef", MenuParse_itemDef, NULL},
 	{"cinematic", MenuParse_cinematic, NULL},
 	{"popup", MenuParse_popup, NULL},
+	{"drawAlone", MenuParse_drawAlone, NULL},
 	{"fadeClamp", MenuParse_fadeClamp, NULL},
 	{"fadeCycle", MenuParse_fadeCycle, NULL},
 	{"fadeAmount", MenuParse_fadeAmount, NULL},
@@ -8948,7 +8981,7 @@ int Menu_Count( void )
 
 void Menu_PaintAll( void )
 {
-	int i;
+	int i, first;
 
 	if (captureFunc) {
 		captureFunc(captureData);
@@ -8958,7 +8991,13 @@ void Menu_PaintAll( void )
 	//for (i = 0; i < Menu_Count(); i++) {
 	//	Menu_Paint(&Menus[i], qfalse);
 	//}
-	for (i = 0; i < openMenuCount; i++) {
+	// REACTION: a drawAlone menu on top is drawn without the menus under it, so the game behind shows; a full-screen
+	// menu has no game behind it, and then all are drawn as before
+	first = 0;
+	if (openMenuCount > 0 && (menuStack[openMenuCount - 1]->window.flags & WINDOW_DRAWALONE) && !Menus_AnyFullScreenVisible()) {
+		first = openMenuCount - 1;
+	}
+	for (i = first; i < openMenuCount; i++) {
 		Menu_Paint(menuStack[i], qfalse);
 	}
 

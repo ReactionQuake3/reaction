@@ -3011,8 +3011,14 @@ static void CG_SetupPostProcess( void )
 	if (CG_UsesIRVision())
 		cg.refdefex.blurFactor += 0.75f;
 
-	if (trap_Key_GetCatcher() & KEYCATCH_UI)
-		cg.refdefex.blurFactor += 1.f;
+	if (trap_Key_GetCatcher() & KEYCATCH_UI) {
+		// REACTION: not behind the View screen, where the gun and the picture are watched while a bar moves
+		if (!cg_RQ3_viewPreview.integer)
+			cg.refdefex.blurFactor += 1.f;
+	} else if (cg_RQ3_viewPreview.integer) {
+		// no menu is open, so the View screen is not: a flag left set, by hand or by a ui that ended, is cleared
+		trap_Cvar_Set("cg_RQ3_viewPreview", "0");
+	}
 
 	cg.refdefex.blurFactor = Com_Clamp(0.f, 1.f, cg.refdefex.blurFactor);
 

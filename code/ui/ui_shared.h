@@ -125,6 +125,10 @@
 #define WINDOW_MENU_ANCHOR			0x08000000
 //Makro - window is fullscreen
 #define WINDOW_FULLSCREEN			0x10000000
+// REACTION: while this menu is on top, the menus under it are not drawn (the View screen shows the game behind it)
+#define WINDOW_DRAWALONE			0x20000000
+// REACTION: a level slider shows the whole number its setting is read as, right of the bar
+#define WINDOW_SHOWNUMBER			0x40000000
 
 // CGAME cursor type bits
 #define CURSOR_NONE					0x00000001
