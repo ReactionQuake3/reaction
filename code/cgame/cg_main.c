@@ -609,6 +609,8 @@ vmCvar_t cg_RQ3_autoAction;
 
 //Elder: smoke puffs, sparks, etc.
 vmCvar_t cg_RQ3_impactEffects;
+// the animated smoke from a gun and where its bullets hit a wall; off, the plain puff
+vmCvar_t cg_RQ3_gunSmoke;
 
 //Elder: toggle client-side laser drawing
 vmCvar_t cg_RQ3_laserAssist;
@@ -911,6 +913,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_SuicideLikeARealMan, "cg_RQ3_SuicideLikeARealMan", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 	{&cg_RQ3_dynamicRadio, "cg_RQ3_dynamicRadio", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE},
+	{&cg_RQ3_gunSmoke, "cg_RQ3_gunSmoke", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_anouncer, "cg_RQ3_announcer", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_bloodStyle, "cg_RQ3_bloodStyle", "0", CVAR_ARCHIVE},

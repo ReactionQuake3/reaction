@@ -393,6 +393,13 @@ void CG_AddFadeRGB(localEntity_t * le)
 	trap_R_AddRefEntityToScene(re);
 }
 
+// REACTION: the animated gun smoke (LEF_GUN_SMOKE, cg_RQ3_gunSmoke) against the plain puff it replaces: its share of the
+// plain puff's size (about half the area) and of its light at the start (three quarters). Its shader adds its light and
+// takes no alpha, so it fades out through its colour; the alpha fade the plain puff takes left it at full brightness
+// until it vanished.
+#define GUN_SMOKE_SIZE	0.71f
+#define GUN_SMOKE_LIGHT	0.75f
+
 /*
 ==================
 CG_AddMoveScaleFade
@@ -404,6 +411,7 @@ static void CG_AddMoveScaleFade(localEntity_t * le)
 	float c;
 	vec3_t delta;
 	float len;
+	float light;
 
 	re = &le->refEntity;
 
@@ -419,6 +427,14 @@ static void CG_AddMoveScaleFade(localEntity_t * le)
 
 	if (!(le->leFlags & LEF_PUFF_DONT_SCALE)) {
 		re->radius = le->radius * (1.0 - c) + 8;
+	}
+
+	if (le->leFlags & LEF_GUN_SMOKE) {
+		light = 0xff * c * GUN_SMOKE_LIGHT;
+		re->shaderRGBA[0] = light * le->color[0];
+		re->shaderRGBA[1] = light * le->color[1];
+		re->shaderRGBA[2] = light * le->color[2];
+		re->radius = ((le->leFlags & LEF_PUFF_DONT_SCALE) ? le->radius : re->radius) * GUN_SMOKE_SIZE;
 	}
 
 	CG_EvaluateTrajectory(&le->pos, cg.time, re->origin);

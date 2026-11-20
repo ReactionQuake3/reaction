@@ -1293,6 +1293,24 @@ static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
 
 /*
 =============
+CG_GunSmokePuff
+
+The smoke of a gun and of its bullets on a wall (cg_RQ3_gunSmoke): CG_SmokePuff's puff. Off, the plain puff as given.
+On, the animated smoke, which CG_AddMoveScaleFade draws smaller and fainter than the plain puff (LEF_GUN_SMOKE).
+=============
+*/
+localEntity_t *CG_GunSmokePuff(const vec3_t p, const vec3_t vel, float radius, float r, float g, float b, float a,
+			       float duration, int startTime, int fadeInTime, int leFlags)
+{
+	if (!cg_RQ3_gunSmoke.integer)
+		return CG_SmokePuff(p, vel, radius, r, g, b, a, duration, startTime, fadeInTime, leFlags,
+				    cgs.media.shotgunSmokePuffShader);
+	return CG_SmokePuff(p, vel, radius, r, g, b, a, duration, startTime, fadeInTime, leFlags | LEF_GUN_SMOKE,
+			    cgs.media.smokePuffAnimShader);
+}
+
+/*
+=============
 CG_AddPlayerWeapon
 
 Used for both the view weapon (ps is valid) and the world modelother character models (ps is NULL)
@@ -1508,8 +1526,7 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 			for (i=0; i<NUM_SILENCER_PUFFS; i++)
 			{
 				VectorScale(silencer.axis[1], -(20+random()*50), up);
-				smoke[i] = CG_SmokePuff(silencerEnd, up, 0.2f, 1, 1, 1, 0.25f+crandom()*0.1f, 200+random()*200, cg.time, 0, 0,
-						 cgs.media.shotgunSmokePuffShader);
+				smoke[i] = CG_GunSmokePuff(silencerEnd, up, 0.2f, 1, 1, 1, 0.25f+crandom()*0.1f, 200+random()*200, cg.time, 0, 0);
 				smoke[i]->leType = LE_MOVE_SCALE_FADE;
 				smoke[i]->lifeRate = 0.75 / (smoke[i]->endTime - smoke[i]->startTime);
 			}
@@ -2784,8 +2801,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 			{
 				VectorScale(dir, speed + crandom() * 8, puffDir);
 				//VectorScale(silencer.axis[1], -(20+random()*50), up);
-				smokePuff = CG_SmokePuff(origin, puffDir, size+random()*size, .8f, .8f, .8f, 0.3f+crandom()*0.1f, 300+random()*150, cg.time-random()*100, cg.time+random()*200, 0,
-					cgs.media.shotgunSmokePuffShader);
+				smokePuff = CG_GunSmokePuff(origin, puffDir, size+random()*size, .8f, .8f, .8f, 0.3f+crandom()*0.1f, 300+random()*150, cg.time-random()*100, cg.time+random()*200, 0);
 				smokePuff->leType = LE_MOVE_SCALE_FADE;
 				smokePuff->lifeRate = 1.0f / (smokePuff->endTime - smokePuff->startTime);
 			}
@@ -3150,8 +3166,7 @@ void CG_ShotgunFire(entityState_t * es, qboolean ism3)
 		contents = trap_CM_PointContents(es->pos.trBase, 0);
 		if (!(contents & CONTENTS_WATER)) {
 			VectorSet(up, 0, 0, 8);
-			CG_SmokePuff(v, up, 32, 1, 1, 1, 0.33f, 900, cg.time, 0, LEF_PUFF_DONT_SCALE,
-				     cgs.media.shotgunSmokePuffShader);
+			CG_GunSmokePuff(v, up, 32, 1, 1, 1, 0.33f, 900, cg.time, 0, LEF_PUFF_DONT_SCALE);
 		}
 	}
 	//Elder: note param changes
