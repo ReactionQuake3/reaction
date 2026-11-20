@@ -175,8 +175,7 @@ of setting the right origin and angles.
 				contents = trap_CM_PointContents(muzzlePoint, 0);
 				if (!(contents & CONTENTS_WATER)) {
 					VectorSet(up, 0, 0, 8);
-					CG_SmokePuff(v, up, 32, 1, 1, 1, 0.33f, 900, cg.time, 0, LEF_PUFF_DONT_SCALE,
-						     CG_GunSmokeShader());
+					CG_GunSmokePuff(v, up, 32, 1, 1, 1, 0.33f, 900, cg.time, 0, LEF_PUFF_DONT_SCALE);
 				}
 			}
 			// do the shotgun pellets

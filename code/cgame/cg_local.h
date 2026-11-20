@@ -675,7 +675,8 @@ typedef enum {
 	LEF_STEAM = 0x0010,	// NiceAss: For pressure entities
 	LEF_FLAME = 0x0020,
 	LEF_AIR = 0x0040,
-	LEF_WATER = 0x0080
+	LEF_WATER = 0x0080,
+	LEF_GUN_SMOKE = 0x0100	// REACTION: the animated gun smoke (cg_RQ3_gunSmoke, CG_GunSmokePuff)
 } leFlag_t;
 
 typedef enum {
@@ -2298,7 +2299,8 @@ void CG_ReloadWeapon(centity_t * cent, int reloadStage);	//Elder: added
 void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int weapModification);	//Elder: added weapMod
 void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum);
 void CG_ShotgunFire(entityState_t * es, qboolean ism3);
-qhandle_t CG_GunSmokeShader(void);
+localEntity_t *CG_GunSmokePuff(const vec3_t p, const vec3_t vel, float radius, float r, float g, float b, float a,
+			       float duration, int startTime, int fadeInTime, int leFlags);
 void CG_Bullet(vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum,
 	       impactSound_t soundType);
 
