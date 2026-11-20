@@ -966,7 +966,7 @@ void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int 
 	CG_EvaluateTrajectoryEx(cent, toTime, origin, angles);
 
 	VectorSubtract(origin, oldOrigin, deltaOrigin);
-	//VectorSubtract(angles, oldAngles, deltaAngles);
+	VectorSubtract(angles, oldAngles, deltaAngles);
 
 	VectorAdd(in, deltaOrigin, out);
 	

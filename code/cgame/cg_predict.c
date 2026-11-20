@@ -583,6 +583,70 @@ static float CG_StepUpSince(const playerState_t * ps, int eventSequence)
 
 /*
 =================
+CG_CheckPredictionError
+
+The prediction has reached the time the last frame's prediction reached
+(oldPlayerState): a difference between the two is a prediction error, which
+decays off over cg_errorDecay instead of jumping the view
+=================
+*/
+static void CG_CheckPredictionError(const playerState_t * oldPlayerState)
+{
+	vec3_t delta;
+	float len;
+
+	if (cg.thisFrameTeleport) {
+		// a teleport will not cause an error decay
+		VectorClear(cg.predictedError);
+		if (cg_showmiss.integer) {
+			CG_Printf("PredictionTeleport\n");
+		}
+		cg.thisFrameTeleport = qfalse;
+	} else {
+		vec3_t adjusted;
+
+		// REACTION: positions only. The check turned the predicted yaw with the mover as well, which the next
+		// command's move overwrote; with no move after it (a frame without a command, a dead player) the frame's
+		// own mover adjustment turned it a second time
+		CG_AdjustPositionForMover(cg.predictedPlayerState.origin,
+					  cg.predictedPlayerState.groundEntityNum, cg.physicsTime,
+					  cg.oldTime, adjusted, NULL);
+
+		if (cg_showmiss.integer) {
+			if (!VectorCompare(oldPlayerState->origin, adjusted)) {
+				CG_Printf("prediction error\n");
+			}
+		}
+		VectorSubtract(oldPlayerState->origin, adjusted, delta);
+		len = VectorLength(delta);
+		if (len > 0.1) {
+			if (cg_showmiss.integer) {
+				CG_Printf("Prediction miss: %f\n", len);
+			}
+			if (cg_errorDecay.integer) {
+				int t;
+				float f;
+
+				t = cg.time - cg.predictedErrorTime;
+				f = (cg_errorDecay.value - t) / cg_errorDecay.value;
+				if (f < 0) {
+					f = 0;
+				}
+				if (f > 0 && cg_showmiss.integer) {
+					CG_Printf("Double prediction decay: %f\n", f);
+				}
+				VectorScale(cg.predictedError, f, cg.predictedError);
+			} else {
+				VectorClear(cg.predictedError);
+			}
+			VectorAdd(delta, cg.predictedError, cg.predictedError);
+			cg.predictedErrorTime = cg.oldTime;
+		}
+	}
+}
+
+/*
+=================
 CG_PredictPlayerState
 
 Generates cg.predictedPlayerState for the current cg.time
@@ -769,61 +833,7 @@ void CG_PredictPlayerState(void)
 		// to predict several commands to get to the point
 		// we want to compare
 		if (cg.predictedPlayerState.commandTime == oldPlayerState.commandTime) {
-			vec3_t delta;
-			float len;
-
-			if (cg.thisFrameTeleport) {
-				// a teleport will not cause an error decay
-				VectorClear(cg.predictedError);
-				if (cg_showmiss.integer) {
-					CG_Printf("PredictionTeleport\n");
-				}
-				cg.thisFrameTeleport = qfalse;
-			} else {
-				vec3_t adjusted;
-
-				//Makro - made it so that angles get adjusted, too
-				{
-					vec3_t angles;
-					VectorCopy(cg.predictedPlayerState.viewangles, angles);
-					CG_AdjustPositionForMover(cg.predictedPlayerState.origin,
-								  cg.predictedPlayerState.groundEntityNum, cg.physicsTime,
-								  cg.oldTime, adjusted, angles);
-					// only YAW for players, though
-					cg.predictedPlayerState.viewangles[YAW] = angles[YAW];
-				}
-
-				if (cg_showmiss.integer) {
-					if (!VectorCompare(oldPlayerState.origin, adjusted)) {
-						CG_Printf("prediction error\n");
-					}
-				}
-				VectorSubtract(oldPlayerState.origin, adjusted, delta);
-				len = VectorLength(delta);
-				if (len > 0.1) {
-					if (cg_showmiss.integer) {
-						CG_Printf("Prediction miss: %f\n", len);
-					}
-					if (cg_errorDecay.integer) {
-						int t;
-						float f;
-
-						t = cg.time - cg.predictedErrorTime;
-						f = (cg_errorDecay.value - t) / cg_errorDecay.value;
-						if (f < 0) {
-							f = 0;
-						}
-						if (f > 0 && cg_showmiss.integer) {
-							CG_Printf("Double prediction decay: %f\n", f);
-						}
-						VectorScale(cg.predictedError, f, cg.predictedError);
-					} else {
-						VectorClear(cg.predictedError);
-					}
-					VectorAdd(delta, cg.predictedError, cg.predictedError);
-					cg.predictedErrorTime = cg.oldTime;
-				}
-			}
+			CG_CheckPredictionError(&oldPlayerState);
 		}
 		// don't predict gauntlet firing, which is only supposed to happen
 		// when it actually inflicts damage
@@ -907,7 +917,15 @@ void CG_PredictPlayerState(void)
 		if (cg_showmiss.integer) {
 			CG_Printf("not moved\n");
 		}
-		return;
+		// REACTION: no command was newer than the snapshot. While the client draws between movement ticks that
+		// is many frames, as soon as its server has seen every command it made (a server on the same PC). The
+		// prediction is then the snapshot's own state, at the time the last frame's prediction reached: such a
+		// frame does what a frame that replayed commands does, from the error check on. It returned here when
+		// every frame made a command, and kept the snapshot's state without its transition, so the next frame
+		// never played what the snapshot brought (a death scream, damage, a respawn) and left out the mover offset
+		if (cg.predictedPlayerState.commandTime == oldPlayerState.commandTime) {
+			CG_CheckPredictionError(&oldPlayerState);
+		}
 	}
 	// adjust for the movement of the groundentity
 	//Makro - made it so that angles get adjusted, too
