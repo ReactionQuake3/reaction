@@ -1207,6 +1207,9 @@ void trap_R_RemapShader(const char *oldShader, const char *newShader, const char
 qboolean trap_VerifyCDKey(const char *key, const char *chksum);
 
 void trap_SetPbClStatus(int status);
+// where the system pointer is in the window, 0 to 1 each way; only on an engine with cl_menuPointer 1
+// image and heightShare: the pointer picture the system should show, and its size as a share of the screen's height
+int trap_RQ3_GetPointer(float *place, const char *image, float heightShare);
 
 //
 // ui_addbots.c

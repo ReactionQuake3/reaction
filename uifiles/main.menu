@@ -15,7 +15,7 @@
     bigFont "fonts/bigfont" 20				// font
     //cursor "gfx/rq3_ta_hud/3_cursor2.tga"		// cursor
 	cursor UI_ASSETS"/cursor.tga"
-    cursorSize 64
+    cursorSize 32
     gradientBar UI_ASSETS"/gradientbar2.tga"		// gradient bar
     itemFocusSound "sound/ui/whoosh2.wav"		// sound for item getting focus (via keyboard or mouse )
 	

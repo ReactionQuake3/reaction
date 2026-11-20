@@ -235,6 +235,11 @@ typedef int		clipHandle_t;
 
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
+// REACTION: what the client answers a ui that asks where the system pointer is (UI_RQ3_GETPOINTER)
+#define	POINTER_NONE		0	// not following it: the ui moves its own pointer
+#define	POINTER_SHOWN		1	// the system shows its pointer at the place: the ui draws none
+#define	POINTER_PLACE_ONLY	2	// a place without a shown pointer: the ui draws its own there
+
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
 #define	MAX_STRING_TOKENS	1024	// max tokens resulting from Cmd_TokenizeString
 #define	MAX_TOKEN_CHARS		1024	// max length of an individual token

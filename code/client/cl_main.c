@@ -3671,6 +3671,9 @@ void CL_Init( void ) {
 	// REACTION: tells a cgame this client can draw between movement ticks
 	// (CG_RQ3_GETVIEWANGLES); an engine without it lacks that call
 	Cvar_Get( "cl_drawBetweenTicks", "1", CVAR_ROM );
+	// REACTION: tells the ui this engine can say where the system pointer is (UI_RQ3_GETPOINTER); an engine
+	// without it lacks that call
+	Cvar_Get( "cl_menuPointer", "1", CVAR_ROM );
 
 	// ~ and `, as keys and characters
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);

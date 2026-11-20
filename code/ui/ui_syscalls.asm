@@ -101,3 +101,4 @@ equ	sqrt						-107
 equ floor						-108
 equ	ceil						-109
 
+equ trap_RQ3_GetPointer				-514
