@@ -9662,6 +9662,9 @@ static cvarTable_t cvarTable[] = {
 	{&ui_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE},
 	{&ui_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE},
 	{&ui_marks, "cg_marks", "1", CVAR_ARCHIVE},
+	// cgame's own: registered here too, so Game options shows its default before a game has loaded
+	{NULL, "cg_RQ3_gunSmoke", "1", CVAR_ARCHIVE},
+	{NULL, "cg_RQ3_gunHeight", "100", CVAR_ARCHIVE},
 
 	{&ui_server1, "server1", "", CVAR_ARCHIVE},
 	{&ui_server2, "server2", "", CVAR_ARCHIVE},

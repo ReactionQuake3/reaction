@@ -609,6 +609,14 @@ vmCvar_t cg_RQ3_autoAction;
 
 //Elder: smoke puffs, sparks, etc.
 vmCvar_t cg_RQ3_impactEffects;
+// the animated smoke from a gun and where its bullets hit a wall; off, the plain puff
+vmCvar_t cg_RQ3_gunSmoke;
+// how high the player's own gun is drawn: 100 where it always was, lower down to 1, and no gun at 0
+vmCvar_t cg_RQ3_gunHeight;
+// set by the View screen while it is open, so the game behind it is drawn without the menus' blur
+vmCvar_t cg_RQ3_viewPreview;
+// how much the player zooms the picture in: 0 as always, up to 100, the 2004 mod's picture on a 16:9 screen
+vmCvar_t cg_RQ3_viewZoom;
 
 //Elder: toggle client-side laser drawing
 vmCvar_t cg_RQ3_laserAssist;
@@ -911,6 +919,10 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_SuicideLikeARealMan, "cg_RQ3_SuicideLikeARealMan", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 	{&cg_RQ3_dynamicRadio, "cg_RQ3_dynamicRadio", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE},
+	{&cg_RQ3_gunSmoke, "cg_RQ3_gunSmoke", "1", CVAR_ARCHIVE},
+	{&cg_RQ3_gunHeight, "cg_RQ3_gunHeight", "100", CVAR_ARCHIVE},
+	{&cg_RQ3_viewPreview, "cg_RQ3_viewPreview", "0", 0},
+	{&cg_RQ3_viewZoom, "cg_RQ3_viewZoom", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_anouncer, "cg_RQ3_announcer", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_bloodStyle, "cg_RQ3_bloodStyle", "0", CVAR_ARCHIVE},
@@ -1001,6 +1013,8 @@ void CG_RegisterCvars(void)
 	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
 		trap_Cvar_Register(cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags);
 	}
+	// REACTION: a ui that ended with the View screen open (a map load, vid_restart) ran no script to clear its flag
+	trap_Cvar_Set("cg_RQ3_viewPreview", "0");
 
 	// see if we are also running the server on this machine
 	trap_Cvar_VariableStringBuffer("sv_running", var, sizeof(var));

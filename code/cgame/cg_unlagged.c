@@ -176,7 +176,7 @@ of setting the right origin and angles.
 				if (!(contents & CONTENTS_WATER)) {
 					VectorSet(up, 0, 0, 8);
 					CG_SmokePuff(v, up, 32, 1, 1, 1, 0.33f, 900, cg.time, 0, LEF_PUFF_DONT_SCALE,
-						     cgs.media.shotgunSmokePuffShader);
+						     CG_GunSmokeShader());
 				}
 			}
 			// do the shotgun pellets
