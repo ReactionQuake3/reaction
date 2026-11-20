@@ -1591,6 +1591,16 @@ void IN_Shutdown( void )
 
 	IN_ShutdownJoystick( );
 
+	// REACTION: the system pointer's picture (IN_PointerImage) goes with the video system, which a renderer restart
+	// shuts down after this, freeing every cursor: free it here and forget it, so the menus make it again
+	if( pointerCursor )
+	{
+		SDL_FreeCursor( pointerCursor );
+		pointerCursor = NULL;
+	}
+	pointerImageName[0] = '\0';
+	pointerImageSize = 0;
+
 	SDL_window = NULL;
 }
 
